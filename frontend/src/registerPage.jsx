@@ -1,0 +1,113 @@
+import { Logo } from "./siteLogo.jsx";
+import { useState } from "react";
+import { PasswordField } from "./password.jsx";
+import { getPasswordStrength } from "./passwordStrength";
+import { getPasswordIssues } from "./passwordIssues";
+import { useNavigate } from "react-router-dom";
+
+export function Register() {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center 
+      bg-gradient-to-br from-black via-neutral-800 to-yellow-400 px-4"
+    >
+      <h1 className="pt-6">
+        <Logo className="text-2xl mb-10 cursor-default" />
+      </h1>
+
+      <RegisterCard />
+
+      <p className="text-white text-sm mt-4 mb-8">
+        Already have an account?{" "}
+        <span 
+        onClick = {() => navigate("/login")}
+        className="font-semibold cursor-pointer hover:underline decoration-white">
+        Log in
+        </span>
+      </p>
+    </div>
+  );
+}
+
+function RegisterCard() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const passwordStrength = getPasswordStrength(password);
+  const issues = getPasswordIssues(password);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  const isFormValid =
+    name.trim() !== "" &&
+    email.trim() !== "" &&
+    emailRegex.test(email) &&
+    username.trim() !== "" &&
+    passwordStrength.isValid;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log({ name, email, username, password });
+  };
+
+  return (
+    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
+      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+        Register
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <h4 className="text-sm cursor-default">Name</h4>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2
+          focus:outline-none focus:ring-2 focus:ring-gray-400"
+          required
+        />
+
+        <h4 className="text-sm cursor-default">Email</h4>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2
+          focus:outline-none focus:ring-2 focus:ring-gray-400"
+          required
+        />
+
+        <h4 className="text-sm cursor-default">Username</h4>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2
+          focus:outline-none focus:ring-2 focus:ring-gray-400"
+          required
+        />
+
+        <h4 className="text-sm cursor-default">Password</h4>
+        <PasswordField value={password} onChange={setPassword} passwordStrength={passwordStrength} 
+         issues={issues} />
+
+        <button
+          type="submit"
+          disabled={!isFormValid}
+          className="w-full bg-yellow-500 hover:bg-yellow-400 text-white
+          font-medium py-2 rounded-3xl transition disabled:bg-gray-400 disabled:text-gray-700
+          disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+        >
+          Register
+        </button>
+      </form>
+    </div>
+  );
+}

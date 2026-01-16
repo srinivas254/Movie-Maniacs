@@ -1,0 +1,50 @@
+# ========================
+# Build output
+# ========================
+target/
+
+# ========================
+# Maven wrapper
+# ========================
+.mvn/wrapper/maven-wrapper.jar
+
+# ========================
+# IntelliJ / IDEs
+# ========================
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ========================
+# VS Code
+# ========================
+.vscode/
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Logs
+# ========================
+*.log
+
+# ========================
+# Java artifacts
+# ========================
+*.class
+*.jar
+*.war
+*.ear
+
+# ========================
+# Sensitive config (IMPORTANT)
+# ========================
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+src/main/resources/google-oAuthCredentials.json
+src/main/resources/token.json
+src/main/resources/Mail Oauth/
