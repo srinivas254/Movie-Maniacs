@@ -29,9 +29,11 @@ export function HeroSection() {
               Login to Explore
             </button>
 
-            <button className="px-6 py-3 border border-purple-500/40 text-purple-300 rounded-lg hover:bg-purple-500/10 transition">
+            <a href="#features"
+             className="inline-block px-6 py-3 border border-purple-500/40 text-purple-300
+              rounded-lg hover:bg-purple-500/10 transition">
               Preview Features
-            </button>
+            </a>
           </div>
         </div>
 

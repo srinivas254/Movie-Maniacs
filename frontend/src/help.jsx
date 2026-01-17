@@ -14,7 +14,7 @@ export function HelpSection() {
        gap-12 text-sm text-gray-400">
 
         {/* BRAND */}
-        <div className="space-y-4">
+        <div className="hidden md:block space-y-4">
           <h3 className="text-white font-semibold text-base">
             Movie Maniacs
           </h3>
