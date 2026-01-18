@@ -29,13 +29,9 @@ public class User {
     private Role role;
 
     private String bio;
-    private String gender;
 
     private int followersCount;
     private int followingCount;
-    private int postsCount;
-
-    private boolean isPrivate;
 
     private String provider;
     private String providerId;
