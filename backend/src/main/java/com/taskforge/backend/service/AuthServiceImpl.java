@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService{
         otp = String.valueOf(100000 + new Random().nextInt(900000));
 
         mailService.sendMail(userLogin.getEmail(),
-                "OTP for login to Taskforge",
+                "OTP for login to Movie Maniacs",
                 "<p>OTP sent for the login is <b>" + otp + "<b>. It is valid for <b>2<b> minutes");
 
         OtpEntry otpEntry = new OtpEntry(otp, expiryTime, userLogin.getId());

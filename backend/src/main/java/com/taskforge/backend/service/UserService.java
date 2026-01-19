@@ -8,5 +8,5 @@ public interface UserService {
     UserResponseDto findUserById(String id);
     Page<UserResponseDto> findAllUsers(Pageable pageable);
     void deleteUserById(String id);
-    NameUpdateResponseDto updateNameById(String id, String name);
+    ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
 }

@@ -8,30 +8,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class UserResponseDto {
-    private String id;
-    private String userName;
+public class ProfileUpdateRequestDto {
     private String name;
-    private String email;
-
-    private String provider;
-    private String providerId;
-    private String pictureUrl;
-
     private String bio;
-
-    private int followersCount;
-    private int followingCount;
+    private String pictureUrl;
 
     private String instagram;
     private String twitter;
-
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private Gender gender;

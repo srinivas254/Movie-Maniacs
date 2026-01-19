@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class NameUpdateResponseDto {
-    private String name;
+public class ProfileUpdateResponseDto {
     private String message;
+    private String id;
 }

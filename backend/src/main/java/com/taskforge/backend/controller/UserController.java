@@ -3,6 +3,7 @@ package com.taskforge.backend.controller;
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,9 +45,9 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER') && #id == authentication.principal.id")
-    @PatchMapping("/users/{id}")
-    public ResponseEntity<NameUpdateResponseDto> updateNameById(@PathVariable String id,@RequestParam String name){
-        NameUpdateResponseDto updatedUser = userService.updateNameById(id,name);
+    @PutMapping("/users/{id}")
+    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@PathVariable String id,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
+        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(id,profileUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 

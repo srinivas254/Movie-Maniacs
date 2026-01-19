@@ -3,6 +3,7 @@ package com.taskforge.backend.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,11 +15,20 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserRegistrationRequestDto {
     @NotBlank(message = "Name cannot be blank")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
+    @Pattern(
+            regexp = "^[a-zA-Z].*",
+            message = "Name must start with a letter")
     private String name;
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email is invalid")
     private String email;
     @NotBlank(message = "Username cannot be blank")
+    @Size(min = 10, message = "Username must be at least 10 characters long")
+    @Pattern(
+            regexp = "^[a-zA-Z][^@]*$",
+            message = "Username must start with a letter and must not contain '@'"
+    )
     private String userName;
     @NotBlank(message = "Password cannot be blank")
     @Pattern(regexp = "^(?!.*\\s)(?=[a-zA-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{10,}$",

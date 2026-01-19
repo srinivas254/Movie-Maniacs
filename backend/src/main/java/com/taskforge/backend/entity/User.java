@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -28,16 +30,20 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String provider;
+    private String providerId;
+    private String pictureUrl;
+
     private String bio;
 
     private int followersCount;
     private int followingCount;
 
-    private String provider;
-    private String providerId;
-    private String pictureUrl;
+    private String instagram;
+    private String twitter;
 
-    @Embedded
-    private SocialLinks socialLinks;
+    private LocalDate dateOfBirth;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }
 

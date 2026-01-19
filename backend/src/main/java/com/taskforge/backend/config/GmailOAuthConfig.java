@@ -56,8 +56,12 @@ public class GmailOAuthConfig {
         }
 
         int responseCode = conn.getResponseCode();
+        System.out.println("HTTP Response Code: " + responseCode);
+
         if (responseCode != 200) {
-            throw new IOException("Failed to get access token, HTTP response code: " + responseCode);
+            String error = new String(conn.getErrorStream().readAllBytes());
+            System.out.println("Google Error Response: " + error);
+            throw new IOException("Failed to get access token");
         }
 
         JsonNode response = mapper.readTree(conn.getInputStream());

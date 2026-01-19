@@ -42,12 +42,46 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public NameUpdateResponseDto updateNameById(String id, String name){
+    public ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
         User euser = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("User not found with id "+ id));
-        euser.setName(name);
+
+        if (profileUpdateRequestDto.getName() != null) {
+            if (profileUpdateRequestDto.getName().isBlank()) {
+                throw new IllegalArgumentException("Name cannot be empty");
+            }
+            euser.setName(profileUpdateRequestDto.getName());
+        }
+
+        if (profileUpdateRequestDto.getBio() != null) {
+            euser.setBio(profileUpdateRequestDto.getBio());
+        }
+
+        if (profileUpdateRequestDto.getPictureUrl() != null) {
+            euser.setPictureUrl(profileUpdateRequestDto.getPictureUrl());
+        }
+
+        if (profileUpdateRequestDto.getDateOfBirth() != null) {
+            euser.setDateOfBirth(profileUpdateRequestDto.getDateOfBirth());
+        }
+
+        if (profileUpdateRequestDto.getGender() != null) {
+            euser.setGender(profileUpdateRequestDto.getGender());
+        }
+
+        if (profileUpdateRequestDto.getInstagram() != null) {
+            euser.setInstagram(profileUpdateRequestDto.getInstagram());
+        }
+
+        if (profileUpdateRequestDto.getTwitter() != null) {
+            euser.setTwitter(profileUpdateRequestDto.getTwitter());
+        }
+
         User updatedUser = userRepository.save(euser);
-        return modelMapper.map(updatedUser, NameUpdateResponseDto.class);
+        ProfileUpdateResponseDto response = modelMapper.map(updatedUser, ProfileUpdateResponseDto.class);
+
+        response.setMessage("Profile updated successfully");
+        return response;
     }
 
 }
