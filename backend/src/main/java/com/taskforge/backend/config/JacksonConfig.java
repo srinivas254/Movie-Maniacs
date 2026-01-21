@@ -1,16 +1,20 @@
 package com.taskforge.backend.config;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class JacksonStrictTypeConfig {
+public class JacksonConfig {
+
     @Bean
-    public ObjectMapper objectMapper(){
+    public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         mapper.coercionConfigDefaults()
                 .setCoercion(CoercionInputShape.Integer, CoercionAction.Fail)
@@ -19,7 +23,6 @@ public class JacksonStrictTypeConfig {
                 .setCoercion(CoercionInputShape.String, CoercionAction.Fail)
                 .setCoercion(CoercionInputShape.Array, CoercionAction.Fail)
                 .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
-
         return mapper;
     }
 }

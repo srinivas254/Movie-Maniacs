@@ -18,10 +18,7 @@ public class UserResponseDto {
     private String id;
     private String userName;
     private String name;
-    private String email;
 
-    private String provider;
-    private String providerId;
     private String pictureUrl;
 
     private String bio;
@@ -31,8 +28,4 @@ public class UserResponseDto {
 
     private String instagram;
     private String twitter;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dateOfBirth;
-    private Gender gender;
 }

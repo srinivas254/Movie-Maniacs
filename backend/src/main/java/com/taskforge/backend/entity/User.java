@@ -30,7 +30,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthProvider provider;
     private String providerId;
     private String pictureUrl;
 

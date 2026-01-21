@@ -2,6 +2,7 @@ package com.taskforge.backend.service;
 
 import com.taskforge.backend.config.JwtUtil;
 import com.taskforge.backend.dto.*;
+import com.taskforge.backend.entity.AuthProvider;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.exception.*;
 import com.taskforge.backend.repository.UserRepository;
@@ -40,6 +41,7 @@ public class AuthServiceImpl implements AuthService{
     public UserRegistrationResponseDto saveUser(UserRegistrationRequestDto user){
         User euser = new User();
         modelMapper.map(user,euser);
+        euser.setProvider(AuthProvider.LOCAL);
         euser.setPassword(passwordEncoder.encode(euser.getPassword()));
         euser.setRole(USER);
         User saved = userRepository.save(euser);
@@ -74,7 +76,7 @@ public class AuthServiceImpl implements AuthService{
 
         mailService.sendMail(userLogin.getEmail(),
                 "OTP for login to Movie Maniacs",
-                "<p>OTP sent for the login is <b>" + otp + "<b>. It is valid for <b>2<b> minutes");
+                "<p>OTP sent for the login is <b>" + otp + "</b>. It is valid for <b>2</b> minutes</p>");
 
         OtpEntry otpEntry = new OtpEntry(otp, expiryTime, userLogin.getId());
         otpStorage.put(userLogin.getId(), otpEntry);
@@ -124,17 +126,16 @@ public class AuthServiceImpl implements AuthService{
     private User handleEmailBasedFlow(String sub,String name,String email,String pictureUrl){
         return userRepository.findByEmail(email).map(
                 existingUser -> {
-                    existingUser.setProvider("Google");
                     existingUser.setProviderId(sub);
                     existingUser.setPictureUrl(pictureUrl);
                     return userRepository.save(existingUser);
                 }
         ).orElseGet(() -> {
                     User newUser = new User();
-                    newUser.setProvider("Google");
+                    newUser.setProvider(AuthProvider.GOOGLE);
                     newUser.setProviderId(sub);
                     newUser.setUserName(UserNameGenerator.generate(name));
-                    newUser.setPassword("NO_PASSWORD_GOOGLE_USER");
+                    newUser.setPassword(null);
                     newUser.setName(name);
                     newUser.setEmail(email);
                     newUser.setPictureUrl(pictureUrl);
