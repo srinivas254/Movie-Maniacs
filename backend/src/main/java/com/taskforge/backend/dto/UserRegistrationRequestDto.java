@@ -15,10 +15,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserRegistrationRequestDto {
     @NotBlank(message = "Name cannot be blank")
-    @Size(min = 3, message = "Name must be at least 3 characters long")
-    @Pattern(
-            regexp = "^[a-zA-Z].*",
-            message = "Name must start with a letter")
     private String name;
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email is invalid")
@@ -26,8 +22,8 @@ public class UserRegistrationRequestDto {
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 10, message = "Username must be at least 10 characters long")
     @Pattern(
-            regexp = "^[a-zA-Z][^@]*$",
-            message = "Username must start with a letter and must not contain '@'"
+            regexp = "^[a-z][^@]*$",
+            message = "Username must start with a lowercase letter and must not contain '@'"
     )
     private String userName;
     @NotBlank(message = "Password cannot be blank")

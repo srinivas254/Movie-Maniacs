@@ -1,9 +1,12 @@
 import { Logo } from "./siteLogo.jsx";
 import { useState } from "react";
 import { PasswordField } from "./password.jsx";
+import { UserNameField } from "./userName.jsx";
 import { getPasswordStrength } from "./passwordStrength";
 import { getPasswordIssues } from "./passwordIssues";
+import { getUsernameIssues } from "./userNameIssues.js";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export function Register() {
   const navigate = useNavigate();
@@ -21,10 +24,11 @@ export function Register() {
 
       <p className="text-white text-sm mt-4 mb-8">
         Already have an account?{" "}
-        <span 
-        onClick = {() => navigate("/login")}
-        className="font-semibold cursor-pointer hover:underline decoration-white">
-        Log in
+        <span
+          onClick={() => navigate("/login")}
+          className="font-semibold cursor-pointer hover:underline decoration-white"
+        >
+          Log in
         </span>
       </p>
     </div>
@@ -34,24 +38,59 @@ export function Register() {
 function RegisterCard() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
+  const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const navigate = useNavigate();
+
   const passwordStrength = getPasswordStrength(password);
-  const issues = getPasswordIssues(password);
+  const passIssues = getPasswordIssues(password);
+  const userNameIssues = getUsernameIssues(userName);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const userNameRegex = /^[a-z][^@]*$/;
 
   const isFormValid =
     name.trim() !== "" &&
     email.trim() !== "" &&
     emailRegex.test(email) &&
-    username.trim() !== "" &&
+    userName.trim() !== "" &&
+    userName.length >= 10 &&
+    userNameRegex.test(userName) &&
     passwordStrength.isValid;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, email, username, password });
+
+    try {
+      const response = await fetch("http://localhost:8080/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          userName,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      toast.success("Account created successfully!");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    } catch (err) {
+      console.log("REGISTER ERROR", err.message);
+      toast.error(err.message || "Something went wrong");
+    }
   };
 
   return (
@@ -84,19 +123,19 @@ function RegisterCard() {
         />
 
         <h4 className="text-sm cursor-default">Username</h4>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2
-          focus:outline-none focus:ring-2 focus:ring-gray-400"
-          required
+        <UserNameField
+          value={userName}
+          onChange={setUsername}
+          issues={userNameIssues}
         />
 
         <h4 className="text-sm cursor-default">Password</h4>
-        <PasswordField value={password} onChange={setPassword} passwordStrength={passwordStrength} 
-         issues={issues} />
+        <PasswordField
+          value={password}
+          onChange={setPassword}
+          passwordStrength={passwordStrength}
+          issues={passIssues}
+        />
 
         <button
           type="submit"
