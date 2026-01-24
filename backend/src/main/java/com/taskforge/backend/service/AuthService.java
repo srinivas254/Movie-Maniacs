@@ -8,4 +8,6 @@ public interface AuthService {
     LoginResponseDto verifyAOtp(OtpVerificationRequestDto otpVerificationRequestDto);
     String redirectToGoogle();
     LoginResponseDto loginWithGoogle(String code);
+    boolean checkUserName(String userName);
+    boolean checkEmail(String email);
 }

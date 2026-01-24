@@ -28,10 +28,19 @@ public class GlobalException {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrity(DataIntegrityViolationException di) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Email is already in use");
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    public ResponseEntity<Map<String, String>> handleDataIntegrity(DataIntegrityViolationException ex) {
+        Map<String, String> error = new HashMap<>();
+        String rootMessage = ex.getMostSpecificCause().getMessage();
+
+        if (rootMessage.contains("@")) {
+            error.put("field", "email");
+            error.put("message", "Email already exists");
+        } else {
+            error.put("field", "userName");
+            error.put("message", "Username already exists");
+        }
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

@@ -166,4 +166,14 @@ public class AuthServiceImpl implements AuthService{
                 .token(googleAuthToken)
                 .build();
     }
+
+    @Override
+    public boolean checkUserName(String userName){
+        return userRepository.existsByUserName(userName);
+    }
+
+    @Override
+    public boolean checkEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
 }

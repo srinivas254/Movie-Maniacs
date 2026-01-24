@@ -7,6 +7,7 @@ import { CollectionsPage } from "./collectionsPage.jsx";
 import { ExplorePage } from "./explorePage.jsx";
 import { UserProfile } from "./userProfile.jsx";
 import { UserSettings } from "./userSettings.jsx";
+import { VerifyOtp } from "./verifyOtp.jsx";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify-otp" element={<VerifyOtp />}/>
       <Route element={<AuthLayout />}>
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/collections" element={<CollectionsPage />} />

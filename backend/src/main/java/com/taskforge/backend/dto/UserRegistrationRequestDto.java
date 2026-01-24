@@ -22,8 +22,8 @@ public class UserRegistrationRequestDto {
     @NotBlank(message = "Username cannot be blank")
     @Size(min = 10, message = "Username must be at least 10 characters long")
     @Pattern(
-            regexp = "^[a-z][^@]*$",
-            message = "Username must start with a lowercase letter and must not contain '@'"
+            regexp = "^[a-z][^@\\s]*$",
+            message = "Username must start with a lowercase letter, contains no whitespaces and must not contain '@'"
     )
     private String userName;
     @NotBlank(message = "Password cannot be blank")

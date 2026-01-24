@@ -7,6 +7,8 @@ import { getPasswordIssues } from "./passwordIssues";
 import { getUsernameIssues } from "./userNameIssues.js";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { checkUsername } from "./checkUsername.js";
+import { checkEmail } from "./checkEmail.js";
 
 export function Register() {
   const navigate = useNavigate();
@@ -40,6 +42,12 @@ function RegisterCard() {
   const [email, setEmail] = useState("");
   const [userName, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameCheckError, setUsernameCheckError] = useState(false);
+  const [isEmailAvailable, setIsEmailAvailable] = useState(null);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailCheckError, setEmailCheckError] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,15 +56,27 @@ function RegisterCard() {
   const userNameIssues = getUsernameIssues(userName);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  const userNameRegex = /^[a-z][^@]*$/;
+  const userNameRegex = /^[a-z][^@\s]*$/;
+
+  const isUserNameValid =
+    userName.trim() !== "" &&
+    userName.length >= 10 &&
+    userNameRegex.test(userName);
+
+  const isEmailValid =
+   email.trim() !== "" &&
+   emailRegex.test(email)
 
   const isFormValid =
     name.trim() !== "" &&
-    email.trim() !== "" &&
-    emailRegex.test(email) &&
-    userName.trim() !== "" &&
-    userName.length >= 10 &&
-    userNameRegex.test(userName) &&
+    isEmailValid &&
+    isUserNameValid &&
+    isUsernameAvailable === true &&
+    usernameCheckError === false &&
+    isCheckingUsername === false &&
+    isEmailAvailable === true &&
+    emailCheckError === false &&
+    isCheckingEmail === false &&
     passwordStrength.isValid;
 
   const handleSubmit = async (e) => {
@@ -93,6 +113,54 @@ function RegisterCard() {
     }
   };
 
+  const handleUsernameBlur = async () => {
+    if (!isUserNameValid) return;
+
+    if (isUsernameAvailable !== null) return;
+
+    try {
+      setIsCheckingUsername(true);
+
+      const data = await checkUsername(userName);
+
+      if (data.available) {
+        setIsUsernameAvailable(true);
+      } else{
+        setIsUsernameAvailable(false);
+      }
+    } catch(err) {
+       console.error("Username check failed:", err);
+      setUsernameCheckError(true);
+      setIsUsernameAvailable(null);
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+
+  const handleEmailBlur = async () => {
+    if(!isEmailValid) return;
+
+    if (isEmailAvailable !== null) return;
+
+    try{
+      setIsCheckingEmail(true);
+
+      const data = await checkEmail(email);
+
+      if(data.available){
+        setIsEmailAvailable(true);
+      }else {
+        setIsEmailAvailable(false);
+      }
+    }catch(err) {
+      console.error("Email check failed:", err);
+      setEmailCheckError(true);
+      setIsEmailAvailable(null);
+    }finally {
+      setIsCheckingEmail(false);
+    }
+  }
+
   return (
     <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
@@ -116,18 +184,60 @@ function RegisterCard() {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setIsEmailAvailable(null);
+            setEmailCheckError(false);
+          }}
+          onBlur={handleEmailBlur}
           className="w-full border border-gray-300 rounded-lg px-4 py-2
           focus:outline-none focus:ring-2 focus:ring-gray-400"
           required
         />
 
+         {isCheckingEmail && (
+          <p className="text-sm text-gray-500 mt-1">Checking email…</p>
+        )}
+
+        {isEmailAvailable === true && (
+          <p className="text-sm text-green-600 mt-1">✅ Email available</p>
+        )}
+
+        {isEmailAvailable === false && (
+          <p className="text-sm text-red-600 mt-1">❌ Email already taken</p>
+        )}
+
+        {emailCheckError && (
+          <p className="text-sm text-orange-600 mt-1">⚠️ Unable to check email right now. Try again.</p>
+        )}
+
         <h4 className="text-sm cursor-default">Username</h4>
         <UserNameField
           value={userName}
-          onChange={setUsername}
+          onChange={(value) => {
+            setUsername(value);
+            setIsUsernameAvailable(null);
+            setUsernameCheckError(false);
+          }}
+          onBlur={handleUsernameBlur}
           issues={userNameIssues}
         />
+
+        {isCheckingUsername && (
+          <p className="text-sm text-gray-500 mt-1">Checking username…</p>
+        )}
+
+        {isUsernameAvailable === true && (
+          <p className="text-sm text-green-600 mt-1">✅ Username available</p>
+        )}
+
+        {isUsernameAvailable === false && (
+          <p className="text-sm text-red-600 mt-1">❌ Username already taken</p>
+        )}
+
+        {usernameCheckError && (
+          <p className="text-sm text-orange-600 mt-1">⚠️ Unable to check username right now. Try again.</p>
+        )}
 
         <h4 className="text-sm cursor-default">Password</h4>
         <PasswordField

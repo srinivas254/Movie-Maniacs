@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Logo } from "./siteLogo.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { getPasswordStrength } from "./passwordStrength";
 import { useNavigate } from "react-router-dom";
 
 export function Login() {
@@ -33,24 +32,53 @@ function LoginCard(){
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [loginError, setLoginError] = useState("");
 
-    const passwordStrength = getPasswordStrength(password);
+    const navigate = useNavigate();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-    const isIdentifierValid =
-      identifier.trim() !== "" &&
-    (
-      emailRegex.test(identifier) ||   
-      identifier.length >= 3           
-    );
 
     const isFormValid =
-      isIdentifierValid &&
-      passwordStrength.isValid;
+      identifier.trim() !== "" &&
+      password.trim() !== "";
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if(!isFormValid || isLoggingIn) return;
+
+        try{
+          setIsLoggingIn(true);
+
+          const response = await fetch("http://localhost:8080/auth/jwt/login",{
+            method:"POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              identifier: identifier.trim(),
+              password: password.trim()
+            })
+          });
+
+           if (!response.ok) {
+            throw new Error("Invalid credentials");
+          }
+
+          const data = await response.json();
+
+          sessionStorage.setItem("userId", data.id);
+
+          setTimeout(() => {
+            navigate("/verify-otp");
+          },1500);
+
+        } catch(err) {
+          console.error("Login failed", err);
+          setLoginError("Invalid username/email or password")
+        } finally {
+          setIsLoggingIn(false);
+        }
     }
 
     return(
@@ -66,7 +94,10 @@ function LoginCard(){
             type="text"
             placeholder="Username or Email"
             value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            onChange={(e) => {
+              setIdentifier(e.target.value);
+              setLoginError("");
+            }}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none 
             focus:ring-2 focus:ring-gray-400"
             required
@@ -79,7 +110,10 @@ function LoginCard(){
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setLoginError("");
+            }}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 
             focus:outline-none focus:ring-2 focus:ring-gray-400"
             required
@@ -100,21 +134,24 @@ function LoginCard(){
 
           <button
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoggingIn}
             className="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 
             rounded-3xl transition disabled:bg-gray-400 disabled:text-gray-700
             disabled:cursor-not-allowed disabled:hover:bg-gray-400"
           >
-            Login
+           {isLoggingIn ? "Sending OTP..." : "Login"} 
           </button>
 
+          {loginError && (
+          <p className="text-sm text-red-600 text-center">
+            {loginError}
+          </p>
+        )}
+
           <div className="text-center">
-            <a
-              href="#"
-              className="text-sm text-purple-600 hover:underline"
-            >
+            <span className="text-sm text-purple-600 hover:underline cursor-pointer">
               Forgot password?
-            </a>
+            </span>
           </div>
         </form>
       </div>

@@ -11,5 +11,8 @@ export function getUsernameIssues(userName) {
   if (userName.includes("@"))
     issues.push("Must not contain '@'");
 
+  if (/\s/.test(userName)) 
+  issues.push("Must not contain spaces");
+
   return issues;
 }
