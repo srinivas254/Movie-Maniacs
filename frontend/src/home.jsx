@@ -4,10 +4,21 @@ import { FeaturesSection } from "./features.jsx";
 import { WhyusSection } from "./why-us.jsx";
 import { HelpSection } from "./help.jsx";
 import { PreviewModal } from "./previewBar.jsx";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const [showPreview, setShowPreview] = useState(true);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      navigate("/explore");
+    }
+  }, [navigate]);
 
   return (
     <div

@@ -21,6 +21,12 @@ export function ProfileMenu() {
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+   const handleLogout = () => {
+    localStorage.removeItem("token");  
+    setOpen(false);               
+    navigate("/");                
+  };
+
   return (
     <div ref={menuRef} className="relative mr-6">
       {/* Profile Icon */}
@@ -55,7 +61,7 @@ export function ProfileMenu() {
 
           <div className="h-px bg-white/10 my-1" />
 
-          <button onClick={() => navigate("/")}
+          <button onClick={handleLogout}
           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-400 hover:bg-white/5 transition">
             <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
             Logout

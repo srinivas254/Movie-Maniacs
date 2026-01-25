@@ -8,6 +8,7 @@ import { ExplorePage } from "./explorePage.jsx";
 import { UserProfile } from "./userProfile.jsx";
 import { UserSettings } from "./userSettings.jsx";
 import { VerifyOtp } from "./verifyOtp.jsx";
+import { ProtectedRoute } from "./protectedRoute.jsx";
 
 function App() {
   return (
@@ -16,7 +17,11 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOtp />}/>
-      <Route element={<AuthLayout />}>
+      <Route element={
+        <ProtectedRoute>
+          <AuthLayout />
+        </ProtectedRoute>}
+        >
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/collections" element={<CollectionsPage />} />
         <Route path="/profile" element={<UserProfile />} />

@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OtpVerificationRequestDto {
-    private String id;
     private String otp;
 }

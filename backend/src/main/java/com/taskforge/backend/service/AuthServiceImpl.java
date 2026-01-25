@@ -69,17 +69,15 @@ public class AuthServiceImpl implements AuthService{
             throw new InvalidPasswordException("Entered password is incorrect");
         }
 
-        String otp;
+        String otp = String.valueOf(100000 + new Random().nextInt(900000));
         long expiryTime = System.currentTimeMillis() + 2*60*1000;
-
-        otp = String.valueOf(100000 + new Random().nextInt(900000));
 
         mailService.sendMail(userLogin.getEmail(),
                 "OTP for login to Movie Maniacs",
                 "<p>OTP sent for the login is <b>" + otp + "</b>. It is valid for <b>2</b> minutes</p>");
 
         OtpEntry otpEntry = new OtpEntry(otp, expiryTime, userLogin.getId());
-        otpStorage.put(userLogin.getId(), otpEntry);
+        otpStorage.put(otp, otpEntry);
 
         return OtpGenerationResponseDto.builder()
                 .message("OTP sent successfully")
@@ -89,14 +87,14 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public LoginResponseDto verifyAOtp(OtpVerificationRequestDto otpVerificationRequestDto){
-        OtpEntry entry = otpStorage.get(otpVerificationRequestDto.getId());
+        OtpEntry entry = otpStorage.get(otpVerificationRequestDto.getOtp());
 
         if(entry == null){
             throw new OtpNotFoundException("OTP expired or not found");
         }
 
         if(System.currentTimeMillis() > entry.getExpiryTime()){
-            otpStorage.remove(otpVerificationRequestDto.getId());
+            otpStorage.remove(otpVerificationRequestDto.getOtp());
             throw new OtpExpiredException("OTP expired");
         }
 
@@ -104,10 +102,11 @@ public class AuthServiceImpl implements AuthService{
             throw new InvalidOtpException("Invalid OTP");
         }
 
-        otpStorage.remove(otpVerificationRequestDto.getId());
+        String id = entry.getId();
+        otpStorage.remove(otpVerificationRequestDto.getOtp());
 
-        User userLogin = userRepository.findById(otpVerificationRequestDto.getId())
-         .orElseThrow(() -> new UserNotFoundException("User not found with id "+ otpVerificationRequestDto.getId()));
+        User userLogin = userRepository.findById(id)
+         .orElseThrow(() -> new UserNotFoundException("User not found with id "+ id));
 
         String jwtToken = jwtUtil.generateToken(userLogin.getId(), userLogin.getUserName(), userLogin.getRole());
 

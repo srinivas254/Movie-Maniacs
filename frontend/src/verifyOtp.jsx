@@ -6,40 +6,58 @@ import toast from "react-hot-toast";
 export function VerifyOtp() {
   const navigate = useNavigate();
 
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState(120);
 
-  const id = sessionStorage.getItem("otpUserId");
+  useEffect(() => {
+  const storedId = sessionStorage.getItem("userId");
+  if (!storedId) {
+    navigate("/login");
+  }
+}, [navigate]);
+
 
   useEffect(() => {
-    if (!id) {
-      navigate("/login");
+    if(otpVerified) return;
+
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        clearInterval(timer);
+        sessionStorage.removeItem("userId");
+        navigate("/login");
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [navigate,otpVerified]);
+
+const handleOtpChange = (value, index) => {
+    if (!/^[0-9]?$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    setError("");
+
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`).focus();
     }
-  }, [id, navigate]);
+  };
 
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      sessionStorage.removeItem("otpUserId");
-      navigate("/login");
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, navigate]);
-
-  const isFormValid = otp.trim().length === 6;
+  const isFormValid = otp.join("").length === 6;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isFormValid || !id) return;
+    if (!isFormValid) return;
 
     try {
       setIsVerifying(true);
@@ -53,17 +71,31 @@ export function VerifyOtp() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id,
-            otp,
+            otp: otp.join("")
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error("Invalid OTP");
+
+        if (response.status === 404) {
+          throw new Error("OTP not found");
+        }
+
+        if (response.status === 400) {
+          throw new Error("Invalid OTP");
+        }
+
+        if (response.status === 417) {
+          throw new Error("OTP expired");
+        }
+
+        throw new Error("Server error. Try again");
       }
 
       const data = await response.json();
+
+      setOtpVerified(true);
 
       sessionStorage.removeItem("userId");
       toast.success("Login successfull");
@@ -75,7 +107,7 @@ export function VerifyOtp() {
     } catch (err) {
       console.error("OTP verification failed:", err);
       toast.error(err.message || "Something went wrong");
-      setError("Invalid or expired OTP");
+      setError(err.message);
     } finally {
       setIsVerifying(false);
     }
@@ -108,20 +140,24 @@ export function VerifyOtp() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Enter OTP"
-            value={otp}
-            onChange={(e) => {
-              setOtp(e.target.value);
-              setError("");
-            }}
-            maxLength={6}
-            className="w-full text-center tracking-widest text-lg
-            border border-gray-300 rounded-lg px-4 py-2
-            focus:outline-none focus:ring-2 focus:ring-gray-400"
-            required
-          />
+          <div className="flex justify-between gap-2">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                id={`otp-${index}`}
+                type="text"
+                inputMode="numeric"
+                maxLength="1"
+                value={digit}
+                onChange={(e) =>
+                  handleOtpChange(e.target.value, index)
+                }
+                className="w-12 h-12 text-center text-xl font-semibold
+                border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            ))}
+          </div>
 
           <button
             type="submit"
