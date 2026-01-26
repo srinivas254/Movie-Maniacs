@@ -49,13 +49,15 @@ public class GoogleAuthService {
         return webCredentials.get("redirect_uris").get(0).asText();
     }
 
-    public String buildAuthUrl(){
+    public String buildAuthUrl(String state){
         return "https://accounts.google.com/o/oauth2/v2/auth" +
                 "?client_id=" + getClientId() +
                 "&redirect_uri=" + getRedirectUri() +
+                "&state=" + state +
                 "&response_type=code" +
                 "&scope=openid%20email%20profile";
     }
+
 
     public Map<String,Object> exchangeCodeForTokens(String code){
         RestTemplate restTemplate = new RestTemplate();

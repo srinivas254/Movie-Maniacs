@@ -2,6 +2,7 @@ import { UserCircleIcon,Cog6ToothIcon,ArrowRightStartOnRectangleIcon }
 from "@heroicons/react/24/outline";
 import { useState,useEffect,useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 
 export function ProfileMenu() {
@@ -23,7 +24,8 @@ export function ProfileMenu() {
 
    const handleLogout = () => {
     localStorage.removeItem("token");  
-    setOpen(false);               
+    toast.success("Logout successfull");
+    setOpen(false);           
     navigate("/");                
   };
 

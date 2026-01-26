@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,18 +49,72 @@ public class AuthController {
     }
 
     @PermitAll
-    @GetMapping("/google")
-    public void redirectToGoogle(HttpServletResponse res) throws IOException {
-        String url = authService.redirectToGoogle();
+    @GetMapping("/google/login")
+    public void redirectToGoogleLogin(HttpServletResponse res) throws IOException {
+        String url = authService.redirectToGoogle("login");
+        res.sendRedirect(url);
+    }
+
+    @PermitAll
+    @GetMapping("/google/register")
+    public void redirectToGoogleRegister(HttpServletResponse res) throws IOException {
+        String url = authService.redirectToGoogle("register");
         res.sendRedirect(url);
     }
 
     @PermitAll
     @GetMapping("/google/callback")
-    public ResponseEntity<LoginResponseDto> callbackWithGoogle(@RequestParam("code") String code){
-        LoginResponseDto googleUser = authService.loginWithGoogle(code);
-        return ResponseEntity.status(HttpStatus.OK).body(googleUser);
+    public void callbackWithGoogle(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state,
+            HttpServletResponse response
+    ) throws IOException {
+
+        try {
+
+            if ("login".equals(state)) {
+                LoginResponseDto result =
+                        authService.loginWithGoogle(code);
+                String encodedToken = URLEncoder.encode(
+                        result.getToken(),
+                        StandardCharsets.UTF_8
+                );
+                response.sendRedirect(
+                        "http://localhost:5173/oauth-success?token=" + encodedToken
+                );
+                return;
+            }
+
+            if ("register".equals(state)) {
+                authService.registerWithGoogle(code);
+                response.sendRedirect(
+                        "http://localhost:5173/login"
+                );
+                return;
+            }
+
+            throw new RuntimeException("Invalid OAuth state");
+
+        }
+        catch (RuntimeException ex) {
+
+            String errorMsg = URLEncoder.encode(
+                    ex.getMessage(),
+                    StandardCharsets.UTF_8
+            );
+
+            if ("register".equals(state)) {
+                response.sendRedirect(
+                        "http://localhost:5173/register?error=" + errorMsg
+                );
+            } else {
+                response.sendRedirect(
+                        "http://localhost:5173/login?error=" + errorMsg
+                );
+            }
+        }
     }
+
 
     @PermitAll
     @GetMapping("/check-username")

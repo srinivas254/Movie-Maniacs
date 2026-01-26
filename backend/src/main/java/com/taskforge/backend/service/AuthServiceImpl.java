@@ -118,30 +118,8 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public String redirectToGoogle(){
-        return googleAuthService.buildAuthUrl();
-    }
-
-    private User handleEmailBasedFlow(String sub,String name,String email,String pictureUrl){
-        return userRepository.findByEmail(email).map(
-                existingUser -> {
-                    existingUser.setProviderId(sub);
-                    existingUser.setPictureUrl(pictureUrl);
-                    return userRepository.save(existingUser);
-                }
-        ).orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setProvider(AuthProvider.GOOGLE);
-                    newUser.setProviderId(sub);
-                    newUser.setUserName(UserNameGenerator.generate(name));
-                    newUser.setPassword(null);
-                    newUser.setName(name);
-                    newUser.setEmail(email);
-                    newUser.setPictureUrl(pictureUrl);
-                    newUser.setRole(USER);
-                    return userRepository.save(newUser);
-                }
-        );
+    public String redirectToGoogle(String state){
+        return googleAuthService.buildAuthUrl(state);
     }
 
     @Override
@@ -150,19 +128,60 @@ public class AuthServiceImpl implements AuthService{
         Map<String, Object> claims = googleAuthService.parseIdToken((String) tokens.get("id_token"));
 
         String sub = (String) claims.get("sub");
-        String name = (String) claims.get("name");
-        String email = (String) claims.get("email");
-        String pictureUrl = (String) claims.get("picture");
 
-        User user = userRepository.findByProviderId(sub)
-                .orElseGet(()-> handleEmailBasedFlow(sub,name,email,pictureUrl));
-
+        User user = userRepository
+                .findByProviderId(sub)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Account not found. Please register first."
+                        )
+                );
 
         String googleAuthToken = jwtUtil.generateToken(user.getId(), user.getUserName(), user.getRole());
         return LoginResponseDto.builder()
                 .message("Google oAuth Login successful")
                 .id(user.getId())
                 .token(googleAuthToken)
+                .build();
+    }
+
+    @Override
+    public  UserRegistrationResponseDto registerWithGoogle(String code) {
+
+        Map<String,Object> tokens =
+                googleAuthService.exchangeCodeForTokens(code);
+
+        Map<String,Object> claims =
+                googleAuthService.parseIdToken(
+                        (String) tokens.get("id_token")
+                );
+
+        String sub = (String) claims.get("sub");
+        String name = (String) claims.get("name");
+        String email = (String) claims.get("email");
+        String pictureUrl = (String) claims.get("picture");
+
+        if(userRepository.findByEmail(email).isPresent()){
+            throw new RuntimeException(
+                    "Account already exists. Please login."
+            );
+        }
+
+        User newUser = new User();
+        newUser.setProvider(AuthProvider.GOOGLE);
+        newUser.setProviderId(sub);
+        newUser.setUserName(UserNameGenerator.generate(name));
+        newUser.setPassword(null);
+        newUser.setName(name);
+        newUser.setEmail(email);
+        newUser.setPictureUrl(pictureUrl);
+        newUser.setRole(USER);
+
+        User savedUser = userRepository.save(newUser);
+
+        return UserRegistrationResponseDto.builder()
+                .message("Google Registration successful")
+                .id(savedUser.getId())
                 .build();
     }
 

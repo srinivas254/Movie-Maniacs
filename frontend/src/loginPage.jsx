@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Logo } from "./siteLogo.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useSearchParams } from "react-router-dom";
+import { GoogleOAuthButton } from "./googleoAuth.jsx";
 
 export function Login() {
   const navigate = useNavigate();
@@ -35,9 +36,18 @@ function LoginCard() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginError, setLoginError] = useState("");
+  const [loginError, setLoginError] = useState("");  
+  const [oAuthloginError, setOAuthLoginError] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+  const error = searchParams.get("error");
+  if (error) {
+    setOAuthLoginError(error);
+  }
+}, [searchParams]);
 
   const isFormValid = emailOrUserName.trim() !== "" && password.trim() !== "";
 
@@ -161,6 +171,16 @@ function LoginCard() {
           </span>
         </div>
       </form>
+
+      <div className="my-4 text-center text-gray-400 text-sm">OR</div>
+
+      <GoogleOAuthButton text="Login with Google" mode="login" />
+
+      {oAuthloginError && (
+        <p className="text-sm text-red-600 text-center mt-2">
+          {oAuthloginError}
+        </p>
+      )}
     </div>
   );
 }

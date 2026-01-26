@@ -1,14 +1,15 @@
 import { Logo } from "./siteLogo.jsx";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { PasswordField } from "./password.jsx";
 import { UserNameField } from "./userName.jsx";
 import { getPasswordStrength } from "./passwordStrength";
 import { getPasswordIssues } from "./passwordIssues";
 import { getUsernameIssues } from "./userNameIssues.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkUsername } from "./checkUsername.js";
 import { checkEmail } from "./checkEmail.js";
+import { GoogleOAuthButton } from "./googleoAuth.jsx";
 
 export function Register() {
   const navigate = useNavigate();
@@ -48,8 +49,17 @@ function RegisterCard() {
   const [isEmailAvailable, setIsEmailAvailable] = useState(null);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailCheckError, setEmailCheckError] = useState(false);
+  const [registerError, setRegisterError] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      setRegisterError(error);
+    }
+  }, [searchParams]);
 
   const passwordStrength = getPasswordStrength(password);
   const passIssues = getPasswordIssues(password);
@@ -63,9 +73,7 @@ function RegisterCard() {
     userName.length >= 10 &&
     userNameRegex.test(userName);
 
-  const isEmailValid =
-   email.trim() !== "" &&
-   emailRegex.test(email)
+  const isEmailValid = email.trim() !== "" && emailRegex.test(email);
 
   const isFormValid =
     name.trim() !== "" &&
@@ -125,11 +133,11 @@ function RegisterCard() {
 
       if (data.available) {
         setIsUsernameAvailable(true);
-      } else{
+      } else {
         setIsUsernameAvailable(false);
       }
-    } catch(err) {
-       console.error("Username check failed:", err);
+    } catch (err) {
+      console.error("Username check failed:", err);
       setUsernameCheckError(true);
       setIsUsernameAvailable(null);
     } finally {
@@ -138,28 +146,28 @@ function RegisterCard() {
   };
 
   const handleEmailBlur = async () => {
-    if(!isEmailValid) return;
+    if (!isEmailValid) return;
 
     if (isEmailAvailable !== null) return;
 
-    try{
+    try {
       setIsCheckingEmail(true);
 
       const data = await checkEmail(email);
 
-      if(data.available){
+      if (data.available) {
         setIsEmailAvailable(true);
-      }else {
+      } else {
         setIsEmailAvailable(false);
       }
-    }catch(err) {
+    } catch (err) {
       console.error("Email check failed:", err);
       setEmailCheckError(true);
       setIsEmailAvailable(null);
-    }finally {
+    } finally {
       setIsCheckingEmail(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
@@ -195,7 +203,7 @@ function RegisterCard() {
           required
         />
 
-         {isCheckingEmail && (
+        {isCheckingEmail && (
           <p className="text-sm text-gray-500 mt-1">Checking email…</p>
         )}
 
@@ -208,7 +216,9 @@ function RegisterCard() {
         )}
 
         {emailCheckError && (
-          <p className="text-sm text-orange-600 mt-1">⚠️ Unable to check email right now. Try again.</p>
+          <p className="text-sm text-orange-600 mt-1">
+            ⚠️ Unable to check email right now. Try again.
+          </p>
         )}
 
         <h4 className="text-sm cursor-default">Username</h4>
@@ -236,7 +246,9 @@ function RegisterCard() {
         )}
 
         {usernameCheckError && (
-          <p className="text-sm text-orange-600 mt-1">⚠️ Unable to check username right now. Try again.</p>
+          <p className="text-sm text-orange-600 mt-1">
+            ⚠️ Unable to check username right now. Try again.
+          </p>
         )}
 
         <h4 className="text-sm cursor-default">Password</h4>
@@ -257,6 +269,16 @@ function RegisterCard() {
           Register
         </button>
       </form>
+
+      <div className="my-4 text-center text-gray-400 text-sm">OR</div>
+
+      <GoogleOAuthButton text="Register with Google" mode="register" />
+
+      {registerError && (
+        <p className="text-sm text-red-600 text-center mt-2">
+          {registerError}
+        </p>
+      )}
     </div>
   );
 }
