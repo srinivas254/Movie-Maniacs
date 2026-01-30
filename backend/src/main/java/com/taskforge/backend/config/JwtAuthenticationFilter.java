@@ -52,9 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims = jwtUtil.validateToken(token);
 
                 String id = jwtUtil.getUserId(claims);
-                String userName = jwtUtil.getUserName(claims);
 
-                CustomPrincipal principal = new CustomPrincipal(id,userName);
+                CustomPrincipal principal = new CustomPrincipal(id);
 
                 List<SimpleGrantedAuthority> authorities = List.of(
                         new SimpleGrantedAuthority(

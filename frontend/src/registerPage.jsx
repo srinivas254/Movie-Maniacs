@@ -54,12 +54,14 @@ function RegisterCard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  useEffect(() => {
-    const error = searchParams.get("error");
-    if (error) {
-      setRegisterError(error);
-    }
-  }, [searchParams]);
+ useEffect(() => {
+  const error = searchParams.get("error");
+
+  if (error) {
+    setRegisterError(error);
+  } 
+}, [searchParams]);
+
 
   const passwordStrength = getPasswordStrength(password);
   const passIssues = getPasswordIssues(password);
@@ -110,10 +112,10 @@ function RegisterCard() {
         throw new Error(data.message || "Registration failed");
       }
 
-      toast.success("Account created successfully!");
+      toast.success("Account created successfully");
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/login");
       }, 1500);
     } catch (err) {
       console.log("REGISTER ERROR", err.message);

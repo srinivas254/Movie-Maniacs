@@ -1,5 +1,6 @@
 package com.taskforge.backend.controller;
 
+import com.taskforge.backend.config.CustomPrincipal;
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.service.UserService;
@@ -10,13 +11,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -26,10 +27,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("(hasRole('USER') && #id == authentication.principal.id) || (hasRole('ADMIN'))")
-    @GetMapping("/users/{id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable String id){
-        UserResponseDto savedUser = userService.findUserById(id);
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getUserById(@AuthenticationPrincipal CustomPrincipal principal){
+        UserResponseDto savedUser = userService.findUserById(principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(savedUser);
     }
 
@@ -40,17 +41,17 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
-    @PreAuthorize("(hasRole('USER') && #id == authentication.principal.id) || (hasRole('ADMIN'))")
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<User> deleteUserById(@PathVariable String id){
-        userService.deleteUserById(id);
+    @PreAuthorize("(hasRole('USER')")
+    @DeleteMapping("/me")
+    public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal){
+        userService.deleteUserById(principal.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PreAuthorize("hasRole('USER') && #id == authentication.principal.id")
-    @PutMapping("/users/{id}")
-    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@PathVariable String id,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
-        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(id,profileUpdateRequestDto);
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/me")
+    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
+        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 

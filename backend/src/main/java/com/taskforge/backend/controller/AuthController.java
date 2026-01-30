@@ -88,7 +88,7 @@ public class AuthController {
             if ("register".equals(state)) {
                 authService.registerWithGoogle(code);
                 response.sendRedirect(
-                        "http://localhost:5173/login"
+                        "http://localhost:5173/login?registered=true"
                 );
                 return;
             }

@@ -3,6 +3,9 @@ import { Logo } from "./siteLogo.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useNavigate,useSearchParams } from "react-router-dom";
 import { GoogleOAuthButton } from "./googleoAuth.jsx";
+import toast from "react-hot-toast";
+import { useRef } from "react";
+
 
 export function Login() {
   const navigate = useNavigate();
@@ -42,12 +45,28 @@ function LoginCard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
+  const hasShownToast = useRef(false);
+
+
+useEffect(() => {
   const error = searchParams.get("error");
+  const registered = searchParams.get("registered");
+
+  if (hasShownToast.current) return;
+
   if (error) {
+    hasShownToast.current = true;
     setOAuthLoginError(error);
+    return;
+  }
+
+  if (registered) {
+    hasShownToast.current = true;
+    toast.success("Account created successfully");
+    window.history.replaceState({}, "", "/login");
   }
 }, [searchParams]);
+
 
   const isFormValid = emailOrUserName.trim() !== "" && password.trim() !== "";
 

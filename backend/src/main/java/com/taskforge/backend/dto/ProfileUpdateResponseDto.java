@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProfileUpdateResponseDto {
     private String message;
-    private String id;
 }

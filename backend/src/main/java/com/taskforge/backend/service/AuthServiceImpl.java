@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Random;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.taskforge.backend.entity.Role.USER;
 
 @Service
+@Transactional
 public class AuthServiceImpl implements AuthService{
     private final GoogleAuthService googleAuthService;
     private final UserRepository userRepository;
@@ -44,10 +46,9 @@ public class AuthServiceImpl implements AuthService{
         euser.setProvider(AuthProvider.LOCAL);
         euser.setPassword(passwordEncoder.encode(euser.getPassword()));
         euser.setRole(USER);
-        User saved = userRepository.save(euser);
+        userRepository.save(euser);
         return UserRegistrationResponseDto.builder()
                 .message("User registration successful")
-                .id(saved.getId())
                 .build();
     }
 
@@ -81,7 +82,6 @@ public class AuthServiceImpl implements AuthService{
 
         return OtpGenerationResponseDto.builder()
                 .message("OTP sent successfully")
-                .id(userLogin.getId())
                 .build();
     }
 
@@ -108,11 +108,10 @@ public class AuthServiceImpl implements AuthService{
         User userLogin = userRepository.findById(id)
          .orElseThrow(() -> new UserNotFoundException("User not found with id "+ id));
 
-        String jwtToken = jwtUtil.generateToken(userLogin.getId(), userLogin.getUserName(), userLogin.getRole());
+        String jwtToken = jwtUtil.generateToken(userLogin.getId(), userLogin.getRole());
 
         return LoginResponseDto.builder()
                 .message("Jwt Login successful")
-                .id(userLogin.getId())
                 .token(jwtToken)
                 .build();
     }
@@ -137,10 +136,9 @@ public class AuthServiceImpl implements AuthService{
                         )
                 );
 
-        String googleAuthToken = jwtUtil.generateToken(user.getId(), user.getUserName(), user.getRole());
+        String googleAuthToken = jwtUtil.generateToken(user.getId(),user.getRole());
         return LoginResponseDto.builder()
                 .message("Google oAuth Login successful")
-                .id(user.getId())
                 .token(googleAuthToken)
                 .build();
     }
@@ -177,11 +175,10 @@ public class AuthServiceImpl implements AuthService{
         newUser.setPictureUrl(pictureUrl);
         newUser.setRole(USER);
 
-        User savedUser = userRepository.save(newUser);
+        userRepository.save(newUser);
 
         return UserRegistrationResponseDto.builder()
                 .message("Google Registration successful")
-                .id(savedUser.getId())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export function OAuthSuccess() {
 
@@ -11,7 +12,7 @@ export function OAuthSuccess() {
 
     if (token) {
       localStorage.setItem("token", token);
-
+      toast.success("Login successfull!");
       navigate("/explore");
     } 
 

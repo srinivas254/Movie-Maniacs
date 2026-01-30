@@ -27,10 +27,9 @@ public class JwtUtil {
         this.expirationTime = expirationTime;
     }
 
-    public String generateToken(String id,String userName, Role role){
+    public String generateToken(String id, Role role){
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", id);
-        claims.put("userName", userName);
         claims.put("role", role.name());
 
         return Jwts.builder()
@@ -47,10 +46,6 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public String getUserName(Claims claims){
-        return claims.get("userName").toString();
     }
 
     public String getUserId(Claims claims){

@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LoginResponseDto {
     private String message;
-    private String id;
     private String token;
 }
