@@ -10,6 +10,8 @@ import { UserSettings } from "./userSettings.jsx";
 import { VerifyOtp } from "./verifyOtp.jsx";
 import { ProtectedRoute } from "./protectedRoute.jsx";
 import { OAuthSuccess } from "./oAuthSuccess.jsx";
+import { EditProfileCard } from "./editProfile.jsx";
+import { DeleteAccount } from "./deleteAccount.jsx";
 
 function App() {
   return (
@@ -17,17 +19,22 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/verify-otp" element={<VerifyOtp />}/>
+      <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
-      <Route element={
-        <ProtectedRoute>
-          <AuthLayout />
-        </ProtectedRoute>}
-        >
+      <Route
+        element={
+          <ProtectedRoute>
+            <AuthLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/collections" element={<CollectionsPage />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="/settings" element={<UserSettings />} />
+        <Route path="/settings" element={<UserSettings />}>
+          <Route path="edit-profile" element={<EditProfileCard />} />
+          <Route path="delete-account" element={<DeleteAccount />} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -1,7 +1,7 @@
 package com.taskforge.backend.entity;
 
 public enum Gender {
-    MALE,
-    FEMALE,
-    OTHERS
+    Male,
+    Female,
+    Others
 }

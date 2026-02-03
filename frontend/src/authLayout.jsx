@@ -14,7 +14,6 @@ export function AuthLayout() {
     }
 
     const payload = JSON.parse(atob(token.split(".")[1]));
-    console.log("payload exp", payload.exp);
     const expiryTime = payload.exp * 1000;
     const currentTime = Date.now();
 

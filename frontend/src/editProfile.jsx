@@ -1,93 +1,143 @@
-
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FaCamera } from "react-icons/fa";
+import useUserStore from "./useUserStore.js";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+/* ---------------- Schema ---------------- */
 
 const profileSchema = z.object({
-  fullName: z.string().min(2, "Name too short"),
+  name: z.string().min(1, "Name is required"),
   bio: z.string().max(160).optional(),
-  dob: z.string().optional(),
+  dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   instagram: z.string().optional(),
-  x: z.string().optional()
+  twitter: z.string().optional(),
 });
 
+/* ---------------- Component ---------------- */
+
 export function EditProfileCard() {
-  const [previewImage, setPreviewImage] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  console.log("ZUSTAND:", useUserStore.getState());
+  const user = useUserStore((state) => state.profile);
+  const setProfile = useUserStore((state) => state.setProfile);
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    reset,
   } = useForm({
-    resolver: zodResolver(profileSchema)
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: user?.name || "",
+      bio: user?.bio || "",
+      dateOfBirth: user?.dateOfBirth || null,
+      gender: user?.gender || "",
+      instagram: user?.instagram || "",
+      twitter: user?.twitter || "",
+    },
   });
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setPreviewImage(URL.createObjectURL(file));
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name || "",
+        bio: user.bio || "",
+        dateOfBirth: user.dateOfBirth
+        ? user.dateOfBirth.substring(0, 10)
+        : "",
+        gender: user.gender || "",
+        instagram: user.instagram || "",
+        twitter: user.twitter || "",
+      });
+    }
+  }, [user, reset]);
+
+  if (!user) return null;
+
+  /* ---------------- Submit ---------------- */
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch("http://localhost:8080/users/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile");
+      }
+
+      const updatedUser = await response.json();
+      // 🔥 Update Zustand
+      setProfile(updatedUser);
+
+      toast.success("Profile updated successfully");
+
+      setTimeout(() => {
+        navigate("/profile");
+      },500);
+
+    } catch (err) {
+      console.error(err.message);
+      toast.error("Something went wrong");
     }
   };
 
-  const onSubmit = (data) => {
-    console.log("FORM DATA:", data);
-    console.log("IMAGE:", imageFile);
-  };
 
   return (
     <div
-      className="flex-1 max-w-4xl p-6 rounded-xl
+      className="flex-1 w-full p-6 rounded-xl
                  bg-black/60 backdrop-blur-md
                  border border-white/10 shadow-2xl"
     >
       <h2 className="text-xl font-semibold mb-6">Edit Profile</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-
         {/* Avatar */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="relative">
-            {previewImage ? (
-              <img
-                src={previewImage}
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-zinc-700" />
-            )}
-
-            <label
-              className="absolute bottom-0 right-0
-                         bg-purple-600 p-2 rounded-full
-                         cursor-pointer hover:bg-purple-500"
+          {user.pictureUrl ? (
+            <img
+              src={user.pictureUrl}
+              className="w-20 h-20 rounded-full object-cover"
+            />
+          ) : (
+            <div
+              className="w-20 h-20 rounded-full bg-zinc-700
+                         flex items-center justify-center
+                         text-xl font-bold text-gray-300"
             >
-              <FaCamera size={12} />
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageChange}
-              />
-            </label>
-          </div>
+              {user.name
+                ?.split(" ")
+                .map((word) => word.charAt(0))
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+          )}
         </div>
 
-        {/* Full Name */}
+        {/* Name */}
         <div className="mb-4 flex items-center gap-4">
           <label className="w-32 text-gray-400">Full Name</label>
           <input
-            {...register("fullName")}
+            placeholder="Enter your full name"
+            {...register("name")}
             className="flex-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
-        {errors.fullName && (
-          <p className="text-red-500 text-sm mb-2">
-            {errors.fullName.message}
+
+        {errors.name && (
+          <p className="text-red-500 text-xs px-32 mb-2">
+            {errors.name.message}
           </p>
         )}
 
@@ -95,38 +145,40 @@ export function EditProfileCard() {
         <div className="mb-4 flex items-center gap-4">
           <label className="text-gray-400">Bio</label>
           <textarea
+            placeholder="Tell about yourself"
             rows="3"
             {...register("bio")}
-            className="w-full mt-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
+            className="w-full bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
 
-        {/* DOB + Gender */}
+        {/* DOB */}
         <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-400 text-sm">
-              Date of Birth (Private)
-            </label>
-            <input
-              type="date"
-              {...register("dob")}
-              className="w-full mt-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
-            />
+          <label className="text-gray-400 text-sm">Date of Birth</label>
+          <input
+            type="date"
+            {...register("dateOfBirth")}
+            className="w-full bg-zinc-900 rounded-lg px-3 py-2 outline-none"
+          />
         </div>
+        <p className="text-gray-200 text-xs text-start mb-3">This will not be 
+          shown publicly. (optional)</p>
 
+        {/* Gender */}
         <div className="flex items-center gap-4 mb-4">
-            <label className="text-gray-400 text-sm">
-              Gender (Private)
-            </label>
-            <select
-              {...register("gender")}
-              className="w-full mt-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
-            >
-              <option value="">Select</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
+          <label className="text-gray-400 text-sm">Gender</label>
+          <select
+            {...register("gender")}
+            className="w-full bg-zinc-900 rounded-lg px-3 py-2 outline-none"
+          >
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Others">Others</option>
+          </select>
         </div>
+        <p className="text-gray-200 text-xs text-start mb-3">This will not be 
+          shown publicly. (optional)</p>
 
         {/* Divider */}
         <div className="border-t border-white/10 my-6" />
@@ -137,23 +189,23 @@ export function EditProfileCard() {
         <div className="mb-4 flex items-center gap-4">
           <label className="w-32 text-gray-400">Instagram</label>
           <input
-            placeholder="username"
+            placeholder="Enter your @username"
             {...register("instagram")}
             className="flex-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
 
-        {/* X */}
+        {/* Twitter */}
         <div className="mb-6 flex items-center gap-4">
           <label className="w-32 text-gray-400">X</label>
           <input
-            placeholder="username"
-            {...register("x")}
+            placeholder="Enter your @username"
+            {...register("twitter")}
             className="flex-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
 
-        {/* Save Button */}
+        {/* Save */}
         <div className="flex justify-end">
           <button
             type="submit"
@@ -163,7 +215,6 @@ export function EditProfileCard() {
             Save Changes
           </button>
         </div>
-
       </form>
     </div>
   );

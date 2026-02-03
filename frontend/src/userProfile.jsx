@@ -2,11 +2,13 @@ import { getMyProfile } from "./myProfileResponse.js";
 import { useEffect, useState } from "react";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
+import useUserStore from "./useUserStore.js";
 
 export function UserProfile() {
-  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const profile = useUserStore((state) => state.profile);
+  const setProfile = useUserStore((state) => state.setProfile);
 
   useEffect(() => {
     async function loadProfile() {
@@ -23,7 +25,7 @@ export function UserProfile() {
     loadProfile();
   }, []);
 
-  if (loading) return <p className="text-white">Loading...</p>;
+  if (!profile && loading) return <p className="text-white">Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
@@ -43,9 +45,14 @@ export function UserProfile() {
           <div
             className="w-32 h-32 rounded-full mx-auto mb-4 
                        bg-zinc-700 flex items-center justify-center 
-                       text-3xl font-bold text-gray-300"
+                       text-6xl font-bold text-gray-300"
           >
-            {profile.name?.charAt(0)}
+            {profile.name
+              ?.split(" ")
+              .map((word) => word.charAt(0))
+              .join("")
+              .slice(0, 2)
+              .toUpperCase()}
           </div>
         )}
 
@@ -84,7 +91,7 @@ export function UserProfile() {
 
         {/* Social Links */}
         <div className="flex justify-center gap-4 mb-5 mt-3">
-          { profile.instagram &&
+          {profile.instagram && (
             <a
               href={profile.instagram}
               target="_blank"
@@ -93,9 +100,9 @@ export function UserProfile() {
             >
               <FaInstagram className="w-4 h-4" />
             </a>
-          }
+          )}
 
-          { profile.twitter &&
+          {profile.twitter && (
             <a
               href={profile.twitter}
               target="_blank"
@@ -104,7 +111,7 @@ export function UserProfile() {
             >
               <FaXTwitter className="w-4 h-4" />
             </a>
-          }
+          )}
         </div>
 
         {/* Edit Button */}

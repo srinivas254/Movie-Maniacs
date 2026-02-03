@@ -127,16 +127,31 @@ public class AuthServiceImpl implements AuthService{
         Map<String, Object> claims = googleAuthService.parseIdToken((String) tokens.get("id_token"));
 
         String sub = (String) claims.get("sub");
+        String email = (String) claims.get("email");
+        String pictureUrl = (String) claims.get("picture");
 
-        User user = userRepository
-                .findByProviderId(sub)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Account not found. Please register first."
-                        )
+        User user = userRepository.findByProviderId(sub).orElse(null);
+
+        // 2) If not found, try by email
+        if (user == null) {
+            user = userRepository.findByEmail(email).orElse(null);
+
+            // 3) If email exists -> link Google
+            if (user != null) {
+                user.setProvider(AuthProvider.GOOGLE);
+                user.setProviderId(sub);
+                user.setPictureUrl(pictureUrl);
+                userRepository.save(user);
+            }
+
+            else {
+                throw new RuntimeException(
+                        "Account not found. Please register first."
                 );
+            }
+        }
 
-        String googleAuthToken = jwtUtil.generateToken(user.getId(),user.getRole());
+            String googleAuthToken = jwtUtil.generateToken(user.getId(),user.getRole());
         return LoginResponseDto.builder()
                 .message("Google oAuth Login successful")
                 .token(googleAuthToken)
