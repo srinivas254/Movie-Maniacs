@@ -51,7 +51,11 @@ export function ResetPassword() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Reset failed");
+        if(data.oldPassword !== oldPassword){
+          throw new Error("Old password is Invalid");
+        }
+
+        throw new Error("Failed to update password");
       }
 
       toast.success("Password reset successful");

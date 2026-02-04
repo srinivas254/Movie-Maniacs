@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useUserStore from "./useUserStore.js";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 /* ---------------- Schema ---------------- */
 
@@ -17,13 +16,9 @@ const profileSchema = z.object({
   twitter: z.string().optional(),
 });
 
-/* ---------------- Component ---------------- */
-
 export function EditProfileCard() {
-  console.log("ZUSTAND:", useUserStore.getState());
   const user = useUserStore((state) => state.profile);
   const setProfile = useUserStore((state) => state.setProfile);
-  const navigate = useNavigate();
 
   const {
     register,
@@ -35,7 +30,7 @@ export function EditProfileCard() {
     defaultValues: {
       name: user?.name || "",
       bio: user?.bio || "",
-      dateOfBirth: user?.dateOfBirth || null,
+      dateOfBirth: user?.dateOfBirth?.slice(0,10) || "",
       gender: user?.gender || "",
       instagram: user?.instagram || "",
       twitter: user?.twitter || "",
@@ -47,9 +42,7 @@ export function EditProfileCard() {
       reset({
         name: user.name || "",
         bio: user.bio || "",
-        dateOfBirth: user.dateOfBirth
-        ? user.dateOfBirth.substring(0, 10)
-        : "",
+        dateOfBirth: user.dateOfBirth ? user.dateOfBirth.substring(0, 10) : "",
         gender: user.gender || "",
         instagram: user.instagram || "",
         twitter: user.twitter || "",
@@ -77,21 +70,17 @@ export function EditProfileCard() {
       }
 
       const updatedUser = await response.json();
-      // 🔥 Update Zustand
-      setProfile(updatedUser);
+      
+      const { message, ...profileData } = updatedUser;
+      setProfile(profileData);
 
-      toast.success("Profile updated successfully");
-
-      setTimeout(() => {
-        navigate("/profile");
-      },500);
+      toast.success(message);
 
     } catch (err) {
       console.error(err.message);
       toast.error("Something went wrong");
     }
   };
-
 
   return (
     <div
@@ -161,8 +150,9 @@ export function EditProfileCard() {
             className="w-full bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
-        <p className="text-gray-200 text-xs text-start mb-3">This will not be 
-          shown publicly. (optional)</p>
+        <p className="text-gray-200 text-xs text-start mb-3">
+          This will not be shown publicly. (optional)
+        </p>
 
         {/* Gender */}
         <div className="flex items-center gap-4 mb-4">
@@ -177,8 +167,9 @@ export function EditProfileCard() {
             <option value="Others">Others</option>
           </select>
         </div>
-        <p className="text-gray-200 text-xs text-start mb-3">This will not be 
-          shown publicly. (optional)</p>
+        <p className="text-gray-200 text-xs text-start mb-3">
+          This will not be shown publicly. (optional)
+        </p>
 
         {/* Divider */}
         <div className="border-t border-white/10 my-6" />
