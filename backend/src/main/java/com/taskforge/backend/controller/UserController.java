@@ -43,16 +43,32 @@ public class UserController {
 
     @PreAuthorize("(hasRole('USER')")
     @DeleteMapping("/me")
-    public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal){
-        userService.deleteUserById(principal.getId());
+    public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody UserDeleteRequestDto userdeleterequestdto){
+        userService.deleteUserById(principal.getId(),userdeleterequestdto.getPassword());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/me")
-    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
-        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
+    public ResponseEntity<MsgResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
+        MsgResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    }
+
+    @PostMapping("/set-password")
+    public ResponseEntity<MsgResponseDto> setPassword(
+            @AuthenticationPrincipal CustomPrincipal principal,
+            @Valid @RequestBody SetPasswordRequestDto setPasswordRequestDto) {
+        MsgResponseDto passRes = userService.setPassword(principal.getId(), setPasswordRequestDto.getPassword());
+        return ResponseEntity.status(HttpStatus.OK).body(passRes);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MsgResponseDto> resetPassword(
+            @AuthenticationPrincipal CustomPrincipal principal,
+            @Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
+        MsgResponseDto repassRes = userService.resetPassword(principal.getId(), resetPasswordRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(repassRes);
     }
 
 }

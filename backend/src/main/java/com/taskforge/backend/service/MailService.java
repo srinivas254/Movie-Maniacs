@@ -1,6 +1,7 @@
 package com.taskforge.backend.service;
 
 import com.taskforge.backend.config.GmailOAuthConfig;
+import com.taskforge.backend.exception.EmailSendException;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
@@ -55,7 +56,7 @@ public class MailService {
                 System.out.println("✅ Mail sent successfully to " + to);
             }
         }catch(Exception e){
-            throw new RuntimeException("Unable to send otp email",e);
+            throw new EmailSendException("Unable to send otp email",e);
         }
     }
 }

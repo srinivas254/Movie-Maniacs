@@ -63,13 +63,6 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Internal Server error: " + ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
-    }
-
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException unf) {
         Map<String, String> errors = new HashMap<>();
@@ -96,13 +89,6 @@ public class GlobalException {
         Map<String,String> errors = new HashMap<>();
         errors.put("error","Invalid or expired Google ID token: "+ jwe.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errors);
-    }
-
-    @ExceptionHandler(InvalidIdTokenException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidIdTokenException(InvalidIdTokenException iie){
-        Map<String,String> errors = new HashMap<>();
-        errors.put("error",iie.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -133,18 +119,32 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException re) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", re.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<Map<String,String>> handleUserAlreadyExists(UserAlreadyExistsException ex){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
-    @ExceptionHandler(InvalidResponseException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidResponseException(InvalidResponseException ire) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", ire.getMessage());
+    @ExceptionHandler(PasswordNotSetException.class)
+    public ResponseEntity<Map<String,String>> handlePasswordNotSet(PasswordNotSetException ex){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(ConfirmPasswordMismatchException.class)
+    public ResponseEntity<Map<String,String>> handlePasswordNotSet(ConfirmPasswordMismatchException ex){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(PasswordAlreadyExistsException.class)
+    public ResponseEntity<Map<String,String>> handlePasswordAlreadyExists(PasswordAlreadyExistsException ex){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
@@ -160,6 +160,62 @@ public class GlobalException {
         Map<String, String> errors = new HashMap<>();
         errors.put("error", rex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
+    }
+
+    @ExceptionHandler(TokenConfigurationException.class)
+    public ResponseEntity<Map<String, String>> handleTokenConfiguration(TokenConfigurationException tex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", tex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
+
+    @ExceptionHandler( ExternalServiceException.class )
+    public ResponseEntity<Map<String,String>> handleExternalService(ExternalServiceException esx) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", esx.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
+    }
+
+    @ExceptionHandler( ExternalTokenServiceException.class )
+    public ResponseEntity<Map<String,String>> handleExternalTokenService(ExternalTokenServiceException etx) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", etx.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(errors);
+    }
+
+    @ExceptionHandler( InvalidOAuthStateException.class )
+    public ResponseEntity<Map<String,String>> handleInvalidState(InvalidOAuthStateException ex){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler( EmailSendException.class )
+    public ResponseEntity<Map<String,String>> handleEmailSend(EmailSendException ex) {
+        Map<String,String> errors = new HashMap<>();
+        errors.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
+    }
+
+    @ExceptionHandler(InvalidOAuthResponseException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidOAuthResponseException(InvalidOAuthResponseException ire) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ire.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(errors);
+    }
+
+    @ExceptionHandler(InvalidIdTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidIdTokenException(InvalidIdTokenException iie){
+        Map<String,String> errors = new HashMap<>();
+        errors.put("error",iie.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String,String>> handleAny(Exception ex){
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Unexpected server error");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 
 }

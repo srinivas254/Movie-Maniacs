@@ -2,6 +2,9 @@ package com.taskforge.backend.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.taskforge.backend.exception.ExternalServiceException;
+import com.taskforge.backend.exception.ExternalTokenServiceException;
+import com.taskforge.backend.exception.TokenConfigurationException;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -24,13 +28,10 @@ public class GmailOAuthConfig {
 
     @PostConstruct
     public void validateTokenPath(){
-        System.out.println("tokenPath: " + tokenPath);
-        System.out.println("exists? " + (tokenPath != null && tokenPath.exists()));
         if(tokenPath == null || !tokenPath.exists()){
-            throw new IllegalStateException("token.json not found or path is incorrect. Check mail.oauth.token.path in application.properties");
+            throw new TokenConfigurationException("token.json not found or path is incorrect.");
         }
     }
-
 
     public String getAccessToken() throws IOException{
         ObjectMapper mapper = new ObjectMapper();
@@ -58,15 +59,24 @@ public class GmailOAuthConfig {
         int responseCode = conn.getResponseCode();
         System.out.println("HTTP Response Code: " + responseCode);
 
-        if (responseCode != 200) {
-            String error = new String(conn.getErrorStream().readAllBytes());
-            System.out.println("Google Error Response: " + error);
-            throw new IOException("Failed to get access token");
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+
+            InputStream errStream = conn.getErrorStream();
+            String errorBody = errStream != null
+                    ? new String(errStream.readAllBytes())
+                    : "No error response from Google";
+
+            System.out.println("Google Error Response: " + errorBody);
+
+            throw new ExternalServiceException(
+                    "Google token API failed with status "
+                            + responseCode
+            );
         }
 
         JsonNode response = mapper.readTree(conn.getInputStream());
         if (response.get("access_token") == null) {
-            throw new IOException("No access_token found in response: " + response.toString());
+            throw new ExternalTokenServiceException("Google response missing access_token");
         }
 
         return response.get("access_token").asText();

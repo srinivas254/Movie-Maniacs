@@ -1,6 +1,7 @@
 package com.taskforge.backend.controller;
 
 import com.taskforge.backend.dto.*;
+import com.taskforge.backend.exception.InvalidOAuthStateException;
 import com.taskforge.backend.service.AuthService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,15 +30,15 @@ public class AuthController {
 
     @PermitAll
     @PostMapping("/register")
-    public ResponseEntity<UserRegistrationResponseDto> registerUser(@Valid @RequestBody UserRegistrationRequestDto user){
-        UserRegistrationResponseDto savedUser = authService.saveUser(user);
+    public ResponseEntity<MsgResponseDto> registerUser(@Valid @RequestBody UserRegistrationRequestDto user){
+        MsgResponseDto savedUser = authService.saveUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @PermitAll
     @PostMapping("/jwt/login")
-    public ResponseEntity<OtpGenerationResponseDto> loginUser(@Valid @RequestBody OtpGenerationRequestDto otpGenerationRequestDto){
-        OtpGenerationResponseDto loginUser = authService.loginAUser(otpGenerationRequestDto);
+    public ResponseEntity<MsgResponseDto> loginUser(@Valid @RequestBody OtpGenerationRequestDto otpGenerationRequestDto){
+        MsgResponseDto loginUser = authService.loginAUser(otpGenerationRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(loginUser);
     }
 
@@ -93,10 +94,10 @@ public class AuthController {
                 return;
             }
 
-            throw new RuntimeException("Invalid OAuth state");
+            throw new InvalidOAuthStateException("Invalid OAuth state");
 
         }
-        catch (RuntimeException ex) {
+        catch (Exception ex) {
 
             String errorMsg = URLEncoder.encode(
                     ex.getMessage(),

@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -37,14 +40,23 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void deleteUserById(String id){
+    public void deleteUserById(String id,String password){
         User user = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("User not found with id "+ id));
+
+        if(user.getPassword() == null){
+            throw new PasswordNotSetException("Please set a password before deleting account");
+        }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new InvalidPasswordException("Incorrect password");
+        }
+
         userRepository.delete(user);
     }
 
     @Override
-    public ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
+    public MsgResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
         User euser = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("User not found with id "+ id));
 
@@ -80,9 +92,49 @@ public class UserServiceImpl implements UserService{
         }
 
         User updatedUser = userRepository.save(euser);
-        ProfileUpdateResponseDto response = modelMapper.map(updatedUser, ProfileUpdateResponseDto.class);
+        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
 
         response.setMessage("Profile updated successfully");
+        return response;
+    }
+
+    @Override
+    public MsgResponseDto setPassword(String id, String newPassword){
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id "+ id));
+
+        if(user.getPassword() != null){
+            throw new PasswordAlreadyExistsException("Password already exists. Use reset password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        User updatedUser = userRepository.save(user);
+        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
+
+        response.setMessage("Password set successfully");
+        return response;
+    }
+
+    @Override
+    public MsgResponseDto resetPassword(String id, ResetPasswordRequestDto request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new ConfirmPasswordMismatchException("New password and confirm password do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        User updatedUser = userRepository.save(user);
+        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
+        response.setMessage("Password updated successfully");
         return response;
     }
 

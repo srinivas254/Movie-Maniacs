@@ -3,7 +3,7 @@ package com.taskforge.backend.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskforge.backend.exception.InvalidIdTokenException;
-import com.taskforge.backend.exception.InvalidResponseException;
+import com.taskforge.backend.exception.InvalidOAuthResponseException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -84,11 +84,11 @@ public class GoogleAuthService {
         Map<String, Object> tokens = response.getBody();
 
         if(tokens == null){
-            throw new InvalidResponseException("Empty response from Google token endpoint");
+            throw new InvalidOAuthResponseException("Empty response from Google token endpoint");
         }
 
         if(!tokens.containsKey("id_token")){
-            throw new InvalidResponseException("Google token response missing id_token");
+            throw new InvalidOAuthResponseException("Google token response missing id_token");
         }
 
         return tokens;

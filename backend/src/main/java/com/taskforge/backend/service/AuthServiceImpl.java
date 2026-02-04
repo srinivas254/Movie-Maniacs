@@ -40,20 +40,20 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public UserRegistrationResponseDto saveUser(UserRegistrationRequestDto user){
+    public MsgResponseDto saveUser(UserRegistrationRequestDto user){
         User euser = new User();
         modelMapper.map(user,euser);
         euser.setProvider(AuthProvider.LOCAL);
         euser.setPassword(passwordEncoder.encode(euser.getPassword()));
         euser.setRole(USER);
         userRepository.save(euser);
-        return UserRegistrationResponseDto.builder()
+        return MsgResponseDto.builder()
                 .message("User registration successful")
                 .build();
     }
 
     @Override
-    public OtpGenerationResponseDto loginAUser(OtpGenerationRequestDto userLoginRequestDto){
+    public MsgResponseDto loginAUser(OtpGenerationRequestDto userLoginRequestDto){
         String emailOrUserName = userLoginRequestDto.getEmailOrUserName();
         String providedPass = userLoginRequestDto.getPassword();
         User userLogin;
@@ -80,7 +80,7 @@ public class AuthServiceImpl implements AuthService{
         OtpEntry otpEntry = new OtpEntry(otp, expiryTime, userLogin.getId());
         otpStorage.put(otp, otpEntry);
 
-        return OtpGenerationResponseDto.builder()
+        return MsgResponseDto.builder()
                 .message("OTP sent successfully")
                 .build();
     }
@@ -145,7 +145,7 @@ public class AuthServiceImpl implements AuthService{
             }
 
             else {
-                throw new RuntimeException(
+                throw new UserNotFoundException(
                         "Account not found. Please register first."
                 );
             }
@@ -159,7 +159,7 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public  UserRegistrationResponseDto registerWithGoogle(String code) {
+    public  void registerWithGoogle(String code) {
 
         Map<String,Object> tokens =
                 googleAuthService.exchangeCodeForTokens(code);
@@ -175,7 +175,7 @@ public class AuthServiceImpl implements AuthService{
         String pictureUrl = (String) claims.get("picture");
 
         if(userRepository.findByEmail(email).isPresent()){
-            throw new RuntimeException(
+            throw new UserAlreadyExistsException(
                     "Account already exists. Please login."
             );
         }
@@ -191,10 +191,6 @@ public class AuthServiceImpl implements AuthService{
         newUser.setRole(USER);
 
         userRepository.save(newUser);
-
-        return UserRegistrationResponseDto.builder()
-                .message("Google Registration successful")
-                .build();
     }
 
     @Override
