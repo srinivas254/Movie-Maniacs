@@ -1,18 +1,18 @@
-
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "./useUserStore.js";
 import { ConfirmModal } from "./confirmationModal.jsx";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-export default function DeleteAccount() {
+export function DeleteAccount() {
   const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const clearProfile = useUserStore((state) => state.clearProfile);
   const navigate = useNavigate();
-
-  /* ---------------- Delete Request ---------------- */
 
   const handleDeleteAccount = async () => {
     try {
@@ -25,8 +25,9 @@ export default function DeleteAccount() {
         body: JSON.stringify({ password }),
       });
 
-      if (!response.ok) {
-        throw new Error("Wrong password or failed");
+      if (!response.status === 204) {
+        const data = await response.json();
+        throw new Error(data.message || "Delete failed");
       }
 
       toast.success("Account deleted successfully");
@@ -34,13 +35,11 @@ export default function DeleteAccount() {
       localStorage.removeItem("token");
       clearProfile();
 
-      navigate("/login");
+      navigate("/");
     } catch (err) {
-      toast.error(err.message);
+      setError(err.message);
     }
   };
-
-  /* ---------------- UI ---------------- */
 
   return (
     <div
@@ -59,26 +58,53 @@ export default function DeleteAccount() {
       {/* Password */}
       <div className="mb-4">
         <label className="text-gray-400 text-sm">Confirm Password</label>
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-zinc-900 rounded-lg px-3 py-2 outline-none"
-        />
+
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+            }}
+            className="w-full bg-zinc-900 rounded-lg px-3 py-2 
+                 outline-none pr-10"
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+          >
+            {showPassword ? (
+              <EyeSlashIcon className="w-5 h-5" />
+            ) : (
+              <EyeIcon className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
       {/* Delete Button */}
       <button
+        disabled={error !== ""}
         onClick={() => {
           if (!password) {
-            toast.error("Enter password");
+            setError("Enter password");
             return;
           }
           setShowModal(true);
         }}
-        className="bg-red-600 hover:bg-red-500
-                   px-6 py-2 rounded-lg font-medium"
+        className={`px-6 py-2 rounded-lg font-medium
+    ${
+      error !== ""
+        ? "bg-red-800 cursor-not-allowed opacity-60"
+        : "bg-red-600 hover:bg-red-500"
+    }
+  `}
       >
         Delete My Account
       </button>

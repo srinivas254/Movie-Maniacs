@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 import useUserStore from "./useUserStore.js";
+import { useNavigate } from "react-router-dom";
 
 export function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const profile = useUserStore((state) => state.profile);
   const setProfile = useUserStore((state) => state.setProfile);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadProfile() {
@@ -93,7 +96,7 @@ export function UserProfile() {
         <div className="flex justify-center gap-4 mb-5 mt-3">
           {profile.instagram && (
             <a
-              href={profile.instagram}
+              href={`https://www.instagram.com/${profile.instagram}`}
               target="_blank"
               rel="noreferrer"
               className="hover:text-pink-400 cursor-pointer"
@@ -104,7 +107,7 @@ export function UserProfile() {
 
           {profile.twitter && (
             <a
-              href={profile.twitter}
+              href={`https://x.com/${profile.twitter}`}
               target="_blank"
               rel="noreferrer"
               className="hover:text-sky-400 cursor-pointer"
@@ -115,7 +118,8 @@ export function UserProfile() {
         </div>
 
         {/* Edit Button */}
-        <button className="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg">
+        <button className="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg"
+         onClick={() => navigate("/settings/edit-profile")}>
           Edit Profile
         </button>
       </div>

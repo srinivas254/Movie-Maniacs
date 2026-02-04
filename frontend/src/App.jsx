@@ -11,6 +11,8 @@ import { VerifyOtp } from "./verifyOtp.jsx";
 import { ProtectedRoute } from "./protectedRoute.jsx";
 import { OAuthSuccess } from "./oAuthSuccess.jsx";
 import { EditProfileCard } from "./editProfile.jsx";
+import { SetPassword } from "./setAPassword.jsx";
+import { ResetPassword } from "./resetAPassword.jsx";
 import { DeleteAccount } from "./deleteAccount.jsx";
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/settings" element={<UserSettings />}>
           <Route path="edit-profile" element={<EditProfileCard />} />
+          <Route path="set-password" element={<SetPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="delete-account" element={<DeleteAccount />} />
         </Route>
       </Route>

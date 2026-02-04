@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-export function PasswordField({ value, onChange, passwordStrength, issues }) {
+export function PasswordField({
+  value,
+  onChange,
+  passwordStrength,
+  issues,
+  inputClassName = "",
+  issuesClassName = ""
+}) {
   const [showPassword, setShowPassword] = useState(false);
 
   const strengthBars = [
@@ -21,8 +28,9 @@ export function PasswordField({ value, onChange, passwordStrength, issues }) {
           placeholder="Password"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10
-          focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className={`w-full rounded-lg px-4 py-2 pr-10
+            outline-none focus:ring-2 focus:ring-gray-400
+            ${inputClassName}`}
           required
         />
 
@@ -60,8 +68,9 @@ export function PasswordField({ value, onChange, passwordStrength, issues }) {
         </p>
       )}
 
+      {/* Issues */}
       {issues.length > 0 && (
-        <ul className="mt-2 space-y-1 text-sm text-gray-600">
+        <ul className={`mt-2 space-y-1 text-sm text-gray-600 ${issuesClassName}`}>
           {issues.map((issue, index) => (
             <li key={index} className="flex items-start gap-2">
               <span className="text-red-500">•</span>
