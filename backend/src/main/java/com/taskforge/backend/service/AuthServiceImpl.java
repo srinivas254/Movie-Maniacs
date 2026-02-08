@@ -3,8 +3,10 @@ package com.taskforge.backend.service;
 import com.taskforge.backend.config.JwtUtil;
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.AuthProvider;
+import com.taskforge.backend.entity.PasswordResetToken;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.exception.*;
+import com.taskforge.backend.repository.PasswordResetTokenRepository;
 import com.taskforge.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.taskforge.backend.entity.Role.USER;
@@ -27,15 +31,17 @@ public class AuthServiceImpl implements AuthService{
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final Map<String,OtpEntry> otpStorage = new ConcurrentHashMap<>();
 
     @Autowired
-    public AuthServiceImpl(GoogleAuthService googleAuthService,UserRepository userRepository,JwtUtil jwtUtil, ModelMapper modelMapper, PasswordEncoder passwordEncoder, MailService mailService){
+    public AuthServiceImpl(GoogleAuthService googleAuthService,UserRepository userRepository,JwtUtil jwtUtil, ModelMapper modelMapper, PasswordEncoder passwordEncoder, MailService mailService,PasswordResetTokenRepository passwordResetTokenRepository){
         this.googleAuthService = googleAuthService;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.mailService = mailService;
     }
 
@@ -202,4 +208,107 @@ public class AuthServiceImpl implements AuthService{
     public boolean checkEmail(String email){
         return userRepository.existsByEmail(email);
     }
+
+    @Override
+    public MsgResponseDto forgotPassword(String email) {
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            throw new UserNotFoundException("User not found with email "+ email);
+        }
+
+        passwordResetTokenRepository
+                .deleteByUsedTrueOrExpiresAtBefore(LocalDateTime.now());
+
+        String rawToken = UUID.randomUUID().toString();
+        System.out.println("rawToken : "+ rawToken);
+        String hashedToken = passwordEncoder.encode(rawToken);
+
+        PasswordResetToken token = new PasswordResetToken();
+        token.setUser(user);
+        token.setTokenHash(hashedToken);
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        token.setUsed(false);
+
+        passwordResetTokenRepository.save(token);
+
+        String resetLink =
+                "http://localhost:5173/reset-password?rawToken=" + rawToken;
+
+        String subject = "Reset your password";
+
+        String body =
+                "<p>Hello,</p>" +
+                        "<p>You requested to reset your password.</p>" +
+                        "<p>Click the link below to reset it (valid for <b>15</b> minutes):</p>" +
+                        "<p><a href=\"" + resetLink + "\">Reset Password</a></p>";
+
+
+        mailService.sendMail(
+                user.getEmail(),
+                subject,
+                body
+        );
+
+        return MsgResponseDto.builder()
+                .message("Mail sent successfully")
+                .build();
+    }
+
+    @Override
+    public MsgResponseDto resetPassword(String rawToken,
+                              String newPassword,
+                              String confirmPassword) {
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ConfirmPasswordMismatchException("New Password and confirm password does not match");
+        }
+
+        // find user by valid token
+        PasswordResetToken resetToken = passwordResetTokenRepository
+                .findByUsedFalseAndExpiresAtAfter(LocalDateTime.now())
+                .stream()
+                .filter(t ->
+                        !t.isUsed()
+                                && t.getExpiresAt().isAfter(LocalDateTime.now())
+                                && passwordEncoder.matches(rawToken, t.getTokenHash()))
+                .findFirst()
+                .orElseThrow(() ->
+                        new InvalidIdTokenException("Invalid or expired token")
+                );
+
+        User user = resetToken.getUser();
+
+        PasswordResetToken latestToken =
+                passwordResetTokenRepository
+                        .findTopByUserAndUsedFalseAndExpiresAtAfterOrderByExpiresAtDesc(
+                                user, LocalDateTime.now()
+                        )
+                        .orElseThrow(() ->
+                                new InvalidIdTokenException("Invalid or expired token")
+                        );
+
+        // Step 3: ensure user is using the latest token
+        if (!latestToken.getId().equals(resetToken.getId())) {
+            throw new InvalidIdTokenException("Please use the latest reset link");
+        }
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new PasswordAlreadyExistsException(
+                    "New password must be different from old password"
+            );
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
+
+        return MsgResponseDto.builder()
+                .message("Password reset successful")
+                .build();
+    }
+
 }

@@ -7,12 +7,16 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useUserStore from "./useUserStore.js";
+import { UserIcon } from "@heroicons/react/24/solid";
 
 export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const profile = useUserStore((state) => state.profile);
+
+  const avatarType = localStorage.getItem("avatarType");
+  const avatarValue = localStorage.getItem("avatarValue");
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -39,24 +43,47 @@ export function ProfileMenu() {
         onClick={() => setOpen(!open)}
         className="p-1 rounded-full hover:ring-2 hover:ring-gray-500 transition"
       >
-        {profile?.pictureUrl ? (
+        {profile ? (
+          profile.pictureUrl ? (
+            // ✅ Live profile image
+            <img
+              src={profile.pictureUrl}
+              alt="profile"
+              className="w-8 h-8 rounded-full object-cover"
+            />
+          ) : (
+            // ✅ Live initials
+            <div
+              className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center 
+                    text-sm font-semibold text-gray-200"
+            >
+              {profile.name
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+          )
+        ) : avatarType === "image" ? (
           <img
-            src={profile.pictureUrl}
+            src={avatarValue}
             alt="profile"
             className="w-8 h-8 rounded-full object-cover"
           />
+        ) : avatarType === "initials" ? (
+          <div
+            className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center 
+                  text-sm font-semibold text-gray-200"
+          >
+            {avatarValue}
+          </div>
         ) : (
           <div
-            className="w-8 h-8 rounded-full 
-                 bg-zinc-700 flex items-center justify-center 
-                 text-sm font-semibold text-gray-200"
+            className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center
+               ring-2 ring-zinc-500"
           >
-            {profile?.name
-              ?.split(" ")
-              .map((word) => word.charAt(0))
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
+            <UserIcon className="w-6 h-6 text-gray-300" />
           </div>
         )}
       </button>

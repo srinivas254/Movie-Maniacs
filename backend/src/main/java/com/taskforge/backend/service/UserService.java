@@ -8,7 +8,7 @@ public interface UserService {
     UserResponseDto findUserById(String id);
     Page<UserResponseDto> findAllUsers(Pageable pageable);
     void deleteUserById(String id,String password);
-    MsgResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
+    ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
     MsgResponseDto setPassword(String id,String newPassword);
     MsgResponseDto resetPassword(String id,ResetPasswordRequestDto request);
 }

@@ -14,6 +14,8 @@ import { EditProfileCard } from "./editProfile.jsx";
 import { SetPassword } from "./setAPassword.jsx";
 import { ResetPassword } from "./resetAPassword.jsx";
 import { DeleteAccount } from "./deleteAccount.jsx";
+import { ForgotPassword } from "./forgot-Password.jsx";
+import { ResetNewPassword } from "./resetNewPassword.jsx";
 
 function App() {
   return (
@@ -22,7 +24,9 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
+      <Route path="/reset-password" element={<ResetNewPassword />} />
       <Route
         element={
           <ProtectedRoute>

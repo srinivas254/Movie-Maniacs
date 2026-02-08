@@ -18,6 +18,21 @@ export function UserProfile() {
       try {
         const data = await getMyProfile();
         setProfile(data);
+
+        if (data.pictureUrl) {
+        localStorage.setItem("avatarType", "image");
+        localStorage.setItem("avatarValue", data.pictureUrl);
+      } else if (data.name) {
+        const initials = data.name
+          .split(" ")
+          .map(w => w[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase();
+
+        localStorage.setItem("avatarType", "initials");
+        localStorage.setItem("avatarValue", initials);
+      }
       } catch (err) {
         setError(err.message);
       } finally {

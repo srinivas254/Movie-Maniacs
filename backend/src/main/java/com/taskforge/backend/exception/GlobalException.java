@@ -147,21 +147,6 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
-    @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<Map<String, String>> handleHttpClientError(HttpClientErrorException hex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", hex.getMessage());
-        errors.put("ResponseBody", hex.getResponseBodyAsString());
-        return ResponseEntity.status(hex.getStatusCode()).body(errors);
-    }
-
-    @ExceptionHandler(ResourceAccessException.class)
-    public ResponseEntity<Map<String, String>> handleResourceAccess(ResourceAccessException rex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", rex.getMessage());
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
-    }
-
     @ExceptionHandler(TokenConfigurationException.class)
     public ResponseEntity<Map<String, String>> handleTokenConfiguration(TokenConfigurationException tex) {
         Map<String, String> errors = new HashMap<>();

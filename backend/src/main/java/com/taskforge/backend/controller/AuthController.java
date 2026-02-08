@@ -134,4 +134,24 @@ public class AuthController {
         response.put("available",!exists);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @PermitAll
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MsgResponseDto> forgotPassword(
+            @RequestBody ForgotPasswordRequestDto forgotPasswordRequestDto
+    ) {
+        MsgResponseDto response = authService.forgotPassword(forgotPasswordRequestDto.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MsgResponseDto> resetPassword(
+            @RequestBody ResetNewPasswordRequestDto resetNewPasswordRequestDto
+    ) {
+        MsgResponseDto response =
+                authService.resetPassword(resetNewPasswordRequestDto.getRawToken(),
+                        resetNewPasswordRequestDto.getNewPassword(),
+                        resetNewPasswordRequestDto.getConfirmPassword());
+        return ResponseEntity.ok(response);
+    }
 }

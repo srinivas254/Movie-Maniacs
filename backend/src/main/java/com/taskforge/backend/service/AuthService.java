@@ -11,4 +11,6 @@ public interface AuthService {
     void registerWithGoogle(String code);
     boolean checkUserName(String userName);
     boolean checkEmail(String email);
+    MsgResponseDto forgotPassword(String email);
+    MsgResponseDto resetPassword(String rawToken,String oldPassword,String confirmPassword);
 }

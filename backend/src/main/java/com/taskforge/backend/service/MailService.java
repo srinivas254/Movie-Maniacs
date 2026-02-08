@@ -56,7 +56,7 @@ public class MailService {
                 System.out.println("✅ Mail sent successfully to " + to);
             }
         }catch(Exception e){
-            throw new EmailSendException("Unable to send otp email",e);
+            throw new EmailSendException("Unable to send email",e);
         }
     }
 }

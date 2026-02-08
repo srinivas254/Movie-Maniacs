@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public MsgResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
+    public ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
         User euser = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("User not found with id "+ id));
 
@@ -92,9 +92,10 @@ public class UserServiceImpl implements UserService{
         }
 
         User updatedUser = userRepository.save(euser);
-        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
+        ProfileUpdateResponseDto response = modelMapper.map(updatedUser, ProfileUpdateResponseDto.class);
 
         response.setMessage("Profile updated successfully");
+        System.out.println(response);
         return response;
     }
 
@@ -125,6 +126,12 @@ public class UserServiceImpl implements UserService{
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new PasswordAlreadyExistsException(
+                    "New password must be different from old password"
+            );
         }
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {

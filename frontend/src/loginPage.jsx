@@ -185,7 +185,9 @@ useEffect(() => {
         )}
 
         <div className="text-center">
-          <span className="text-sm text-purple-600 hover:underline cursor-pointer">
+          <span 
+          onClick={() => navigate("/forgot-password")}
+          className="text-sm text-purple-600 hover:underline cursor-pointer">
             Forgot password?
           </span>
         </div>

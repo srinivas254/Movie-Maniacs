@@ -50,8 +50,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/me")
-    public ResponseEntity<MsgResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
-        MsgResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
+    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
+        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
