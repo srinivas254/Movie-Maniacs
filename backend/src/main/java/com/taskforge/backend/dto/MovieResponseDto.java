@@ -1,45 +1,21 @@
-package com.taskforge.backend.entity;
+package com.taskforge.backend.dto;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "movie")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Movie {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    @Column(unique = true)
-    private String slugUrl;
-
-    @Column(nullable = false)
+public class MovieResponseDto {
     private String name;
-
-    @Column(nullable = false)
     private Integer year;
-
-    @Column(nullable = false)
     private Integer duration;
-
-    @Column(nullable = false)
     private String directedBy;
-
-    @Column(nullable = false)
     private String country;
-
-    @Column(nullable = false)
     private String language;
-
-    @Column(nullable = false)
     private String ageRating;
 
     private String posterSmallUrl;
@@ -48,4 +24,3 @@ public class Movie {
     private String overview;
     private String watchLink;
 }
-

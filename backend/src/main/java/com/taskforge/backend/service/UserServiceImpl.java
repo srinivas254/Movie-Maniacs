@@ -95,7 +95,6 @@ public class UserServiceImpl implements UserService{
         ProfileUpdateResponseDto response = modelMapper.map(updatedUser, ProfileUpdateResponseDto.class);
 
         response.setMessage("Profile updated successfully");
-        System.out.println(response);
         return response;
     }
 

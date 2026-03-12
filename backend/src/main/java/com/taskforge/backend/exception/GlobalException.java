@@ -196,6 +196,13 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<Map<String,String>> handleMovieNotFoundException(MovieNotFoundException mne){
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", mne.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();
