@@ -16,6 +16,7 @@ import { ResetPassword } from "./resetAPassword.jsx";
 import { DeleteAccount } from "./deleteAccount.jsx";
 import { ForgotPassword } from "./forgot-Password.jsx";
 import { ResetNewPassword } from "./resetNewPassword.jsx";
+import { NotFound } from "./NotFound.jsx";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="*" element={<NotFound />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route path="/reset-password" element={<ResetNewPassword />} />
       <Route

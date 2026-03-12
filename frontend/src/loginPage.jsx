@@ -21,7 +21,7 @@ export function Login() {
 
       <LoginCard />
 
-      <p className="text-white text-sm mt-4">
+      <p className="text-white text-sm mt-2 mb-7">
         Don’t have an account?{" "}
         <span
           onClick={() => navigate("/register")}
