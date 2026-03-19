@@ -17,6 +17,9 @@ import { DeleteAccount } from "./deleteAccount.jsx";
 import { ForgotPassword } from "./forgot-Password.jsx";
 import { ResetNewPassword } from "./resetNewPassword.jsx";
 import { NotFound } from "./NotFound.jsx";
+import { AddMoviePage } from "./movieAdd.jsx";
+import { UpdateMoviePage } from "./updateMovie.jsx";
+import { AdminPanel } from "./adminpanel.jsx";
 
 function App() {
   return (
@@ -29,6 +32,11 @@ function App() {
       <Route path="*" element={<NotFound />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route path="/reset-password" element={<ResetNewPassword />} />
+      <Route path="/movies/update" element={<UpdateMoviePage />} />
+      <Route path="/admin" element={<AdminPanel />}>
+        <Route path="add-movie" element={<AddMoviePage />} />
+      </Route>
+      <Route path="/movie/:id" element={<MovieDetailsPage />} />
       <Route
         element={
           <ProtectedRoute>
