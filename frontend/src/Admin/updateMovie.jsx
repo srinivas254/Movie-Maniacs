@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useMovieStore } from "./useMovieStore";
+import { useMovieStore } from "../Zustand Store/useMovieStore";
 import toast from "react-hot-toast";
 
 export function UpdateMoviePage() {
-
   const { id } = useParams();
 
   const { movie, setMovieField } = useMovieStore();
@@ -27,7 +26,6 @@ export function UpdateMoviePage() {
         Object.entries(data).forEach(([key, value]) => {
           setMovieField(key, value);
         });
-
       } catch (err) {
         console.error(err);
         toast.error("Failed to load movie");
@@ -52,7 +50,6 @@ export function UpdateMoviePage() {
       if (!res.ok) throw new Error("Failed to update movie");
 
       toast.success("Movie updated successfully 🎬");
-
     } catch (err) {
       console.error(err);
       toast.error("Error updating movie");
@@ -62,20 +59,53 @@ export function UpdateMoviePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-neutral-900 to-purple-900 px-6 py-12">
       <div className="w-full max-w-4xl bg-black/40 backdrop-blur-lg border border-neutral-800 rounded-2xl shadow-xl p-10">
-
         <h1 className="text-3xl font-semibold text-white mb-10 text-center">
           Update Movie
         </h1>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-7">
-
-          <FormInput label="Movie Name" name="name" value={movie.name} onChange={handleChange} />
-          <FormInput label="Year" name="year" value={movie.year} onChange={handleChange} />
-          <FormInput label="Duration (minutes)" name="duration" value={movie.duration} onChange={handleChange} />
-          <FormInput label="Director" name="directedBy" value={movie.directedBy} onChange={handleChange} />
-          <FormInput label="Country" name="country" value={movie.country} onChange={handleChange} />
-          <FormInput label="Language" name="language" value={movie.language} onChange={handleChange} />
-          <FormInput label="Age Rating" name="ageRating" value={movie.ageRating} onChange={handleChange} />
+          <FormInput
+            label="Movie Name"
+            name="name"
+            value={movie.name}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Year"
+            name="year"
+            value={movie.year}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Duration (minutes)"
+            name="duration"
+            value={movie.duration}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Director"
+            name="directedBy"
+            value={movie.directedBy}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Country"
+            name="country"
+            value={movie.country}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Language"
+            name="language"
+            value={movie.language}
+            onChange={handleChange}
+          />
+          <FormInput
+            label="Age Rating"
+            name="ageRating"
+            value={movie.ageRating}
+            onChange={handleChange}
+          />
 
           <FormInput
             label="Poster Small URL"
@@ -123,7 +153,6 @@ export function UpdateMoviePage() {
           >
             Update Movie
           </button>
-
         </form>
       </div>
     </div>

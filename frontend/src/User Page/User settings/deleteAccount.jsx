@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "./useUserStore.js";
+import useUserStore from "../../Zustand Store/useUserStore.js";
 import { ConfirmModal } from "./confirmationModal.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 

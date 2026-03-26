@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Logo } from "./siteLogo.jsx";
+import { Logo } from "../siteLogo.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -14,32 +14,31 @@ export function VerifyOtp() {
   const [timeLeft, setTimeLeft] = useState(120);
 
   useEffect(() => {
-  const storedId = sessionStorage.getItem("userId");
-  if (!storedId) {
-    navigate("/login");
-  }
-}, [navigate]);
-
+    const storedId = sessionStorage.getItem("userId");
+    if (!storedId) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   useEffect(() => {
-    if(otpVerified) return;
+    if (otpVerified) return;
 
-  const timer = setInterval(() => {
-    setTimeLeft((prev) => {
-      if (prev <= 1) {
-        clearInterval(timer);
-        sessionStorage.removeItem("userId");
-        navigate("/login");
-        return 0;
-      }
-      return prev - 1;
-    });
-  }, 1000);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          sessionStorage.removeItem("userId");
+          navigate("/login");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-  return () => clearInterval(timer);
-}, [navigate,otpVerified]);
+    return () => clearInterval(timer);
+  }, [navigate, otpVerified]);
 
-const handleOtpChange = (value, index) => {
+  const handleOtpChange = (value, index) => {
     if (!/^[0-9]?$/.test(value)) return;
 
     const newOtp = [...otp];
@@ -71,13 +70,12 @@ const handleOtpChange = (value, index) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            otp: otp.join("")
+            otp: otp.join(""),
           }),
         },
       );
 
       if (!response.ok) {
-
         if (response.status === 404) {
           throw new Error("OTP not found");
         }
@@ -149,9 +147,7 @@ const handleOtpChange = (value, index) => {
                 inputMode="numeric"
                 maxLength="1"
                 value={digit}
-                onChange={(e) =>
-                  handleOtpChange(e.target.value, index)
-                }
+                onChange={(e) => handleOtpChange(e.target.value, index)}
                 className="w-12 h-12 text-center text-xl font-semibold
                 border border-gray-300 rounded-lg
                 focus:outline-none focus:ring-2 focus:ring-purple-500"

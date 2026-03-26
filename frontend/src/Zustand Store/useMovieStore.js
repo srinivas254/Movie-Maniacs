@@ -17,6 +17,11 @@ export const useMovieStore = create((set) => ({
 
     movies: [],
 
+    setMovies: (movies) =>
+    set(() => ({
+      movies: movies,
+    })),
+
   setMovieField: (field, value) =>
     set((state) => ({
       movie: {

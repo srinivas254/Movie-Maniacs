@@ -45,6 +45,7 @@ public class Movie {
     private String posterSmallUrl;
     private String posterWideUrl;
 
+    @Column(columnDefinition = "TEXT")
     private String overview;
     private String watchLink;
 }

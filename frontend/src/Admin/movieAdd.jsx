@@ -1,10 +1,10 @@
-import { useMovieStore } from "./useMovieStore";
+import { useMovieStore } from "../Zustand Store/useMovieStore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export function AddMoviePage() {
   const navigate = useNavigate();
-  const { movie, setMovieField, clearMovie } = useMovieStore();
+  const { movie, setMovieField, addMovie, clearMovie } = useMovieStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,11 +20,11 @@ export function AddMoviePage() {
     e.preventDefault();
 
     const cleanMovie = Object.fromEntries(
-    Object.entries(movie).map(([key, value]) => [
-      key,
-      value === "" ? null : value,
-    ])
-  );
+      Object.entries(movie).map(([key, value]) => [
+        key,
+        value === "" ? null : value,
+      ]),
+    );
 
     try {
       const res = await fetch("http://localhost:8080/movies/add", {
@@ -36,12 +36,12 @@ export function AddMoviePage() {
       });
 
       if (!res.ok) throw new Error("Failed to add movie");
-
-      toast.success("Movie added successfully 🎬");
+      addMovie(cleanMovie);
+      toast.success("Movie added successfully");
 
       clearMovie();
 
-      navigate("/admin")
+      navigate("/admin");
     } catch (err) {
       console.error(err);
       toast.error("Error adding movie");

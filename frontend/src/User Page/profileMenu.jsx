@@ -6,7 +6,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import useUserStore from "./useUserStore.js";
+import useUserStore from "../Zustand Store/useUserStore.js";
 import { UserIcon } from "@heroicons/react/24/solid";
 
 export function ProfileMenu() {

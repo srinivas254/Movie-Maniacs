@@ -1,13 +1,11 @@
-
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-import { PasswordField } from "./password.jsx";
-import { getPasswordStrength } from "./passwordStrength.js";
-import { getPasswordIssues } from "./passwordIssues.js"
+import { PasswordField } from "../../Authentication/password.jsx";
+import { getPasswordStrength } from "../../Util/passwordStrength.js";
+import { getPasswordIssues } from "../../Util/passwordIssues.js";
 
 export function SetPassword() {
-
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -15,24 +13,20 @@ export function SetPassword() {
   const issues = getPasswordIssues(password);
 
   const handleSetPassword = async () => {
-
     if (!strength.isValid) {
       setError("Password does not meet requirements");
       return;
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/users/set-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ password }),
-        }
-      );
+      const response = await fetch("http://localhost:8080/users/set-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ password }),
+      });
 
       if (!response.ok) {
         const data = await response.json();
@@ -40,7 +34,6 @@ export function SetPassword() {
       }
 
       toast.success("Password set successfully");
-
     } catch (err) {
       setError(err.message);
     }
@@ -52,9 +45,7 @@ export function SetPassword() {
                  bg-black/60 backdrop-blur-md
                  border border-white/10 shadow-2xl"
     >
-      <h2 className="text-xl font-semibold mb-6">
-        Set Password
-      </h2>
+      <h2 className="text-xl font-semibold mb-6">Set Password</h2>
 
       <PasswordField
         value={password}
@@ -68,11 +59,7 @@ export function SetPassword() {
         issuesClassName="text-white"
       />
 
-      {error && (
-        <p className="text-red-500 text-sm mt-3">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
 
       <button
         disabled={!strength.isValid}

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useUserStore from "./useUserStore.js";
+import useUserStore from "../../Zustand Store/useUserStore.js";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 
@@ -30,7 +30,7 @@ export function EditProfileCard() {
     defaultValues: {
       name: user?.name || "",
       bio: user?.bio || "",
-      dateOfBirth: user?.dateOfBirth?.slice(0,10) || "",
+      dateOfBirth: user?.dateOfBirth?.slice(0, 10) || "",
       gender: user?.gender || "",
       instagram: user?.instagram || "",
       twitter: user?.twitter || "",
@@ -70,12 +70,11 @@ export function EditProfileCard() {
       }
 
       const updatedUser = await response.json();
-      
+
       const { message, ...profileData } = updatedUser;
       setProfile(profileData);
 
       toast.success(message);
-
     } catch (err) {
       console.error(err.message);
       toast.error("Something went wrong");

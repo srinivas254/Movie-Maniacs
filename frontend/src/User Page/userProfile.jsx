@@ -1,8 +1,8 @@
-import { getMyProfile } from "./myProfileResponse.js";
+import { getMyProfile } from "../Util/myProfileResponse.js";
 import { useEffect, useState } from "react";
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
-import useUserStore from "./useUserStore.js";
+import useUserStore from "../Zustand Store/useUserStore.js";
 import { useNavigate } from "react-router-dom";
 
 export function UserProfile() {
@@ -20,19 +20,19 @@ export function UserProfile() {
         setProfile(data);
 
         if (data.pictureUrl) {
-        localStorage.setItem("avatarType", "image");
-        localStorage.setItem("avatarValue", data.pictureUrl);
-      } else if (data.name) {
-        const initials = data.name
-          .split(" ")
-          .map(w => w[0])
-          .join("")
-          .slice(0, 2)
-          .toUpperCase();
+          localStorage.setItem("avatarType", "image");
+          localStorage.setItem("avatarValue", data.pictureUrl);
+        } else if (data.name) {
+          const initials = data.name
+            .split(" ")
+            .map((w) => w[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
 
-        localStorage.setItem("avatarType", "initials");
-        localStorage.setItem("avatarValue", initials);
-      }
+          localStorage.setItem("avatarType", "initials");
+          localStorage.setItem("avatarValue", initials);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -133,8 +133,10 @@ export function UserProfile() {
         </div>
 
         {/* Edit Button */}
-        <button className="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg"
-         onClick={() => navigate("/settings/edit-profile")}>
+        <button
+          className="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg"
+          onClick={() => navigate("/settings/edit-profile")}
+        >
           Edit Profile
         </button>
       </div>

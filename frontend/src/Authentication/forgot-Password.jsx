@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Logo } from "./siteLogo.jsx";
+import { Logo } from "../siteLogo.jsx";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 

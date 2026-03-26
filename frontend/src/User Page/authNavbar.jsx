@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Logo } from "./siteLogo.jsx";
+import { Logo } from "../siteLogo.jsx";
 import { SearchBox } from "./searchBox.jsx";
 import { ProfileMenu } from "./profileMenu.jsx";
 
@@ -63,7 +63,6 @@ export function AuthNavbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-black border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-
         {/* LOGO */}
         <Link to="/explore">
           <Logo className="text-lg cursor-pointer" />
@@ -71,7 +70,6 @@ export function AuthNavbar() {
 
         {/* ICONS + SEARCH + PROFILE */}
         <div className="hidden md:flex items-center gap-10 text-gray-300">
-
           {/* ICON NAV */}
           <div className="flex items-center gap-10">
             {navItems.map((item) => {
@@ -117,7 +115,6 @@ export function AuthNavbar() {
             <SearchBox />
             <ProfileMenu />
           </div>
-
         </div>
       </div>
     </nav>

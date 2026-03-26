@@ -1,25 +1,26 @@
 import { Routes, Route } from "react-router-dom";
-import { HomePage } from "./home.jsx";
-import { AuthLayout } from "./authLayout.jsx";
-import { Login } from "./loginPage.jsx";
-import { Register } from "./registerPage.jsx";
-import { CollectionsPage } from "./collectionsPage.jsx";
-import { ExplorePage } from "./explorePage.jsx";
-import { UserProfile } from "./userProfile.jsx";
-import { UserSettings } from "./userSettings.jsx";
-import { VerifyOtp } from "./verifyOtp.jsx";
-import { ProtectedRoute } from "./protectedRoute.jsx";
-import { OAuthSuccess } from "./oAuthSuccess.jsx";
-import { EditProfileCard } from "./editProfile.jsx";
-import { SetPassword } from "./setAPassword.jsx";
-import { ResetPassword } from "./resetAPassword.jsx";
-import { DeleteAccount } from "./deleteAccount.jsx";
-import { ForgotPassword } from "./forgot-Password.jsx";
-import { ResetNewPassword } from "./resetNewPassword.jsx";
+import { HomePage } from "./Home Page/home.jsx";
+import { AuthLayout } from "./Authentication/authLayout.jsx";
+import { Login } from "./Authentication/loginPage.jsx";
+import { Register } from "./Authentication/registerPage.jsx";
+import { CollectionsPage } from "./User Page/collectionsPage.jsx";
+import { ExplorePage } from "./User Page/explorePage.jsx";
+import { UserProfile } from "./User Page/userProfile.jsx";
+import { UserSettings } from "./User Page/userSettings.jsx";
+import { VerifyOtp } from "./Authentication/verifyOtp.jsx";
+import { ProtectedRoute } from "./Authentication/protectedRoute.jsx";
+import { OAuthSuccess } from "./Authentication/oAuthSuccess.jsx";
+import { EditProfileCard } from "./User Page/User settings/editProfile.jsx";
+import { SetPassword } from "./User Page/User settings/setAPassword.jsx";
+import { ResetPassword } from "./User Page/User settings/resetAPassword.jsx";
+import { DeleteAccount } from "./User Page/User settings/deleteAccount.jsx";
+import { ForgotPassword } from "./Authentication/forgot-Password.jsx";
+import { ResetNewPassword } from "./Authentication/resetNewPassword.jsx";
 import { NotFound } from "./NotFound.jsx";
-import { AddMoviePage } from "./movieAdd.jsx";
-import { UpdateMoviePage } from "./updateMovie.jsx";
-import { AdminPanel } from "./adminpanel.jsx";
+import { AddMoviePage } from "./Admin/movieAdd.jsx";
+import { UpdateMoviePage } from "./Admin/updateMovie.jsx";
+import { AdminPanel } from "./Admin/adminpanel.jsx";
+import { MovieDetailsPage } from "./Admin/movieDetails.jsx";
 
 function App() {
   return (

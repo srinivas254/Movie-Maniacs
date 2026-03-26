@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Logo } from "./siteLogo.jsx";
+import { Logo } from "../siteLogo.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-import { getPasswordStrength } from "./passwordStrength.js";
-import { getPasswordIssues } from "./passwordIssues.js";
+import { getPasswordStrength } from "../Util/passwordStrength.js";
+import { getPasswordIssues } from "../Util/passwordIssues.js";
 import { PasswordField } from "./password.jsx";
 
 export function ResetNewPassword() {
@@ -46,25 +46,24 @@ export function ResetNewPassword() {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        "http://localhost:8080/auth/reset-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            rawToken,
-            newPassword,
-            confirmPassword,
-          }),
-        }
-      );
+      const res = await fetch("http://localhost:8080/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rawToken,
+          newPassword,
+          confirmPassword,
+        }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Something went wrong please try again!");
+        throw new Error(
+          data.message || "Something went wrong please try again!",
+        );
       }
 
       toast.success(data.message);
@@ -72,7 +71,6 @@ export function ResetNewPassword() {
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,9 +79,10 @@ export function ResetNewPassword() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center 
-      bg-gradient-to-br from-black via-neutral-800 to-purple-500 px-4">
-
+    <div
+      className="min-h-screen flex flex-col items-center justify-center 
+      bg-gradient-to-br from-black via-neutral-800 to-purple-500 px-4"
+    >
       <Logo className="text-2xl mb-12 cursor-default" />
 
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -97,7 +96,6 @@ export function ResetNewPassword() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* ✅ New Password (Reusable component) */}
             <div>
               <label className="text-sm text-gray-600">New Password</label>
@@ -134,9 +132,7 @@ export function ResetNewPassword() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
                 >
                   {showConfirmPassword ? (
@@ -149,9 +145,7 @@ export function ResetNewPassword() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 text-center">
-                {error}
-              </p>
+              <p className="text-sm text-red-600 text-center">{error}</p>
             )}
 
             <button
@@ -164,7 +158,6 @@ export function ResetNewPassword() {
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>
-
           </form>
         </div>
       </div>

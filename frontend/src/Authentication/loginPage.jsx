@@ -1,11 +1,10 @@
-import { useState,useEffect } from "react";
-import { Logo } from "./siteLogo.jsx";
+import { useState, useEffect } from "react";
+import { Logo } from "../siteLogo.jsx";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { useNavigate,useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { GoogleOAuthButton } from "./googleoAuth.jsx";
 import toast from "react-hot-toast";
 import { useRef } from "react";
-
 
 export function Login() {
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ function LoginCard() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginError, setLoginError] = useState("");  
+  const [loginError, setLoginError] = useState("");
   const [oAuthloginError, setOAuthLoginError] = useState("");
 
   const navigate = useNavigate();
@@ -47,26 +46,24 @@ function LoginCard() {
 
   const hasShownToast = useRef(false);
 
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const registered = searchParams.get("registered");
 
-useEffect(() => {
-  const error = searchParams.get("error");
-  const registered = searchParams.get("registered");
+    if (hasShownToast.current) return;
 
-  if (hasShownToast.current) return;
+    if (error) {
+      hasShownToast.current = true;
+      setOAuthLoginError(error);
+      return;
+    }
 
-  if (error) {
-    hasShownToast.current = true;
-    setOAuthLoginError(error);
-    return;
-  }
-
-  if (registered) {
-    hasShownToast.current = true;
-    toast.success("Account created successfully");
-    window.history.replaceState({}, "", "/login");
-  }
-}, [searchParams]);
-
+    if (registered) {
+      hasShownToast.current = true;
+      toast.success("Account created successfully");
+      window.history.replaceState({}, "", "/login");
+    }
+  }, [searchParams]);
 
   const isFormValid = emailOrUserName.trim() !== "" && password.trim() !== "";
 
@@ -185,9 +182,10 @@ useEffect(() => {
         )}
 
         <div className="text-center">
-          <span 
-          onClick={() => navigate("/forgot-password")}
-          className="text-sm text-purple-600 hover:underline cursor-pointer">
+          <span
+            onClick={() => navigate("/forgot-password")}
+            className="text-sm text-purple-600 hover:underline cursor-pointer"
+          >
             Forgot password?
           </span>
         </div>

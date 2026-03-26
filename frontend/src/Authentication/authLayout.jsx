@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { AuthNavbar } from "./authNavbar.jsx";
+import { AuthNavbar } from "../User Page/authNavbar.jsx";
 import { useEffect } from "react";
 
 export function AuthLayout() {

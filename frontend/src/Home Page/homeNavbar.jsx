@@ -1,4 +1,4 @@
-import { Logo } from "./siteLogo.jsx";
+import { Logo } from "../siteLogo.jsx";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -9,19 +9,18 @@ const navItems = [
   { id: "help", label: "Help" },
 ];
 
-
 export function HomeNavbar() {
   const navigate = useNavigate();
   const [active, setActive] = useState("hero");
 
   useEffect(() => {
     const sections = navItems
-      .map(item => document.getElementById(item.id))
+      .map((item) => document.getElementById(item.id))
       .filter(Boolean);
 
     const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
+      (entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setActive(entry.target.id);
           }
@@ -29,10 +28,10 @@ export function HomeNavbar() {
       },
       {
         rootMargin: "-50% 0px -50% 0px", // middle of screen
-      }
+      },
     );
 
-    sections.forEach(section => observer.observe(section));
+    sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
   }, []);
@@ -40,7 +39,6 @@ export function HomeNavbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-black border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-
         {/* LOGO */}
         <a href="#hero">
           <Logo className="text-lg cursor-pointer" />
@@ -48,13 +46,13 @@ export function HomeNavbar() {
 
         {/* NAV LINKS */}
         <div className="hidden md:flex gap-40 text-gray-300">
-          {navItems.map(item => (
+          {navItems.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
               className={`relative cursor-pointer text-sm transition
                 ${
-                    active === item.id
+                  active === item.id
                     ? "text-purple-400"
                     : "text-gray-300 hover:text-purple-400"
                 }`}

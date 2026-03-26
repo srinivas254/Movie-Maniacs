@@ -1,15 +1,17 @@
-import { MovieReel } from "./heroMovie"
-import { hollywoodPosters,webSeriesPosters,animePosters } from "./movieData"
-import { useNavigate } from "react-router-dom"
-
+import { MovieReel } from "./heroMovie";
+import {
+  hollywoodPosters,
+  webSeriesPosters,
+  animePosters,
+} from "../Util/movieData";
+import { useNavigate } from "react-router-dom";
 
 export function HeroSection() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <section className="min-h-screen flex items-center px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-
         <div className="space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
             Discover Movies <br />
@@ -24,14 +26,17 @@ export function HeroSection() {
 
           <div className="flex gap-4">
             <button
-            onClick = {() => navigate("/login")} 
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition">
+              onClick={() => navigate("/login")}
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
+            >
               Login to Explore
             </button>
 
-            <a href="#features"
-             className="inline-block px-6 py-3 border border-purple-500/40 text-purple-300
-              rounded-lg hover:bg-purple-500/10 transition">
+            <a
+              href="#features"
+              className="inline-block px-6 py-3 border border-purple-500/40 text-purple-300
+              rounded-lg hover:bg-purple-500/10 transition"
+            >
               Preview Features
             </a>
           </div>
@@ -46,7 +51,7 @@ export function HeroSection() {
             <div className="grid grid-cols-3 gap-4">
               <div className="aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden">
                 <MovieReel posters={hollywoodPosters} />
-              </ div>
+              </div>
               <div className="aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden">
                 <MovieReel posters={webSeriesPosters} />
               </div>
@@ -56,8 +61,7 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
       </div>
     </section>
-  )
+  );
 }

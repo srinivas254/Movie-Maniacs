@@ -1,14 +1,14 @@
-import { Logo } from "./siteLogo.jsx";
-import { useState ,useEffect} from "react";
+import { Logo } from "../siteLogo.jsx";
+import { useState, useEffect } from "react";
 import { PasswordField } from "./password.jsx";
 import { UserNameField } from "./userName.jsx";
-import { getPasswordStrength } from "./passwordStrength";
-import { getPasswordIssues } from "./passwordIssues";
-import { getUsernameIssues } from "./userNameIssues.js";
-import { useNavigate,useSearchParams } from "react-router-dom";
+import { getPasswordStrength } from "../Util/passwordStrength.js";
+import { getPasswordIssues } from "../Util/passwordIssues.js";
+import { getUsernameIssues } from "../Util/userNameIssues.js";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { checkUsername } from "./checkUsername.js";
-import { checkEmail } from "./checkEmail.js";
+import { checkUsername } from "../Util/checkUsername.js";
+import { checkEmail } from "../Util/checkEmail.js";
 import { GoogleOAuthButton } from "./googleoAuth.jsx";
 
 export function Register() {
@@ -53,15 +53,14 @@ function RegisterCard() {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
- useEffect(() => {
-  const error = searchParams.get("error");
 
-  if (error) {
-    setRegisterError(error);
-  } 
-}, [searchParams]);
+  useEffect(() => {
+    const error = searchParams.get("error");
 
+    if (error) {
+      setRegisterError(error);
+    }
+  }, [searchParams]);
 
   const passwordStrength = getPasswordStrength(password);
   const passIssues = getPasswordIssues(password);
@@ -277,9 +276,7 @@ function RegisterCard() {
       <GoogleOAuthButton text="Register with Google" mode="register" />
 
       {registerError && (
-        <p className="text-sm text-red-600 text-center mt-2">
-          {registerError}
-        </p>
+        <p className="text-sm text-red-600 text-center mt-2">{registerError}</p>
       )}
     </div>
   );

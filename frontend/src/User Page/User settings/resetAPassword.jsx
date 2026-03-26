@@ -2,12 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-import { PasswordField } from "./password.jsx";
-import { getPasswordStrength } from "./passwordStrength.js";
-import { getPasswordIssues } from "./passwordIssues.js";
+import { PasswordField } from "../../Authentication/password.jsx";
+import { getPasswordStrength } from "../../Util/passwordStrength.js";
+import { getPasswordIssues } from "../../Util/passwordIssues.js";
 
 export function ResetPassword() {
-
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,7 +20,6 @@ export function ResetPassword() {
   const issues = getPasswordIssues(newPassword);
 
   const handleResetPassword = async () => {
-
     if (!strength.isValid) {
       setError("Password does not meet requirements");
       return;
@@ -46,12 +44,12 @@ export function ResetPassword() {
             newPassword,
             confirmPassword,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const data = await response.json();
-        if(data.oldPassword !== oldPassword){
+        if (data.oldPassword !== oldPassword) {
           throw new Error("Old password is Invalid");
         }
 
@@ -63,7 +61,6 @@ export function ResetPassword() {
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
-
     } catch (err) {
       setError(err.message);
     }
@@ -75,9 +72,7 @@ export function ResetPassword() {
                  bg-black/60 backdrop-blur-md
                  border border-white/10 shadow-2xl"
     >
-      <h2 className="text-xl font-semibold mb-6">
-        Reset Password
-      </h2>
+      <h2 className="text-xl font-semibold mb-6">Reset Password</h2>
 
       {/* Old Password */}
       <div className="relative">
@@ -152,11 +147,7 @@ export function ResetPassword() {
         </button>
       </div>
 
-      {error && (
-        <p className="text-red-500 text-sm mt-3">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
 
       <button
         disabled={!strength.isValid}
