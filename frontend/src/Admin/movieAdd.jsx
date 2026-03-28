@@ -36,7 +36,9 @@ export function AddMoviePage() {
       });
 
       if (!res.ok) throw new Error("Failed to add movie");
-      addMovie(cleanMovie);
+
+      const newMovie = await res.json();
+      addMovie(newMovie);
       toast.success("Movie added successfully");
 
       clearMovie();

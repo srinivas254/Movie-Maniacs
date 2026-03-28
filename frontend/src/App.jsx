@@ -36,8 +36,9 @@ function App() {
       <Route path="/movies/update" element={<UpdateMoviePage />} />
       <Route path="/admin" element={<AdminPanel />}>
         <Route path="add-movie" element={<AddMoviePage />} />
+        <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
-      <Route path="/movie/:id" element={<MovieDetailsPage />} />
+      <Route path="/movie/:slug" element={<MovieDetailsPage />} />
       <Route
         element={
           <ProtectedRoute>

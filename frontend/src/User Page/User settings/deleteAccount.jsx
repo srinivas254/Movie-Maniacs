@@ -114,6 +114,7 @@ export function DeleteAccount() {
         <ConfirmModal
           onCancel={() => setShowModal(false)}
           onConfirm={handleDeleteAccount}
+          message="Your account and all data will be permanently removed."
         />
       )}
     </div>

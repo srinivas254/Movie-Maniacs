@@ -40,6 +40,14 @@ export const useMovieStore = create((set) => ({
       movies: state.movies.filter((m) => m.id !== id),
     })),
 
+    setMovie: (movie) =>
+  set((state) => ({
+    movie: {
+      ...state.movie,
+      ...movie,
+    },
+  })),
+
   updateMovie: (updatedMovie) =>
     set((state) => ({
       movies: state.movies.map((m) =>

@@ -1,5 +1,5 @@
 
-export function ConfirmModal({ onCancel, onConfirm }) {
+export function ConfirmModal({ onCancel, onConfirm, message }) {
   return (
     <div
       className="fixed inset-0 bg-black/70
@@ -14,7 +14,7 @@ export function ConfirmModal({ onCancel, onConfirm }) {
         </h3>
 
         <p className="text-gray-400 text-sm mb-6">
-          Your account and all data will be permanently removed.
+          {message}
         </p>
 
         <div className="flex justify-end gap-3">

@@ -1,5 +1,6 @@
 package com.taskforge.backend.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MovieResponseDto {
+    private String id;
+    private String slugUrl;
     private String name;
     private Integer year;
     private Integer duration;

@@ -2,21 +2,27 @@ import { Logo } from "../siteLogo.jsx";
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../Zustand Store/useMovieStore.js";
+import { ConfirmModal } from "../User Page/User settings/confirmationModal.jsx";
 
 export function AdminPanel() {
   const [search, setSearch] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
 
-  const { movies, setMovies } = useMovieStore();
+  const { movies, setMovies, deleteMovie, setMovie } = useMovieStore();
 
   const fetchMovies = async () => {
+    setLoading(true);
     try {
       const res = await fetch("http://localhost:8080/movies/all");
       const data = await res.json();
       setMovies(data.content || []);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -24,15 +30,33 @@ export function AdminPanel() {
     fetchMovies();
   }, []);
 
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:8080/movies/${id}`, { method: "DELETE" });
+      deleteMovie(id);
+      setDeleteId(null); 
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const filteredMovies = movies.filter((m) =>
     m.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-neutral-800 text-white px-6 py-6">
+      
+      {deleteId && (
+        <ConfirmModal
+          onCancel={() => setDeleteId(null)}
+          onConfirm={() => handleDelete(deleteId)}
+          message="This movie data will be permanently deleted."
+        />
+      )}
+      
       <div className="flex justify-between items-center mb-8">
         <Logo className="text-2xl cursor-default" />
-
         <h1 className="text-red-500 font-bold text-2xl">Admin Panel</h1>
       </div>
 
@@ -65,7 +89,9 @@ export function AdminPanel() {
 
       {!showAll && search.trim() === "" ? null : (
         <div className="bg-neutral-900 rounded-xl p-3 border border-neutral-700">
-          {filteredMovies.length === 0 ? (
+          {loading ? (
+            <p className="text-gray-400 text-center">Loading movies...</p>
+          ) : filteredMovies.length === 0 ? (
             <p className="text-gray-400 text-center">
               No matching movies found...
             </p>
@@ -75,10 +101,7 @@ export function AdminPanel() {
                 key={movie.id}
                 className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
               >
-                <div
-                  className="flex items-center gap-4 cursor-pointer"
-                  onClick={() => navigate(`/movie/${movie.id}`)}
-                >
+                <div className="flex items-center gap-4 cursor-pointer">
                   <img
                     src={
                       movie.posterSmallUrl ||
@@ -87,7 +110,6 @@ export function AdminPanel() {
                     alt={movie.name}
                     className="w-16 h-20 object-cover rounded"
                   />
-
                   <div>
                     <h2 className="font-semibold">{movie.name}</h2>
                     <p className="text-sm text-gray-400">{movie.year}</p>
@@ -95,15 +117,26 @@ export function AdminPanel() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded">
+                  <button
+                    onClick={() => navigate(`/movie/${movie.slugUrl}`)}
+                    className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
+                  >
                     View
                   </button>
 
-                  <button className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded">
+                  <button
+                    onClick={() =>{ 
+                      setMovie(movie);
+                      navigate(`/admin/update-movie/${movie.id}`)}}
+                    className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded"
+                  >
                     Update
                   </button>
 
-                  <button className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded">
+                  <button
+                    onClick={() => setDeleteId(movie.id)} 
+                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                  >
                     Delete
                   </button>
                 </div>

@@ -24,7 +24,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MsgResponseDto saveMovie(MovieAddingRequestDto movie) {
+    public MovieResponseDto saveMovie(MovieAddingRequestDto movie) {
         String slugName = movie.getName()
                 .toLowerCase()
                 .replaceAll("\\s+", "-");
@@ -33,9 +33,7 @@ public class MovieServiceImpl implements MovieService {
         modelMapper.map(movie,newMovie);
         newMovie.setSlugUrl(generatedUrl);
         movieRepository.save(newMovie);
-        return MsgResponseDto.builder()
-                .message("Movie added successfully")
-                .build();
+        return modelMapper.map(newMovie,MovieResponseDto.class);
     }
 
     @Override
@@ -62,6 +60,9 @@ public class MovieServiceImpl implements MovieService {
     public MsgResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with id: " + id));
+
+        boolean nameChanged = movieRequest.getName() != null && !movieRequest.getName().equals(movie.getName());
+        boolean yearChanged = movieRequest.getYear() != null && !movieRequest.getYear().equals(movie.getYear());
 
         if(movieRequest.getName() != null){
             movie.setName(movieRequest.getName());
@@ -107,11 +108,13 @@ public class MovieServiceImpl implements MovieService {
             movie.setWatchLink(movieRequest.getWatchLink());
         }
 
-        String slugName = movie.getName()
-                .toLowerCase()
-                .replaceAll("\\s+", "-");
-        String generatedUrl = slugName + "-" + movie.getYear();
-        movie.setSlugUrl(generatedUrl);
+        if (nameChanged || yearChanged) {
+            String slugName = movie.getName()
+                    .toLowerCase()
+                    .replaceAll("\\s+", "-");
+            String generatedUrl = slugName + "-" + movie.getYear();
+            movie.setSlugUrl(generatedUrl);
+        }
 
         movieRepository.save(movie);
 

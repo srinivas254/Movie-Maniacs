@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface MovieService {
-    MsgResponseDto saveMovie(MovieAddingRequestDto movie);
+    MovieResponseDto saveMovie(MovieAddingRequestDto movie);
     MovieResponseDto getMovieBySlug(String movieUrl);
     Page<MovieResponseDto> findAllMovies(Pageable pageable);
     void deleteMovieById(String id);
