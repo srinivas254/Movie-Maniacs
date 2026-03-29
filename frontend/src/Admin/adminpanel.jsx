@@ -1,5 +1,6 @@
 import { Logo } from "../siteLogo.jsx";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../Zustand Store/useMovieStore.js";
 import { ConfirmModal } from "../User Page/User settings/confirmationModal.jsx";
@@ -35,8 +36,10 @@ export function AdminPanel() {
       await fetch(`http://localhost:8080/movies/${id}`, { method: "DELETE" });
       deleteMovie(id);
       setDeleteId(null); 
+      toast.success("Movie deleted successfully");
     } catch (err) {
       console.error(err);
+      toast.error("Movie deletion failed");
     }
   };
 

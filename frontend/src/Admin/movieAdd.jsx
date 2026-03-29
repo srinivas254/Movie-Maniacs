@@ -35,7 +35,10 @@ export function AddMoviePage() {
         body: JSON.stringify(cleanMovie),
       });
 
-      if (!res.ok) throw new Error("Failed to add movie");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw errorData;
+      }
 
       const newMovie = await res.json();
       addMovie(newMovie);
@@ -45,8 +48,11 @@ export function AddMoviePage() {
 
       navigate("/admin");
     } catch (err) {
-      console.error(err);
-      toast.error("Error adding movie");
+      if (typeof err === "object" && !err.message) {
+        Object.values(err).forEach((msg) => toast.error(msg));
+      } else {
+        toast.error("Error adding movie");
+      }
     }
   };
 

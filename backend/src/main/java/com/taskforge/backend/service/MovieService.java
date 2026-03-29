@@ -12,5 +12,5 @@ public interface MovieService {
     MovieResponseDto getMovieBySlug(String movieUrl);
     Page<MovieResponseDto> findAllMovies(Pageable pageable);
     void deleteMovieById(String id);
-    MsgResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest);
+    MovieResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest);
 }

@@ -15,6 +15,8 @@ export const useMovieStore = create((set) => ({
     watchLink: "",
   },
 
+  originalMovie: {},
+
     movies: [],
 
     setMovies: (movies) =>
@@ -40,13 +42,15 @@ export const useMovieStore = create((set) => ({
       movies: state.movies.filter((m) => m.id !== id),
     })),
 
-    setMovie: (movie) =>
-  set((state) => ({
-    movie: {
-      ...state.movie,
-      ...movie,
-    },
-  })),
+   setMovie: (movie) =>
+    set((state) => ({
+      movie: {
+        ...state.movie,
+        ...movie,
+      },
+      originalMovie: { ...movie },
+    })),
+
 
   updateMovie: (updatedMovie) =>
     set((state) => ({
@@ -70,5 +74,6 @@ export const useMovieStore = create((set) => ({
         overview: "",
         watchLink: "",
       },
+       originalMovie: {},
     }),
 }));

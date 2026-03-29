@@ -7,7 +7,7 @@ export function UpdateMoviePage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { movie, setMovieField, updateMovie } = useMovieStore();
+  const { movie, originalMovie, setMovieField, updateMovie } = useMovieStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,12 +24,13 @@ export function UpdateMoviePage() {
     const cleanMovie = Object.fromEntries(
       Object.entries(movie)
         .filter(([key]) => key !== "id" && key !== "slugUrl")
+        .filter(([key, value]) => value !== originalMovie[key])
         .map(([key, value]) => [key, value === "" ? null : value]),
     );
 
     try {
       const res = await fetch(`http://localhost:8080/movies/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cleanMovie),
       });
@@ -38,7 +39,7 @@ export function UpdateMoviePage() {
 
       const updatedMovie = await res.json();
       updateMovie(updatedMovie);
-      toast.success("Movie updated successfully 🎬");
+      toast.success("Movie updated successfully");
       navigate("/admin");
     } catch (err) {
       console.error(err);

@@ -3,8 +3,6 @@ package com.taskforge.backend.controller;
 import com.taskforge.backend.dto.MovieAddingRequestDto;
 import com.taskforge.backend.dto.MovieResponseDto;
 import com.taskforge.backend.dto.MsgResponseDto;
-import com.taskforge.backend.dto.UserResponseDto;
-import com.taskforge.backend.entity.Movie;
 import com.taskforge.backend.service.MovieServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +47,9 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<MsgResponseDto> updateMovieById(@PathVariable("id") String movieId,@Valid @RequestBody MovieAddingRequestDto movieRequest) {
-        MsgResponseDto updatedMovie = movieService.updateMovieById(movieId,movieRequest);
+    @PatchMapping("/{id}")
+    public ResponseEntity<MovieResponseDto> updateMovieById(@PathVariable("id") String movieId,@RequestBody MovieAddingRequestDto movieRequest) {
+        MovieResponseDto updatedMovie = movieService.updateMovieById(movieId,movieRequest);
         return ResponseEntity.status(HttpStatus.OK).body(updatedMovie);
     }
 

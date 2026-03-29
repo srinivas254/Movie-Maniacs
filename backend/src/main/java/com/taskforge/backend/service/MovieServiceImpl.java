@@ -57,12 +57,12 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MsgResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest) {
+    public MovieResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with id: " + id));
 
-        boolean nameChanged = movieRequest.getName() != null && !movieRequest.getName().equals(movie.getName());
-        boolean yearChanged = movieRequest.getYear() != null && !movieRequest.getYear().equals(movie.getYear());
+        boolean nameChanged = movieRequest.getName() != null;
+        boolean yearChanged = movieRequest.getYear() != null;
 
         if(movieRequest.getName() != null){
             movie.setName(movieRequest.getName());
@@ -118,9 +118,7 @@ public class MovieServiceImpl implements MovieService {
 
         movieRepository.save(movie);
 
-        return MsgResponseDto.builder()
-                .message("Movie updated successfully")
-                .build();
+        return modelMapper.map(movie, MovieResponseDto.class);
     }
 
 }
