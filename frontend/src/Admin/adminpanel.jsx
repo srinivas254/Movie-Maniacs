@@ -10,16 +10,20 @@ export function AdminPanel() {
   const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
 
   const { movies, setMovies, deleteMovie, setMovie } = useMovieStore();
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (page = 0) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/movies/all");
+      const res = await fetch(`http://localhost:8080/movies/all?page=${page}`);
       const data = await res.json();
       setMovies(data.content || []);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number);
     } catch (err) {
       console.error(err);
     } finally {
@@ -35,7 +39,7 @@ export function AdminPanel() {
     try {
       await fetch(`http://localhost:8080/movies/${id}`, { method: "DELETE" });
       deleteMovie(id);
-      setDeleteId(null); 
+      setDeleteId(null);
       toast.success("Movie deleted successfully");
     } catch (err) {
       console.error(err);
@@ -49,7 +53,6 @@ export function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-neutral-800 text-white px-6 py-6">
-      
       {deleteId && (
         <ConfirmModal
           onCancel={() => setDeleteId(null)}
@@ -57,7 +60,7 @@ export function AdminPanel() {
           message="This movie data will be permanently deleted."
         />
       )}
-      
+
       <div className="flex justify-between items-center mb-8">
         <Logo className="text-2xl cursor-default" />
         <h1 className="text-red-500 font-bold text-2xl">Admin Panel</h1>
@@ -92,6 +95,18 @@ export function AdminPanel() {
 
       {!showAll && search.trim() === "" ? null : (
         <div className="bg-neutral-900 rounded-xl p-3 border border-neutral-700">
+          <div className="flex justify-end mb-3">
+            <button
+              onClick={() => {
+                setShowAll(false);
+                setSearch("");
+              }}
+              className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded-lg bg-neutral-700 hover:bg-red-600"
+            >
+              ✕ Close
+            </button>
+          </div>
+
           {loading ? (
             <p className="text-gray-400 text-center">Loading movies...</p>
           ) : filteredMovies.length === 0 ? (
@@ -99,52 +114,79 @@ export function AdminPanel() {
               No matching movies found...
             </p>
           ) : (
-            filteredMovies.map((movie) => (
-              <div
-                key={movie.id}
-                className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
-              >
-                <div className="flex items-center gap-4 cursor-pointer">
-                  <img
-                    src={
-                      movie.posterSmallUrl ||
-                      "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                    }
-                    alt={movie.name}
-                    className="w-16 h-20 object-cover rounded"
-                  />
-                  <div>
-                    <h2 className="font-semibold">{movie.name}</h2>
-                    <p className="text-sm text-gray-400">{movie.year}</p>
+            <>
+              {filteredMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
+                >
+                  <div className="flex items-center gap-4 cursor-pointer">
+                    <img
+                      src={
+                        movie.posterSmallUrl ||
+                        "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+                      }
+                      alt={movie.name}
+                      className="w-16 h-20 object-cover rounded"
+                    />
+                    <div>
+                      <h2 className="font-semibold">{movie.name}</h2>
+                      <p className="text-sm text-gray-400">{movie.year}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => navigate(`/movie/${movie.slugUrl}`)}
+                      className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setMovie(movie);
+                        navigate(`/admin/update-movie/${movie.id}`);
+                      }}
+                      className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded"
+                    >
+                      Update
+                    </button>
+
+                    <button
+                      onClick={() => setDeleteId(movie.id)}
+                      className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
+              ))}
 
-                <div className="flex gap-3">
+              {showAll && search.trim() === "" && (
+                <div className="flex justify-center items-center gap-4 mt-4">
                   <button
-                    onClick={() => navigate(`/movie/${movie.slugUrl}`)}
-                    className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
+                    onClick={() => fetchMovies(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    className="bg-neutral-700 hover:bg-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg"
                   >
-                    View
+                    Previous
                   </button>
 
-                  <button
-                    onClick={() =>{ 
-                      setMovie(movie);
-                      navigate(`/admin/update-movie/${movie.id}`)}}
-                    className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded"
-                  >
-                    Update
-                  </button>
+                  <span className="text-gray-400">
+                    {currentPage + 1} / {totalPages}
+                  </span>
 
                   <button
-                    onClick={() => setDeleteId(movie.id)} 
-                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                    onClick={() => fetchMovies(currentPage + 1)}
+                    disabled={currentPage === totalPages - 1}
+                    className="bg-neutral-700 hover:bg-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg"
                   >
-                    Delete
+                    Next
                   </button>
                 </div>
-              </div>
-            ))
+              )}
+            </>
           )}
         </div>
       )}
