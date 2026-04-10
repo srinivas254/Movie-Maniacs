@@ -12,7 +12,6 @@ export const useMovieStore = create((set) => ({
     posterSmallUrl: "",
     posterWideUrl: "",
     overview: "",
-    watchLink: "",
   },
 
   originalMovie: {},
@@ -72,7 +71,6 @@ export const useMovieStore = create((set) => ({
         posterSmallUrl: "",
         posterWideUrl: "",
         overview: "",
-        watchLink: "",
       },
        originalMovie: {},
     }),

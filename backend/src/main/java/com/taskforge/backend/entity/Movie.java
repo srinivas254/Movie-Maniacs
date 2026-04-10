@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "movie")
 @Data
@@ -47,6 +49,5 @@ public class Movie {
 
     @Column(columnDefinition = "TEXT")
     private String overview;
-    private String watchLink;
 }
 

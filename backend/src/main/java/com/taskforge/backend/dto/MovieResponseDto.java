@@ -1,10 +1,11 @@
 package com.taskforge.backend.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,5 +26,7 @@ public class MovieResponseDto {
     private String posterWideUrl;
 
     private String overview;
-    private String watchLink;
+
+    private List<GenrePercentageDto> genres;
+    private List<CastCrewDto> castCrew;
 }

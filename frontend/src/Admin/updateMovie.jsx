@@ -123,14 +123,6 @@ export function UpdateMoviePage() {
             />
           </div>
 
-          <FormInput
-            label="Watch Link"
-            name="watchLink"
-            value={movie.watchLink}
-            onChange={handleChange}
-            className="col-span-2"
-          />
-
           <button
             type="submit"
             className="col-span-2 mt-4 bg-purple-600 hover:bg-purple-700

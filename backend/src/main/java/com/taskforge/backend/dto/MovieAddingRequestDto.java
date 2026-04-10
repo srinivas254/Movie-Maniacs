@@ -2,10 +2,13 @@ package com.taskforge.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -39,5 +42,12 @@ public class MovieAddingRequestDto {
 
     @NotBlank(message = "Overview is required")
     private String overview;
-    private String watchLink;
+
+    @NotNull(message = "At least one genre is required")
+    @Size(min = 1, message = "At least one genre is required")
+    private List<GenrePercentageDto> genres;
+
+    @NotNull(message = "At least one cast or crew member is required")
+    @Size(min = 1, message = "At least one cast or crew member is required")
+    private List<CastCrewDto> castCrew;
 }
