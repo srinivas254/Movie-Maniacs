@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
@@ -152,6 +154,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MovieResponseDto getMovieBySlug(String movieUrl){
         Movie movie = movieRepository.findBySlugUrl(movieUrl)
                  .orElseThrow(() -> new MovieNotFoundException("Movie not found with slug: " + movieUrl));
@@ -159,6 +162,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<MovieResponseDto> findAllMovies(Pageable pageable){
         Page<Movie> moviePage = movieRepository.findAll(pageable);
         return moviePage.map(movie -> modelMapper.map(movie, MovieResponseDto.class));
@@ -227,9 +231,107 @@ public class MovieServiceImpl implements MovieService {
             movie.setSlugUrl(generatedUrl);
         }
 
+        if (movieRequest.getGenres() != null) {
+            movieGenreRepository.deleteByMovieId(movie.getId());
+
+            List<MovieGenre> newGenres = movieRequest.getGenres().stream()
+                    .map(g -> {
+                        Genre genre = genreRepository.findByName(g.getName())
+                                .orElseGet(() -> genreRepository.save(
+                                        Genre.builder().name(g.getName()).build()
+                                ));
+                        return MovieGenre.builder()
+                                .movie(movie)
+                                .genre(genre)
+                                .percentage(g.getPercentage())
+                                .build();
+                    })
+                    .toList();
+            movieGenreRepository.saveAll(newGenres);
+        }
+
+        if (movieRequest.getCastCrew() != null) {
+            castCrewRepository.deleteByMovieId(movie.getId());
+
+            List<CastCrew> newCastCrew = movieRequest.getCastCrew().stream()
+                    .map(cc -> {
+                        boolean hasRole = cc.getRole() != null;
+                        boolean hasCharacterName = cc.getCharacterName() != null;
+
+                        if (hasRole == hasCharacterName) {
+                            throw new IllegalArgumentException(
+                                    "Person '" + cc.getName() + "' must have either role (CREW) or characterName (CAST), not both or neither"
+                            );
+                        }
+
+
+                        return CastCrew.builder()
+                                .movie(movie)
+                                .type(cc.getType())
+                                .name(cc.getName())
+                                .role(cc.getRole())
+                                .characterName(cc.getCharacterName())
+                                .build();
+                    })
+                    .toList();
+
+            castCrewRepository.saveAll(newCastCrew);
+        }
+
+        if (movieRequest.getWatchLinks() != null) {
+            watchLinkRepository.deleteByMovieId(movie.getId());
+
+            List<WatchLink> newWatchLinks = movieRequest.getWatchLinks().stream()
+                    .map(w -> WatchLink.builder()
+                            .movie(movie)
+                            .platform(w.getPlatform())
+                            .url(w.getUrl())
+                            .accessType(w.getAccessType())
+                            .build())
+                    .toList();
+
+            watchLinkRepository.saveAll(newWatchLinks);
+        }
+
         movieRepository.save(movie);
 
-        return modelMapper.map(movie, MovieResponseDto.class);
+        List<MovieGenre> movieGenresFromDb = movieGenreRepository.findByMovieId(movie.getId());
+        List<CastCrew> castCrewFromDb = castCrewRepository.findByMovieId(movie.getId());
+        List<WatchLink> watchLinksFromDb = watchLinkRepository.findByMovieId(movie.getId());
+
+        MovieResponseDto response = modelMapper.map(movie, MovieResponseDto.class);
+
+        response.setGenres(
+                movieGenresFromDb.stream()
+                        .map(mg -> new GenrePercentageDto(
+                                mg.getGenre().getName(),
+                                mg.getPercentage()
+                        ))
+                        .toList()
+        );
+
+        response.setCastCrew(
+                castCrewFromDb.stream()
+                        .map(cc -> new CastCrewDto(
+                                cc.getType(),
+                                cc.getName(),
+                                cc.getRole(),
+                                cc.getCharacterName()
+                        ))
+                        .toList()
+        );
+
+        response.setWatchLinks(
+                watchLinksFromDb.stream()
+                        .map(w -> new WatchLinkDto(
+                                w.getPlatform(),
+                                w.getUrl(),
+                                w.getAccessType()
+                        ))
+                        .toList()
+        );
+
+        return response;
     }
 
 }

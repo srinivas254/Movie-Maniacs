@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface WatchLinkRepository extends JpaRepository<WatchLink, Long> {
     List<WatchLink> findByMovieId(String movieId);
+    void deleteByMovieId(String movieId);
 }

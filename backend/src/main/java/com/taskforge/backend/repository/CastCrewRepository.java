@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface CastCrewRepository extends JpaRepository<CastCrew, Long> {
     List<CastCrew> findByMovieId(String movieId);
+    void deleteByMovieId(String movieId);
 }
 
