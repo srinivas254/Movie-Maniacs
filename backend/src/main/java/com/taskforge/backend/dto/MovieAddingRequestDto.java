@@ -50,4 +50,8 @@ public class MovieAddingRequestDto {
     @NotNull(message = "At least one cast or crew member is required")
     @Size(min = 1, message = "At least one cast or crew member is required")
     private List<CastCrewDto> castCrew;
+
+    @NotNull(message = "At least one watch link is required")
+    @Size(min = 1, message = "At least one watch link is required")
+    private List<WatchLinkDto> watchLinks;
 }

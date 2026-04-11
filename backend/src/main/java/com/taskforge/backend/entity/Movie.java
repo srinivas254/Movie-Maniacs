@@ -47,7 +47,7 @@ public class Movie {
     private String posterSmallUrl;
     private String posterWideUrl;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String overview;
 }
 

@@ -29,4 +29,5 @@ public class MovieResponseDto {
 
     private List<GenrePercentageDto> genres;
     private List<CastCrewDto> castCrew;
+    private List<WatchLinkDto> watchLinks;
 }

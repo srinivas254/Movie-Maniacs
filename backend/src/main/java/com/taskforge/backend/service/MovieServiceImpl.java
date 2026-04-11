@@ -1,17 +1,9 @@
 package com.taskforge.backend.service;
 
-import com.taskforge.backend.dto.GenrePercentageDto;
-import com.taskforge.backend.dto.MovieAddingRequestDto;
-import com.taskforge.backend.dto.MovieResponseDto;
-import com.taskforge.backend.entity.CastCrew;
-import com.taskforge.backend.entity.Genre;
-import com.taskforge.backend.entity.Movie;
-import com.taskforge.backend.entity.MovieGenre;
+import com.taskforge.backend.dto.*;
+import com.taskforge.backend.entity.*;
 import com.taskforge.backend.exception.MovieNotFoundException;
-import com.taskforge.backend.repository.CastCrewRepository;
-import com.taskforge.backend.repository.GenreRepository;
-import com.taskforge.backend.repository.MovieGenreRepository;
-import com.taskforge.backend.repository.MovieRepository;
+import com.taskforge.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,14 +19,16 @@ public class MovieServiceImpl implements MovieService {
     private final GenreRepository genreRepository;
     private final MovieGenreRepository movieGenreRepository;
     private final CastCrewRepository castCrewRepository;
+    private final WatchLinkRepository watchLinkRepository;
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository){
+    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository){
         this.movieRepository = movieRepository;
         this.modelMapper = modelMapper;
         this.genreRepository = genreRepository;
         this.movieGenreRepository = movieGenreRepository;
         this.castCrewRepository = castCrewRepository;
+        this.watchLinkRepository = watchLinkRepository;
     }
 
     @Override
@@ -54,7 +48,7 @@ public class MovieServiceImpl implements MovieService {
         Movie newMovie = new Movie();
         modelMapper.map(movie,newMovie);
         newMovie.setSlugUrl(generatedUrl);
-        movieRepository.save(newMovie);
+        Movie savedMovie = movieRepository.saveAndFlush(newMovie);
 
         List<MovieGenre> movieGenres = movie.getGenres().stream()
                 .map(g -> {
@@ -67,7 +61,7 @@ public class MovieServiceImpl implements MovieService {
                                             .build()
                             ));
                     return MovieGenre.builder()
-                            .movie(newMovie)
+                            .movie(savedMovie)
                             .genre(genre)
                             .percentage(g.getPercentage())
                             .build();
@@ -89,7 +83,7 @@ public class MovieServiceImpl implements MovieService {
                         }
 
                         return CastCrew.builder()
-                                .movie(newMovie)
+                                .movie(savedMovie)
                                 .type(cc.getType())
                                 .name(cc.getName())
                                 .role(cc.getRole())
@@ -101,7 +95,60 @@ public class MovieServiceImpl implements MovieService {
             castCrewRepository.saveAll(castCrewEntities);
         }
 
-        return modelMapper.map(newMovie,MovieResponseDto.class);
+        List<WatchLink> watchLinks = movie.getWatchLinks().stream()
+                .map(w -> WatchLink.builder()
+                        .movie(savedMovie)
+                        .platform(w.getPlatform())
+                        .url(w.getUrl())
+                        .accessType(w.getAccessType().trim().toUpperCase())
+                        .build()
+                )
+                .toList();
+
+        watchLinkRepository.saveAll(watchLinks);
+
+        List<MovieGenre> movieGenresFromDb =
+                movieGenreRepository.findByMovieId(savedMovie.getId());
+
+        List<CastCrew> castCrewFromDb =
+                castCrewRepository.findByMovieId(savedMovie.getId());
+
+        List<WatchLink> watchLinksFromDb =
+                watchLinkRepository.findByMovieId(savedMovie.getId());
+
+        MovieResponseDto response = modelMapper.map(newMovie,MovieResponseDto.class);
+
+        response.setGenres(
+                movieGenresFromDb.stream()
+                        .map(mg -> new GenrePercentageDto(
+                                mg.getGenre().getName(),
+                                mg.getPercentage()
+                        ))
+                        .toList()
+        );
+
+        response.setCastCrew(
+                castCrewFromDb.stream()
+                        .map(cc -> new CastCrewDto(
+                                cc.getType(),
+                                cc.getName(),
+                                cc.getRole(),
+                                cc.getCharacterName()
+                        ))
+                        .toList()
+        );
+
+        response.setWatchLinks(
+                watchLinksFromDb.stream()
+                        .map(w -> new WatchLinkDto(
+                                w.getPlatform(),
+                                w.getUrl(),
+                                w.getAccessType()
+                        ))
+                        .toList()
+        );
+
+        return response;
     }
 
     @Override

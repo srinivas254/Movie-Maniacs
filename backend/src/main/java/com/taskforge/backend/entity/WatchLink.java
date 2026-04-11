@@ -6,20 +6,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Entity
-@Table(name = "genre")
+@Table(name = "watch_link")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Genre {
+public class WatchLink{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
-}
+    @ManyToOne
+    @JoinColumn(name = "movie_id", nullable = false)
+    private Movie movie;
 
+    @Column(nullable = false)
+    private String url;
+
+    @Column(nullable = false)
+    private String platform;
+
+    @Column(nullable = false)
+    private String accessType;
+}
