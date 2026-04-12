@@ -158,14 +158,88 @@ public class MovieServiceImpl implements MovieService {
     public MovieResponseDto getMovieBySlug(String movieUrl){
         Movie movie = movieRepository.findBySlugUrl(movieUrl)
                  .orElseThrow(() -> new MovieNotFoundException("Movie not found with slug: " + movieUrl));
-        return modelMapper.map(movie,MovieResponseDto.class);
+        MovieResponseDto response = modelMapper.map(movie, MovieResponseDto.class);
+
+        List<MovieGenre> movieGenres = movieGenreRepository.findByMovieId(movie.getId());
+        List<CastCrew> castCrew = castCrewRepository.findByMovieId(movie.getId());
+        List<WatchLink> watchLinks = watchLinkRepository.findByMovieId(movie.getId());
+
+        response.setGenres(
+                movieGenres.stream()
+                        .map(mg -> new GenrePercentageDto(
+                                mg.getGenre().getName(),
+                                mg.getPercentage()
+                        ))
+                        .toList()
+        );
+
+        response.setCastCrew(
+                castCrew.stream()
+                        .map(cc -> new CastCrewDto(
+                                cc.getType(),
+                                cc.getName(),
+                                cc.getRole(),
+                                cc.getCharacterName()
+                        ))
+                        .toList()
+        );
+
+        response.setWatchLinks(
+                watchLinks.stream()
+                        .map(w -> new WatchLinkDto(
+                                w.getPlatform(),
+                                w.getUrl(),
+                                w.getAccessType()
+                        ))
+                        .toList()
+        );
+
+        return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<MovieResponseDto> findAllMovies(Pageable pageable){
         Page<Movie> moviePage = movieRepository.findAll(pageable);
-        return moviePage.map(movie -> modelMapper.map(movie, MovieResponseDto.class));
+        return moviePage.map(movie -> {
+            MovieResponseDto response = modelMapper.map(movie, MovieResponseDto.class);
+
+            List<MovieGenre> movieGenres = movieGenreRepository.findByMovieId(movie.getId());
+            List<CastCrew> castCrew = castCrewRepository.findByMovieId(movie.getId());
+            List<WatchLink> watchLinks = watchLinkRepository.findByMovieId(movie.getId());
+
+            response.setGenres(
+                    movieGenres.stream()
+                            .map(mg -> new GenrePercentageDto(
+                                    mg.getGenre().getName(),
+                                    mg.getPercentage()
+                            ))
+                            .toList()
+            );
+
+            response.setCastCrew(
+                    castCrew.stream()
+                            .map(cc -> new CastCrewDto(
+                                    cc.getType(),
+                                    cc.getName(),
+                                    cc.getRole(),
+                                    cc.getCharacterName()
+                            ))
+                            .toList()
+            );
+
+            response.setWatchLinks(
+                    watchLinks.stream()
+                            .map(w -> new WatchLinkDto(
+                                    w.getPlatform(),
+                                    w.getUrl(),
+                                    w.getAccessType()
+                            ))
+                            .toList()
+            );
+
+            return response;
+        });
     }
 
     @Override
