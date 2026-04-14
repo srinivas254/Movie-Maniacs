@@ -203,6 +203,20 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
+    @ExceptionHandler(InvalidCastCrewException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidCastCrew(InvalidCastCrewException icce) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", icce.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(InvalidGenrePercentageException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidGenrePercentage(InvalidGenrePercentageException ige) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ige.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();

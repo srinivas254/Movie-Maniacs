@@ -18,7 +18,7 @@ export function UpdateMoviePage() {
     }
   };
 
-   const addGenre = () => {
+  const addGenre = () => {
     setMovieField("genres", [...movie.genres, { name: "", percentage: "" }]);
   };
 
@@ -26,13 +26,16 @@ export function UpdateMoviePage() {
     const updated = movie.genres.map((g, i) =>
       i === index
         ? { ...g, [field]: field === "percentage" ? Number(value) : value }
-        : g
+        : g,
     );
     setMovieField("genres", updated);
   };
 
   const removeGenre = (index) => {
-    setMovieField("genres", movie.genres.filter((_, i) => i !== index));
+    setMovieField(
+      "genres",
+      movie.genres.filter((_, i) => i !== index),
+    );
   };
 
   const addCastCrew = () => {
@@ -44,13 +47,16 @@ export function UpdateMoviePage() {
 
   const updateCastCrew = (index, field, value) => {
     const updated = movie.castCrew.map((c, i) =>
-      i === index ? { ...c, [field]: value } : c
+      i === index ? { ...c, [field]: value } : c,
     );
     setMovieField("castCrew", updated);
   };
 
   const removeCastCrew = (index) => {
-    setMovieField("castCrew", movie.castCrew.filter((_, i) => i !== index));
+    setMovieField(
+      "castCrew",
+      movie.castCrew.filter((_, i) => i !== index),
+    );
   };
 
   const addWatchLink = () => {
@@ -62,13 +68,16 @@ export function UpdateMoviePage() {
 
   const updateWatchLink = (index, field, value) => {
     const updated = movie.watchLinks.map((w, i) =>
-      i === index ? { ...w, [field]: value } : w
+      i === index ? { ...w, [field]: value } : w,
     );
     setMovieField("watchLinks", updated);
   };
 
   const removeWatchLink = (index) => {
-    setMovieField("watchLinks", movie.watchLinks.filter((_, i) => i !== index));
+    setMovieField(
+      "watchLinks",
+      movie.watchLinks.filter((_, i) => i !== index),
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -77,7 +86,7 @@ export function UpdateMoviePage() {
     const cleanMovie = Object.fromEntries(
       Object.entries(movie)
         .filter(([key]) => key !== "id" && key !== "slugUrl")
-         .filter(([key, value]) => {
+        .filter(([key, value]) => {
           if (Array.isArray(value)) {
             return JSON.stringify(value) !== JSON.stringify(originalMovie[key]);
           }
@@ -86,7 +95,7 @@ export function UpdateMoviePage() {
         .map(([key, value]) => [key, value === "" ? null : value]),
     );
 
-     if (cleanMovie.castCrew) {
+    if (cleanMovie.castCrew) {
       cleanMovie.castCrew = cleanMovie.castCrew.map((person) =>
         Object.fromEntries(
           Object.entries(person).map(([k, v]) => [k, v === "" ? null : v]),
@@ -101,7 +110,10 @@ export function UpdateMoviePage() {
         body: JSON.stringify(cleanMovie),
       });
 
-      if (!res.ok) throw new Error("Failed to update movie");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to update movie");
+      }
 
       const updatedMovie = await res.json();
       updateMovie(updatedMovie);
@@ -109,15 +121,14 @@ export function UpdateMoviePage() {
       navigate("/admin");
     } catch (err) {
       console.error(err);
-      toast.error("Error updating movie");
+      toast.error(err.message || "Error updating movie");
     }
   };
 
-   const totalGenrePercentage = movie.genres.reduce(
+  const totalGenrePercentage = movie.genres.reduce(
     (sum, g) => sum + (Number(g.percentage) || 0),
-    0
+    0,
   );
-
 
   return (
     <div className="max-w-5xl mx-auto mt-4">
@@ -197,7 +208,10 @@ export function UpdateMoviePage() {
 
           <ArraySection title="Genres" onAdd={addGenre} addLabel="Add Genre">
             {movie.genres.map((genre, i) => (
-              <div key={i} className="grid grid-cols-[1fr_120px_auto] gap-3 items-end">
+              <div
+                key={i}
+                className="grid grid-cols-[1fr_120px_auto] gap-3 items-end"
+              >
                 <FormInput
                   label="Genre Name"
                   name="name"
@@ -210,18 +224,28 @@ export function UpdateMoviePage() {
                   value={genre.percentage}
                   onChange={(e) => updateGenre(i, "percentage", e.target.value)}
                 />
-                <RemoveButton onClick={() => removeGenre(i)} label="Remove Genre" />
+                <RemoveButton
+                  onClick={() => removeGenre(i)}
+                  label="Remove Genre"
+                />
               </div>
             ))}
             {movie.genres.length > 0 && (
-              <p className={`text-xs mt-1 ${totalGenrePercentage > 100 ? "text-red-400" : "text-gray-500"}`}>
-                Total: {totalGenrePercentage}%{totalGenrePercentage > 100 && " — exceeds 100%"}
+              <p
+                className={`text-xs mt-1 ${totalGenrePercentage > 100 ? "text-red-400" : "text-gray-500"}`}
+              >
+                Total: {totalGenrePercentage}%
+                {totalGenrePercentage > 100 && " — exceeds 100%"}
               </p>
             )}
           </ArraySection>
 
           {/* Cast & Crew */}
-          <ArraySection title="Cast & Crew" onAdd={addCastCrew} addLabel="Add Person">
+          <ArraySection
+            title="Cast & Crew"
+            onAdd={addCastCrew}
+            addLabel="Add Person"
+          >
             {movie.castCrew.map((person, i) => (
               <div key={i} className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-2">
@@ -260,7 +284,9 @@ export function UpdateMoviePage() {
                     label="Character Name"
                     name="characterName"
                     value={person.characterName}
-                    onChange={(e) => updateCastCrew(i, "characterName", e.target.value)}
+                    onChange={(e) =>
+                      updateCastCrew(i, "characterName", e.target.value)
+                    }
                     className="col-span-2"
                   />
                 )}
@@ -268,7 +294,10 @@ export function UpdateMoviePage() {
                 {!person.type && <div className="col-span-2" />}
 
                 <div className="col-span-2 flex justify-end">
-                  <RemoveButton onClick={() => removeCastCrew(i)} label="Remove Person" />
+                  <RemoveButton
+                    onClick={() => removeCastCrew(i)}
+                    label="Remove Person"
+                  />
                 </div>
 
                 {i < movie.castCrew.length - 1 && (
@@ -279,20 +308,28 @@ export function UpdateMoviePage() {
           </ArraySection>
 
           {/* Watch Links */}
-          <ArraySection title="Watch Links" onAdd={addWatchLink} addLabel="Add Link">
+          <ArraySection
+            title="Watch Links"
+            onAdd={addWatchLink}
+            addLabel="Add Link"
+          >
             {movie.watchLinks.map((link, i) => (
               <div key={i} className="grid grid-cols-2 gap-3">
                 <FormInput
                   label="Platform"
                   name="platform"
                   value={link.platform}
-                  onChange={(e) => updateWatchLink(i, "platform", e.target.value)}
+                  onChange={(e) =>
+                    updateWatchLink(i, "platform", e.target.value)
+                  }
                 />
                 <FormInput
                   label="Access Type"
                   name="accessType"
                   value={link.accessType}
-                  onChange={(e) => updateWatchLink(i, "accessType", e.target.value)}
+                  onChange={(e) =>
+                    updateWatchLink(i, "accessType", e.target.value)
+                  }
                 />
                 <FormInput
                   label="URL"
@@ -302,7 +339,10 @@ export function UpdateMoviePage() {
                   className="col-span-2"
                 />
                 <div className="col-span-2 flex justify-end">
-                  <RemoveButton onClick={() => removeWatchLink(i)} label="Remove Link" />
+                  <RemoveButton
+                    onClick={() => removeWatchLink(i)}
+                    label="Remove Link"
+                  />
                 </div>
                 {i < movie.watchLinks.length - 1 && (
                   <div className="col-span-2 border-t border-neutral-700" />

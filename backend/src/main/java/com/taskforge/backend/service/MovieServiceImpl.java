@@ -2,6 +2,8 @@ package com.taskforge.backend.service;
 
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.*;
+import com.taskforge.backend.exception.InvalidCastCrewException;
+import com.taskforge.backend.exception.InvalidGenrePercentageException;
 import com.taskforge.backend.exception.MovieNotFoundException;
 import com.taskforge.backend.repository.*;
 import org.modelmapper.ModelMapper;
@@ -39,7 +41,7 @@ public class MovieServiceImpl implements MovieService {
                 .mapToInt(GenrePercentageDto::getPercentage)
                 .sum();
         if (total != 100) {
-            throw new IllegalArgumentException("Genre percentages must sum to 100, got: " + total);
+            throw new InvalidGenrePercentageException(total);
         }
 
         String slugName = movie.getName()
@@ -79,7 +81,7 @@ public class MovieServiceImpl implements MovieService {
                         boolean hasCharacterName = cc.getCharacterName() != null;
 
                         if (hasRole == hasCharacterName) {
-                            throw new IllegalArgumentException(
+                            throw new InvalidCastCrewException(
                                     "Person '" + cc.getName() + "' must have either role (CREW) or characterName (CAST), not both or neither"
                             );
                         }
@@ -311,7 +313,7 @@ public class MovieServiceImpl implements MovieService {
                     .sum();
 
             if (total != 100) {
-                throw new IllegalArgumentException("Genre percentages must sum to 100, got: " + total);
+                throw new InvalidGenrePercentageException(total);
             }
 
             movieGenreRepository.deleteByMovieId(movie.getId());
@@ -342,7 +344,7 @@ public class MovieServiceImpl implements MovieService {
                         boolean hasCharacterName = cc.getCharacterName() != null;
 
                         if (hasRole == hasCharacterName) {
-                            throw new IllegalArgumentException(
+                            throw new InvalidCastCrewException(
                                     "Person '" + cc.getName() + "' must have either role (CREW) or characterName (CAST), not both or neither"
                             );
                         }
