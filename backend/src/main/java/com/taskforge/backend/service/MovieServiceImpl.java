@@ -306,13 +306,22 @@ public class MovieServiceImpl implements MovieService {
         }
 
         if (movieRequest.getGenres() != null) {
+            int total = movieRequest.getGenres().stream()
+                    .mapToInt(GenrePercentageDto::getPercentage)
+                    .sum();
+
+            if (total != 100) {
+                throw new IllegalArgumentException("Genre percentages must sum to 100, got: " + total);
+            }
+
             movieGenreRepository.deleteByMovieId(movie.getId());
 
             List<MovieGenre> newGenres = movieRequest.getGenres().stream()
                     .map(g -> {
-                        Genre genre = genreRepository.findByName(g.getName())
+                        String normalizedName = g.getName().trim().toLowerCase();
+                        Genre genre = genreRepository.findByName(normalizedName)
                                 .orElseGet(() -> genreRepository.save(
-                                        Genre.builder().name(g.getName()).build()
+                                        Genre.builder().name(normalizedName).build()
                                 ));
                         return MovieGenre.builder()
                                 .movie(movie)
@@ -360,7 +369,7 @@ public class MovieServiceImpl implements MovieService {
                             .movie(movie)
                             .platform(w.getPlatform())
                             .url(w.getUrl())
-                            .accessType(w.getAccessType())
+                            .accessType(w.getAccessType().trim().toUpperCase())
                             .build())
                     .toList();
 

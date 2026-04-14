@@ -86,6 +86,14 @@ export function UpdateMoviePage() {
         .map(([key, value]) => [key, value === "" ? null : value]),
     );
 
+     if (cleanMovie.castCrew) {
+      cleanMovie.castCrew = cleanMovie.castCrew.map((person) =>
+        Object.fromEntries(
+          Object.entries(person).map(([k, v]) => [k, v === "" ? null : v]),
+        ),
+      );
+    }
+
     try {
       const res = await fetch(`http://localhost:8080/movies/${id}`, {
         method: "PATCH",
