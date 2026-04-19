@@ -1,9 +1,7 @@
 package com.taskforge.backend.service;
 
-import com.taskforge.backend.dto.InterestedStatusDto;
-import com.taskforge.backend.dto.MovieAddingRequestDto;
-import com.taskforge.backend.dto.MovieResponseDto;
-import com.taskforge.backend.dto.MsgResponseDto;
+import com.taskforge.backend.dto.*;
+import com.taskforge.backend.entity.OpinionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,4 +15,8 @@ public interface MovieService {
     InterestedStatusDto markInterested(String movieId, String userId);
     InterestedStatusDto getInterestedStatus(String movieId, String userId);
     InterestedStatusDto removeInterested(String movieId,String userId);
+    MovieOpinionResponseDto  submitOpinion(String movieId, String userId, OpinionType opinionType);
+    RetrieveMovieOpinionDto getUserOpinion(String movieId, String userId);
+    void deleteOpinion(String movieId, String userId);
+    MovieOpinionSummaryDto getOpinionSummary(String movieId);
 }

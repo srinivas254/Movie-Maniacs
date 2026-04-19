@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -27,9 +28,10 @@ public class MovieServiceImpl implements MovieService {
     private final WatchLinkRepository watchLinkRepository;
     private final UserRepository userRepository;
     private final MovieInterestedRepository movieInterestedRepository;
+    private final MovieOpinionRepository movieOpinionRepository;
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository){
+    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository){
         this.movieRepository = movieRepository;
         this.modelMapper = modelMapper;
         this.genreRepository = genreRepository;
@@ -38,6 +40,7 @@ public class MovieServiceImpl implements MovieService {
         this.watchLinkRepository = watchLinkRepository;
         this.userRepository = userRepository;
         this.movieInterestedRepository = movieInterestedRepository;
+        this.movieOpinionRepository = movieOpinionRepository;
     }
 
     @Override
@@ -498,5 +501,165 @@ public class MovieServiceImpl implements MovieService {
                 .interested(false)
                 .build();
     }
+
+    @Override
+    public MovieOpinionResponseDto submitOpinion(
+            String movieId,
+            String userId,
+            OpinionType opinionType) {
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException(
+                                "Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        Optional<MovieOpinion> existingOpinion =
+                movieOpinionRepository.findByUserAndMovie(user, movie);
+
+        if (existingOpinion.isPresent()) {
+
+            MovieOpinion opinion = existingOpinion.get();
+
+            opinion.setOpinionType(opinionType);
+
+            movieOpinionRepository.save(opinion);
+
+            return MovieOpinionResponseDto.builder()
+                    .opinionType(opinionType)
+                    .updated(true)
+                    .build();
+        }
+
+        MovieOpinion opinion = new MovieOpinion();
+
+        opinion.setMovie(movie);
+        opinion.setUser(user);
+        opinion.setOpinionType(opinionType);
+
+        movieOpinionRepository.save(opinion);
+
+        return MovieOpinionResponseDto.builder()
+                .opinionType(opinionType)
+                .updated(false)
+                .build();
+    }
+
+    @Override
+    public RetrieveMovieOpinionDto getUserOpinion(String movieId, String userId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException(
+                                "Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        Optional<MovieOpinion> opinion =
+                movieOpinionRepository.findByUserAndMovie(user, movie);
+
+        if (opinion.isPresent()) {
+            return RetrieveMovieOpinionDto.builder()
+                    .opinionType(
+                            opinion.get().getOpinionType()
+                    )
+                    .build();
+        }
+
+        return RetrieveMovieOpinionDto.builder()
+                .opinionType(null)
+                .build();
+    }
+
+    @Override
+    public void deleteOpinion(String movieId, String userId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException(
+                                "Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        Optional<MovieOpinion> opinion =
+                movieOpinionRepository.findByUserAndMovie(user, movie);
+
+        if (opinion.isPresent()) {
+            movieOpinionRepository.delete(opinion.get());
+        }
+    }
+
+    @Override
+    public MovieOpinionSummaryDto getOpinionSummary(
+            String movieId) {
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException(
+                                "Movie not found with id: " + movieId));
+
+        long totalVotes =
+                movieOpinionRepository.countByMovie(movie);
+
+        long skipVotes =
+                movieOpinionRepository
+                        .countByMovieAndOpinionType(
+                                movie,
+                                OpinionType.SKIP);
+
+        long timePassVotes =
+                movieOpinionRepository
+                        .countByMovieAndOpinionType(
+                                movie,
+                                OpinionType.TIME_PASS);
+
+        long goForItVotes =
+                movieOpinionRepository
+                        .countByMovieAndOpinionType(
+                                movie,
+                                OpinionType.GO_FOR_IT);
+
+        long perfectionVotes =
+                movieOpinionRepository
+                        .countByMovieAndOpinionType(
+                                movie,
+                                OpinionType.PERFECTION);
+
+        if (totalVotes == 0) {
+            return new MovieOpinionSummaryDto();
+        }
+
+        return MovieOpinionSummaryDto.builder()
+                .totalVotes(totalVotes)
+
+                .skipVotes(skipVotes)
+                .timePassVotes(timePassVotes)
+                .goForItVotes(goForItVotes)
+                .perfectionVotes(perfectionVotes)
+
+                .skipPercentage(
+                        (skipVotes * 100.0) / totalVotes)
+
+                .timePassPercentage(
+                        (timePassVotes * 100.0) / totalVotes)
+
+                .goForItPercentage(
+                        (goForItVotes * 100.0) / totalVotes)
+
+                .perfectionPercentage(
+                        (perfectionVotes * 100.0) / totalVotes)
+
+                .build();
+    }
+
+
 
 }

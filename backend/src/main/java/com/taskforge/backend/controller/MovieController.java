@@ -1,10 +1,7 @@
 package com.taskforge.backend.controller;
 
 import com.taskforge.backend.config.CustomPrincipal;
-import com.taskforge.backend.dto.InterestedStatusDto;
-import com.taskforge.backend.dto.MovieAddingRequestDto;
-import com.taskforge.backend.dto.MovieResponseDto;
-import com.taskforge.backend.dto.MsgResponseDto;
+import com.taskforge.backend.dto.*;
 import com.taskforge.backend.service.MovieServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +69,30 @@ public class MovieController {
     public ResponseEntity<InterestedStatusDto> removeInterested(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
         InterestedStatusDto removedInterest = movieService.removeInterested(movieId, principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(removedInterest);
+    }
+
+    @PostMapping("/{movieId}/opinion")
+    public ResponseEntity<MovieOpinionResponseDto> submitOpinion(@PathVariable String movieId, @RequestBody MovieOpinionRequestDto request, @AuthenticationPrincipal CustomPrincipal principal) {
+        MovieOpinionResponseDto updatedOpinion = movieService.submitOpinion(movieId, principal.getId(),request.getOpinionType());
+        return ResponseEntity.status(HttpStatus.OK).body(updatedOpinion);
+    }
+
+    @GetMapping("/{movieId}/opinion")
+    public ResponseEntity<RetrieveMovieOpinionDto> getUserOpinion(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        RetrieveMovieOpinionDto retrievedResponse = movieService.getUserOpinion(movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(retrievedResponse);
+    }
+
+    @DeleteMapping("/{movieId}/opinion")
+    public ResponseEntity<Void> deleteOpinion(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        movieService.deleteOpinion(movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/{movieId}/opinion-summary")
+    public ResponseEntity<MovieOpinionSummaryDto> getOpinionSummary(@PathVariable String movieId) {
+        MovieOpinionSummaryDto opinionSummary = movieService.getOpinionSummary(movieId);
+        return ResponseEntity.status(HttpStatus.OK).body(opinionSummary);
     }
 
 }

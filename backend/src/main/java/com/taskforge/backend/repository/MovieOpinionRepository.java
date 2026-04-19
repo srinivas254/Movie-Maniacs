@@ -7,9 +7,21 @@ import com.taskforge.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 
 @Repository
 public interface MovieOpinionRepository extends JpaRepository<MovieOpinion, Long> {
+    Optional<MovieOpinion> findByUserAndMovie(
+            User user,
+            Movie movie
+    );
 
+    long countByMovie(Movie movie);
+
+    long countByMovieAndOpinionType(
+            Movie movie,
+            OpinionType opinionType
+    );
 }
 
