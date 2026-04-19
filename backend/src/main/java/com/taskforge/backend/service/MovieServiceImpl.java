@@ -5,6 +5,7 @@ import com.taskforge.backend.entity.*;
 import com.taskforge.backend.exception.InvalidCastCrewException;
 import com.taskforge.backend.exception.InvalidGenrePercentageException;
 import com.taskforge.backend.exception.MovieNotFoundException;
+import com.taskforge.backend.exception.UserNotFoundException;
 import com.taskforge.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,19 @@ public class MovieServiceImpl implements MovieService {
     private final MovieGenreRepository movieGenreRepository;
     private final CastCrewRepository castCrewRepository;
     private final WatchLinkRepository watchLinkRepository;
+    private final UserRepository userRepository;
+    private final MovieInterestedRepository movieInterestedRepository;
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository){
+    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository){
         this.movieRepository = movieRepository;
         this.modelMapper = modelMapper;
         this.genreRepository = genreRepository;
         this.movieGenreRepository = movieGenreRepository;
         this.castCrewRepository = castCrewRepository;
         this.watchLinkRepository = watchLinkRepository;
+        this.userRepository = userRepository;
+        this.movieInterestedRepository = movieInterestedRepository;
     }
 
     @Override
@@ -417,6 +422,81 @@ public class MovieServiceImpl implements MovieService {
         );
 
         return response;
+    }
+
+    @Override
+    public InterestedStatusDto markInterested(String movieId, String userId) {
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException("Movie not found with id:" + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found with id:" + userId));
+
+        boolean alreadyMarked =
+                movieInterestedRepository
+                        .existsByUserAndMovie(user, movie);
+
+        if (alreadyMarked) {
+            return InterestedStatusDto.builder()
+                    .interested(true)
+                    .build();
+        }
+
+        MovieInterested interest = new MovieInterested();
+
+        interest.setMovie(movie);
+        interest.setUser(user);
+
+        movieInterestedRepository.save(interest);
+
+        return InterestedStatusDto.builder()
+                .interested(true)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public InterestedStatusDto getInterestedStatus(String movieId, String userId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException("Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found with id: " + userId));
+
+        boolean alreadyMarked =
+                movieInterestedRepository.existsByUserAndMovie(user, movie);
+
+        return InterestedStatusDto.builder()
+                .interested(alreadyMarked)
+                .build();
+    }
+
+    @Override
+    public InterestedStatusDto removeInterested(String movieId, String userId) {
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException("Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found with id: " + userId));
+
+        boolean alreadyMarked =
+                movieInterestedRepository.existsByUserAndMovie(user, movie);
+
+        if (alreadyMarked) {
+            movieInterestedRepository.deleteByUserAndMovie(user, movie);
+        }
+
+        return InterestedStatusDto.builder()
+                .interested(false)
+                .build();
     }
 
 }

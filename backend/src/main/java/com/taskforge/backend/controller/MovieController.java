@@ -1,5 +1,7 @@
 package com.taskforge.backend.controller;
 
+import com.taskforge.backend.config.CustomPrincipal;
+import com.taskforge.backend.dto.InterestedStatusDto;
 import com.taskforge.backend.dto.MovieAddingRequestDto;
 import com.taskforge.backend.dto.MovieResponseDto;
 import com.taskforge.backend.dto.MsgResponseDto;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,6 +54,24 @@ public class MovieController {
     public ResponseEntity<MovieResponseDto> updateMovieById(@PathVariable("id") String movieId,@RequestBody MovieAddingRequestDto movieRequest) {
         MovieResponseDto updatedMovie = movieService.updateMovieById(movieId,movieRequest);
         return ResponseEntity.status(HttpStatus.OK).body(updatedMovie);
+    }
+
+    @PostMapping("/{movieId}/interested")
+    public ResponseEntity<InterestedStatusDto> markInterested(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+       InterestedStatusDto updatedInterest = movieService.markInterested(movieId, principal.getId());
+       return ResponseEntity.status(HttpStatus.OK).body(updatedInterest);
+    }
+
+    @GetMapping("/{movieId}/interested-status")
+    public ResponseEntity<InterestedStatusDto> getInterestedStatus(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        InterestedStatusDto fetchInterest = movieService.getInterestedStatus(movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(fetchInterest);
+    }
+
+    @DeleteMapping("/{movieId}/interested")
+    public ResponseEntity<InterestedStatusDto> removeInterested(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        InterestedStatusDto removedInterest = movieService.removeInterested(movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(removedInterest);
     }
 
 }

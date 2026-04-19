@@ -22,6 +22,7 @@ export function AdminPanel() {
       const res = await fetch(`http://localhost:8080/movies/all?page=${page}`);
       const data = await res.json();
       setMovies(data.content || []);
+      console.log("Movies length:", movies.length);
       setTotalPages(data.totalPages);
       setCurrentPage(data.number);
     } catch (err) {

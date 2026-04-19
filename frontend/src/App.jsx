@@ -20,7 +20,7 @@ import { NotFound } from "./NotFound.jsx";
 import { AddMoviePage } from "./Admin/movieAdd.jsx";
 import { UpdateMoviePage } from "./Admin/updateMovie.jsx";
 import { AdminPanel } from "./Admin/adminpanel.jsx";
-import { MovieDetailsPage } from "./Admin/movieDetails.jsx";
+import { MovieDetailsPage } from "./Movie Page/movieDetails.jsx";
 
 function App() {
   return (
@@ -39,6 +39,15 @@ function App() {
         <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
       <Route path="/movie/:slug" element={<MovieDetailsPage />} />
+
+      <Route
+        path="/movie/:slug"
+        element={
+          <ProtectedRoute>
+            <MovieDetailsPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         element={
           <ProtectedRoute>

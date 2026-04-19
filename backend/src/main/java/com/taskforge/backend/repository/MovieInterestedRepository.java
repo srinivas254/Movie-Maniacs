@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MovieInterestedRepository extends JpaRepository<MovieInterested, Long> {
+    boolean existsByUserAndMovie(User user, Movie movie);
 
+    void deleteByUserAndMovie(User user, Movie movie);
 }
 
