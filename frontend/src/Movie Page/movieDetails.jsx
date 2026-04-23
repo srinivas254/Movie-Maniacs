@@ -15,6 +15,8 @@ export function MovieDetailsPage() {
   const [movieDetails, setMovieDetails] = useState(null);
   const [isInterested, setIsInterested] = useState(false);
   const [userOpinion, setUserOpinion] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const getMovie = async () => {
     try {
@@ -129,6 +131,29 @@ export function MovieDetailsPage() {
 
     getInterestedStatus(movieDetails.id);
   }, [movieDetails]);
+
+  // open modal
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  // confirm delete
+  const confirmDelete = async () => {
+    try {
+      await fetch(`http://localhost:8080/movies/${movieDetails.id}/opinion`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      setUserOpinion(null); // 🔥 remove opinion
+      setIsEditing(false); // safety
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const formatDuration = (mins) => {
     if (!mins) return null;
@@ -297,14 +322,65 @@ export function MovieDetailsPage() {
 
       {movieDetails?.id && (
         <div className="max-w-2xl mx-20 px-5 pb-20">
-          {userOpinion ? (
-            <UserOpinionDisplayCard opinionType={userOpinion} />
-          ) : (
+          {!userOpinion ? (
+            // 👉 CREATE MODE (no opinion yet)
             <UserOpinionInputCard
+              key="create"
               movieId={movieDetails.id}
+              isEdit={false}
               onSuccess={(opinionType) => setUserOpinion(opinionType)}
             />
+          ) : isEditing ? (
+            // 👉 EDIT MODE
+            <UserOpinionInputCard
+              key="edit"
+              movieId={movieDetails.id}
+              initialOpinion={userOpinion}
+              isEdit={true}
+              onSuccess={(opinionType) => {
+                setUserOpinion(opinionType); // update data
+                setIsEditing(false); // exit edit mode
+              }}
+              onClose={() => setIsEditing(false)} // close without saving
+            />
+          ) : (
+            // 👉 DISPLAY MODE
+            <UserOpinionDisplayCard
+              opinionType={userOpinion}
+              onEdit={() => setIsEditing(true)} // switch to edit
+              onDelete={handleDeleteClick}
+            />
           )}
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-80 text-center">
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete Review?
+            </h3>
+
+            <p className="text-sm text-gray-400 mb-5">
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 rounded-full"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm bg-red-500 text-white rounded-full hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

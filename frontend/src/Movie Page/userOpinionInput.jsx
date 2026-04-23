@@ -1,8 +1,16 @@
 import { useState } from "react";
 import useUserStore from "../Zustand Store/useUserStore.js";
 
-export function UserOpinionInputCard({ movieId, onSuccess }) {
-  const [selectedOpinion, setSelectedOpinion] = useState("TIME_PASS");
+export function UserOpinionInputCard({
+  movieId,
+  initialOpinion,
+  isEdit,
+  onSuccess,
+  onClose,
+}) {
+  const [selectedOpinion, setSelectedOpinion] = useState(
+    isEdit ? initialOpinion : "TIME_PASS",
+  );
   const [loading, setLoading] = useState(false);
 
   const profile = useUserStore((state) => state.profile);
@@ -26,25 +34,36 @@ export function UserOpinionInputCard({ movieId, onSuccess }) {
   ];
 
   const submitOpinion = async () => {
+    if (isEdit && selectedOpinion === initialOpinion) {
+      if (onClose) onClose(); // just close edit
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const res = await fetch(`http://localhost:8080/movies/${movieId}/opinion`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await fetch(
+        `http://localhost:8080/movies/${movieId}/opinion`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            opinionType: selectedOpinion,
+          }),
         },
-        body: JSON.stringify({
-          opinionType: selectedOpinion,
-        }),
-      });
+      );
 
       const data = await res.json();
 
       // 🔥 notify parent
       onSuccess(data.opinionType);
 
+      if (isEdit && onClose) {
+        onClose();
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -53,52 +72,69 @@ export function UserOpinionInputCard({ movieId, onSuccess }) {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
-      
-      <div className="flex items-center gap-3 mb-5">
-        {profile.pictureUrl ? (
-          <img
-            src={profile.pictureUrl}
-            alt={`${profile.name} profile`}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-semibold text-gray-200">
-            {initials}
-          </div>
-        )}
+    <div className="-mt-14">
+      <h2 className="text-2xl font-bold mb-5 text-white">Add Your Review</h2>
 
-        <p className="text-xs font-medium text-gray-300">
-          {profile.userName}
-        </p>
-      </div>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
+        <div className="flex items-center gap-3 mb-5">
+          {profile.pictureUrl ? (
+            <img
+              src={profile.pictureUrl}
+              alt={`${profile.name} profile`}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-semibold text-gray-200">
+              {initials}
+            </div>
+          )}
 
-      <div className="bg-zinc-800 rounded-xl p-2 grid grid-cols-4 gap-2 mb-4">
-        {opinions.map((item) => (
+          <p className="text-xs font-medium text-gray-300">
+            {profile.userName}
+          </p>
+        </div>
+
+        <div className="bg-zinc-800 rounded-xl p-2 grid grid-cols-4 gap-2 mb-4">
+          {opinions.map((item) => (
+            <button
+              key={item.value}
+              onClick={() => setSelectedOpinion(item.value)}
+              className={`w-full py-2 rounded-full text-sm font-medium transition ${
+                selectedOpinion === item.value
+                  ? `${item.active} text-black`
+                  : "text-zinc-300 hover:bg-zinc-700"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex justify-end gap-2">
+          {isEdit && (
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm text-gray-300 hover:bg-zinc-700 rounded-full"
+            >
+              Close
+            </button>
+          )}
+
           <button
-            key={item.value}
-            onClick={() => setSelectedOpinion(item.value)}
-            className={`w-full py-2 rounded-full text-sm font-medium transition ${
-              selectedOpinion === item.value
-                ? `${item.active} text-black`
-                : "text-zinc-300 hover:bg-zinc-700"
-            }`}
+            onClick={submitOpinion}
+            disabled={loading}
+            className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold disabled:opacity-50 transition"
           >
-            {item.label}
+            {loading
+              ? isEdit
+                ? "Updating..."
+                : "Posting..."
+              : isEdit
+                ? "Update"
+                : "Post"}
           </button>
-        ))}
+        </div>
       </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={submitOpinion}
-          disabled={loading}
-          className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold disabled:opacity-50 transition"
-        >
-          {loading ? "Posting..." : "Post"}
-        </button>
-      </div>
-
     </div>
   );
 }
