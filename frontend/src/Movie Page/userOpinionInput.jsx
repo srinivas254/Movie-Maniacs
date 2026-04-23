@@ -1,18 +1,14 @@
 import { useState } from "react";
 import useUserStore from "../Zustand Store/useUserStore.js";
 
-export function UserOpinionCard({ movieId }) {
+export function UserOpinionInputCard({ movieId, onSuccess }) {
   const [selectedOpinion, setSelectedOpinion] = useState("TIME_PASS");
   const [loading, setLoading] = useState(false);
 
   const profile = useUserStore((state) => state.profile);
 
   if (!profile) {
-    return (
-      <div className="text-white text-center py-6">
-        Loading...
-      </div>
-    );
+    return <div className="text-white text-center py-6">Loading...</div>;
   }
 
   const initials = profile.name
@@ -33,10 +29,11 @@ export function UserOpinionCard({ movieId }) {
     try {
       setLoading(true);
 
-      const res = await fetch(`/movies/${movieId}/opinion`, {
+      const res = await fetch(`http://localhost:8080/movies/${movieId}/opinion`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           opinionType: selectedOpinion,
@@ -44,7 +41,10 @@ export function UserOpinionCard({ movieId }) {
       });
 
       const data = await res.json();
-      console.log(data);
+
+      // 🔥 notify parent
+      onSuccess(data.opinionType);
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -53,32 +53,32 @@ export function UserOpinionCard({ movieId }) {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 max-w-4xl mx-auto">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
       
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center gap-3 mb-5">
         {profile.pictureUrl ? (
           <img
             src={profile.pictureUrl}
             alt={`${profile.name} profile`}
-            className="w-14 h-14 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-zinc-700 flex items-center justify-center text-lg font-semibold text-gray-200">
+          <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-semibold text-gray-200">
             {initials}
           </div>
         )}
 
-        <h3 className="text-xl font-semibold">
-          @{profile.userName}
-        </h3>
+        <p className="text-xs font-medium text-gray-300">
+          {profile.userName}
+        </p>
       </div>
 
-      <div className="bg-zinc-800 rounded-2xl p-2 grid grid-cols-4 gap-2 mb-8">
+      <div className="bg-zinc-800 rounded-xl p-2 grid grid-cols-4 gap-2 mb-4">
         {opinions.map((item) => (
           <button
             key={item.value}
             onClick={() => setSelectedOpinion(item.value)}
-            className={`w-full py-3 rounded-full font-medium text-center transition ${
+            className={`w-full py-2 rounded-full text-sm font-medium transition ${
               selectedOpinion === item.value
                 ? `${item.active} text-black`
                 : "text-zinc-300 hover:bg-zinc-700"
@@ -93,7 +93,7 @@ export function UserOpinionCard({ movieId }) {
         <button
           onClick={submitOpinion}
           disabled={loading}
-          className="bg-white text-black px-8 py-3 rounded-full font-semibold disabled:opacity-50 transition"
+          className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold disabled:opacity-50 transition"
         >
           {loading ? "Posting..." : "Post"}
         </button>

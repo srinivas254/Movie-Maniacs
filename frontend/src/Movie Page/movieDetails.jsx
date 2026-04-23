@@ -4,7 +4,8 @@ import { VibeChart } from "./vibechart";
 import { WatchOnline } from "./watchOnline";
 import { useMovieStore } from "../Zustand Store/useMovieStore";
 import { CastCrew } from "./castCrew";
-import { UserOpinionCard } from "./userOpinion";
+import { UserOpinionDisplayCard } from "./userOpinionDisplay";
+import { UserOpinionInputCard } from "./userOpinionInput";
 
 export function MovieDetailsPage() {
   const { slug } = useParams();
@@ -13,10 +14,10 @@ export function MovieDetailsPage() {
   const addMovie = useMovieStore((state) => state.addMovie);
   const [movieDetails, setMovieDetails] = useState(null);
   const [isInterested, setIsInterested] = useState(false);
+  const [userOpinion, setUserOpinion] = useState(null);
 
   const getMovie = async () => {
     try {
-      console.log("FETCHING BACKEND");
       const res = await fetch(`http://localhost:8080/movies/${slug}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -39,12 +40,9 @@ export function MovieDetailsPage() {
   useEffect(() => {
     if (!slug) return;
 
-    console.log("Movies array:", movies);
-
     const cachedMovie = movies.find((m) => m.slugUrl === slug);
 
     if (cachedMovie) {
-      console.log("CACHE HIT");
       setMovieDetails(cachedMovie);
       return;
     }
@@ -100,6 +98,31 @@ export function MovieDetailsPage() {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const fetchOpinion = async () => {
+      try {
+        if (!movieDetails?.id) return;
+        const res = await fetch(
+          `http://localhost:8080/movies/${movieDetails.id}/opinion`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setUserOpinion(data.opinionType);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchOpinion();
+  }, [movieDetails?.id]);
 
   useEffect(() => {
     if (!movieDetails?.id) return;
@@ -272,11 +295,18 @@ export function MovieDetailsPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-20 px-8 pb-20">
-        <UserOpinionCard
-          movieId={movieDetails.id}
-        />
-      </div>
+      {movieDetails?.id && (
+        <div className="max-w-2xl mx-20 px-5 pb-20">
+          {userOpinion ? (
+            <UserOpinionDisplayCard opinionType={userOpinion} />
+          ) : (
+            <UserOpinionInputCard
+              movieId={movieDetails.id}
+              onSuccess={(opinionType) => setUserOpinion(opinionType)}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
