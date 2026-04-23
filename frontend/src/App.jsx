@@ -38,16 +38,7 @@ function App() {
         <Route path="add-movie" element={<AddMoviePage />} />
         <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
-      <Route path="/movie/:slug" element={<MovieDetailsPage />} />
 
-      <Route
-        path="/movie/:slug"
-        element={
-          <ProtectedRoute>
-            <MovieDetailsPage />
-          </ProtectedRoute>
-        }
-      />
       <Route
         element={
           <ProtectedRoute>
@@ -56,6 +47,7 @@ function App() {
         }
       >
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/movie/:slug" element={<MovieDetailsPage />}  />
         <Route path="/collections" element={<CollectionsPage />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/settings" element={<UserSettings />}>

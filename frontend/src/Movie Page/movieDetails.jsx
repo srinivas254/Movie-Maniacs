@@ -4,6 +4,7 @@ import { VibeChart } from "./vibechart";
 import { WatchOnline } from "./watchOnline";
 import { useMovieStore } from "../Zustand Store/useMovieStore";
 import { CastCrew } from "./castCrew";
+import { UserOpinionCard } from "./userOpinion";
 
 export function MovieDetailsPage() {
   const { slug } = useParams();
@@ -51,33 +52,31 @@ export function MovieDetailsPage() {
     getMovie();
   }, [slug]);
 
-const handleInterested = async () => {
-  try {
+  const handleInterested = async () => {
+    try {
+      const method = isInterested ? "DELETE" : "POST";
 
-    const method = isInterested ? "DELETE" : "POST";
-
-    const res = await fetch(
-      `http://localhost:8080/movies/${movieDetails.id}/interested`,
-      {
-        method,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await fetch(
+        `http://localhost:8080/movies/${movieDetails.id}/interested`,
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update interested status");
       }
-    );
 
-    if (!res.ok) {
-      throw new Error("Failed to update interested status");
+      const data = await res.json();
+
+      setIsInterested(data.interested);
+    } catch (error) {
+      console.error(error);
     }
-
-    const data = await res.json();
-
-    setIsInterested(data.interested);
-
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
   const getInterestedStatus = async (movieId) => {
     try {
@@ -271,6 +270,12 @@ const handleInterested = async () => {
             <WatchOnline links={movieDetails.watchLinks} />
           )}
         </div>
+      </div>
+
+      <div className="max-w-2xl mx-20 px-8 pb-20">
+        <UserOpinionCard
+          movieId={movieDetails.id}
+        />
       </div>
     </div>
   );

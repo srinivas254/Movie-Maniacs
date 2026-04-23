@@ -32,12 +32,12 @@ export function AuthLayout() {
   }, [navigate]);
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-black 
-        via-neutral-900 to-purple-900 px-4"
-    >
+    <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-purple-900 text-white">
       <AuthNavbar />
-      <Outlet />
+
+      <div className="w-full">
+        <Outlet />
+      </div>
     </div>
   );
 }
