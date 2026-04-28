@@ -46,7 +46,7 @@ export function UserOpinionDisplayCard({ opinionType, onEdit, onDelete }) {
   const selectedItem = opinions.find((item) => item.value === opinionType);
 
   return (
-    <div className="-mt-14">
+    <div>
       <h2 className="text-2xl font-bold mb-5 text-white">Reviews</h2>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">

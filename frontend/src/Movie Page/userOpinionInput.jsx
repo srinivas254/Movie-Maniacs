@@ -72,7 +72,7 @@ export function UserOpinionInputCard({
   };
 
   return (
-    <div className="-mt-14">
+    <div>
       <h2 className="text-2xl font-bold mb-5 text-white">Add Your Review</h2>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
