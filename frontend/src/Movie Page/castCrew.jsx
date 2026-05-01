@@ -43,6 +43,8 @@ export function CastCrew({ castCrew = [] }) {
         </>
       )}
 
+      <div className="border-b border-white/10"></div>
+
       {crew.length > 0 && (
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-5 text-white">

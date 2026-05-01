@@ -261,12 +261,18 @@ export function MovieDetailsPage() {
             </div>
           )}
 
+          <div className="border-b border-white/10"></div>
+
           <CastCrew castCrew={movieDetails.castCrew} />
+
+          <div className="border-b border-white/10"></div>
 
           {/* Opinion Meter */}
           {movieDetails?.id && (
             <OpinionMeter movieId={movieDetails.id} />
           )}
+
+          <div className="border-b border-white/10"></div>
 
           {/* Reviews */}
           {movieDetails?.id && (

@@ -39,7 +39,9 @@ export const OpinionMeter = ({ movieId }) => {
 
   const defaultLabel = useMemo(() => {
     if (!opinions.length) return null;
-    return opinions.reduce((a, b) => b.percentage > a.percentage ? b : a).label;
+    return opinions.reduce((a, b) =>
+      b.percentage > a.percentage ? b : a
+    ).label;
   }, [opinions]);
 
   const resolvedLabel = activeLabel ?? defaultLabel;
@@ -76,18 +78,33 @@ export const OpinionMeter = ({ movieId }) => {
             if (span < 0.01) return null;
 
             const isActive = item.label === resolvedLabel;
+
             return (
-              <path
-                key={item.label}
-                d={describeArc(cx, cy, r, start, end)}
-                fill="none"
-                stroke={item.color}
-                strokeWidth={isActive ? 17 : 11}
-                strokeLinecap="round"
-                opacity={isActive ? 1 : 0.25}
-                style={{ cursor: "pointer", transition: "stroke-width 0.15s, opacity 0.15s" }}
-                onMouseEnter={() => setActiveLabel(item.label)}
-              />
+              <g key={item.label}>
+                {/* Invisible hover area (better UX) */}
+                <path
+                  d={describeArc(cx, cy, r, start, end)}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth="24"
+                  onMouseEnter={() => setActiveLabel(item.label)}
+                  onMouseLeave={() => setActiveLabel(null)}
+                />
+
+                {/* Visible arc */}
+                <path
+                  d={describeArc(cx, cy, r, start, end)}
+                  fill="none"
+                  stroke={item.color}
+                  strokeWidth={isActive ? 18 : 12}
+                  strokeLinecap="butt"
+                  opacity={isActive ? 1 : 0.35}
+                  style={{
+                    cursor: "pointer",
+                    transition: "all 0.2s ease"
+                  }}
+                />
+              </g>
             );
           })}
         </svg>
@@ -96,13 +113,22 @@ export const OpinionMeter = ({ movieId }) => {
         {activeItem && (
           <div
             className="absolute text-center"
-            style={{ top: 40, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }}
+            style={{
+              top: 40,
+              left: "50%",
+              transform: "translateX(-50%)",
+              pointerEvents: "none"
+            }}
           >
-            <p className="text-3xl font-bold" style={{ color: activeItem.color }}>
+            <p
+              className="text-3xl font-bold"
+              style={{ color: activeItem.color }}
+            >
               {Math.round(activeItem.percentage)}%
             </p>
             <p className="text-sm text-gray-400 mt-1">
-              {activeItem.votes.toLocaleString()}/{data.totalVotes.toLocaleString()} Votes
+              {activeItem.votes.toLocaleString()}/
+              {data.totalVotes.toLocaleString()} Votes
             </p>
           </div>
         )}
@@ -118,12 +144,18 @@ export const OpinionMeter = ({ movieId }) => {
               className="flex items-center gap-2 cursor-pointer px-1 py-1 rounded-md"
               style={{ transition: "background 0.15s" }}
               onMouseEnter={() => setActiveLabel(item.label)}
+              onMouseLeave={() => setActiveLabel(null)}
             >
               <span
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ background: item.color }}
               />
-              <span style={{ color: isActive ? "#ffffff" : "#9ca3af", fontWeight: isActive ? 500 : 400 }}>
+              <span
+                style={{
+                  color: isActive ? "#ffffff" : "#9ca3af",
+                  fontWeight: isActive ? 500 : 400
+                }}
+              >
                 {item.label} {Math.round(item.percentage)}%
               </span>
             </div>
