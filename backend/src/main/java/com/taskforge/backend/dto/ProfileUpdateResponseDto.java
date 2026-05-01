@@ -22,4 +22,5 @@ public class ProfileUpdateResponseDto {
     private String twitter;
     private LocalDate dateOfBirth;
     private Gender gender;
+    private boolean hasPassword;
 }

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useUserStore from "../../Zustand Store/useUserStore.js";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 /* ---------------- Schema ---------------- */
@@ -20,6 +20,7 @@ const profileSchema = z.object({
 export function EditProfileCard() {
   const user = useUserStore((state) => state.profile);
   const setProfile = useUserStore((state) => state.setProfile);
+  const [error,setError] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -68,7 +69,8 @@ export function EditProfileCard() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update profile");
+        const data = await response.json();
+        throw new Error(data.error);
       }
 
       const updatedUser = await response.json();
@@ -79,8 +81,8 @@ export function EditProfileCard() {
       toast.success(message);
       navigate("/profile");
     } catch (err) {
-      console.error(err.message);
-      toast.error("Something went wrong");
+      const message = err.message;
+      setError(message);
     }
   };
 
@@ -197,6 +199,8 @@ export function EditProfileCard() {
             className="flex-1 bg-zinc-900 rounded-lg px-3 py-2 outline-none"
           />
         </div>
+
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
         {/* Save */}
         <div className="flex justify-end">

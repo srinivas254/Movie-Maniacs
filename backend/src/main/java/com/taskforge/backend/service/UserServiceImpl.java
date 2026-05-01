@@ -59,6 +59,10 @@ public class UserServiceImpl implements UserService{
         userRepository.delete(user);
     }
 
+    private String normalize(String value) {
+        return (value == null || value.isBlank()) ? null : value;
+    }
+
     @Override
     public ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto){
         User euser = userRepository.findById(id).orElseThrow(() ->
@@ -71,13 +75,11 @@ public class UserServiceImpl implements UserService{
             euser.setName(profileUpdateRequestDto.getName());
         }
 
-        if (profileUpdateRequestDto.getBio() != null) {
-            euser.setBio(profileUpdateRequestDto.getBio());
-        }
+        String bio = normalize(profileUpdateRequestDto.getBio());
+        if (bio != null) euser.setBio(bio);
 
-        if (profileUpdateRequestDto.getPictureUrl() != null) {
-            euser.setPictureUrl(profileUpdateRequestDto.getPictureUrl());
-        }
+        String pictureUrl = normalize(profileUpdateRequestDto.getPictureUrl());
+        if (pictureUrl != null) euser.setPictureUrl(pictureUrl);
 
         if (profileUpdateRequestDto.getDateOfBirth() != null) {
             euser.setDateOfBirth(profileUpdateRequestDto.getDateOfBirth());
@@ -87,17 +89,16 @@ public class UserServiceImpl implements UserService{
             euser.setGender(profileUpdateRequestDto.getGender());
         }
 
-        if (profileUpdateRequestDto.getInstagram() != null) {
-            euser.setInstagram(profileUpdateRequestDto.getInstagram());
-        }
+        String instagram = normalize(profileUpdateRequestDto.getInstagram());
+        if (instagram != null) euser.setInstagram(instagram);
 
-        if (profileUpdateRequestDto.getTwitter() != null) {
-            euser.setTwitter(profileUpdateRequestDto.getTwitter());
-        }
+        String twitter = normalize(profileUpdateRequestDto.getTwitter());
+        if (twitter != null) euser.setTwitter(twitter);
 
         User updatedUser = userRepository.save(euser);
         ProfileUpdateResponseDto response = modelMapper.map(updatedUser, ProfileUpdateResponseDto.class);
 
+        response.setHasPassword(euser.getPassword() != null);
         response.setMessage("Profile updated successfully");
         return response;
     }
