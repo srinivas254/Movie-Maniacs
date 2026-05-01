@@ -30,7 +30,11 @@ public class UserServiceImpl implements UserService{
     public UserResponseDto findUserById(String id){
         User user = userRepository.findById(id).orElseThrow(() ->
                 new UserNotFoundException("User not found with userName "+ id));
-        return modelMapper.map(user,UserResponseDto.class);
+
+        UserResponseDto dto = modelMapper.map(user, UserResponseDto.class);
+        dto.setHasPassword(user.getPassword() != null);
+
+        return dto;
     }
 
     @Override
@@ -109,12 +113,9 @@ public class UserServiceImpl implements UserService{
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
 
-        User updatedUser = userRepository.save(user);
-        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
-
-        response.setMessage("Password set successfully");
-        return response;
+        return new MsgResponseDto("Password set successfully");
     }
 
     @Override
@@ -122,6 +123,10 @@ public class UserServiceImpl implements UserService{
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+
+        if (user.getPassword() == null) {
+            throw new PasswordNotSetException("Password not set. Use set password first.");
+        }
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Old password is incorrect");
@@ -138,10 +143,9 @@ public class UserServiceImpl implements UserService{
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        User updatedUser = userRepository.save(user);
-        MsgResponseDto response = modelMapper.map(updatedUser, MsgResponseDto.class);
-        response.setMessage("Password updated successfully");
-        return response;
+        userRepository.save(user);
+
+        return new MsgResponseDto("Password updated successfully");
     }
 
 }

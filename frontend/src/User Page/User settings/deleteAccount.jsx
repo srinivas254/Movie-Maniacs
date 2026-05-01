@@ -25,9 +25,9 @@ export function DeleteAccount() {
         body: JSON.stringify({ password }),
       });
 
-      if (!response.status === 204) {
+      if (response.status !== 204) {
         const data = await response.json();
-        throw new Error(data.message || "Delete failed");
+        throw new Error(data.error);
       }
 
       toast.success("Account deleted successfully");
@@ -37,7 +37,9 @@ export function DeleteAccount() {
 
       navigate("/");
     } catch (err) {
-      setError(err.message);
+      const message = err.message;
+      toast.error(message);
+      setError(message);
     }
   };
 

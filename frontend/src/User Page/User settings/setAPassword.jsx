@@ -1,13 +1,18 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 import { PasswordField } from "../../Authentication/password.jsx";
 import { getPasswordStrength } from "../../Util/passwordStrength.js";
 import { getPasswordIssues } from "../../Util/passwordIssues.js";
+import useUserStore from "../../Zustand Store/useUserStore";
 
 export function SetPassword() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const setProfile = useUserStore((state) => state.setProfile);
+  const profile = useUserStore((state) => state.profile);
 
   const strength = getPasswordStrength(password);
   const issues = getPasswordIssues(password);
@@ -30,12 +35,20 @@ export function SetPassword() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to set password");
+        throw new Error(data.error);
       }
 
       toast.success("Password set successfully");
+
+      setProfile({
+        ...profile,
+        hasPassword: true,
+      });
+
+      navigate("/profile");
     } catch (err) {
-      setError(err.message);
+      const message = err.message;
+      setError(message);
     }
   };
 

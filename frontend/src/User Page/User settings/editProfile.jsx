@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useUserStore from "../../Zustand Store/useUserStore.js";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* ---------------- Schema ---------------- */
 
@@ -19,6 +20,7 @@ const profileSchema = z.object({
 export function EditProfileCard() {
   const user = useUserStore((state) => state.profile);
   const setProfile = useUserStore((state) => state.setProfile);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -75,6 +77,7 @@ export function EditProfileCard() {
       setProfile(profileData);
 
       toast.success(message);
+      navigate("/profile");
     } catch (err) {
       console.error(err.message);
       toast.error("Something went wrong");

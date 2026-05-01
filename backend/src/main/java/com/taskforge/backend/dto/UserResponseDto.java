@@ -27,4 +27,6 @@ public class UserResponseDto {
 
     private String instagram;
     private String twitter;
+
+    private boolean hasPassword;
 }

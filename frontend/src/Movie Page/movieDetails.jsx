@@ -8,7 +8,7 @@ import { UserOpinionDisplayCard } from "./userOpinionDisplay";
 import { UserOpinionInputCard } from "./userOpinionInput";
 import { OpinionMeter } from "./opinionSummary";
 
-export function MovieDetailsPage() {
+export function MovieDetailsPage({ isAdminView }) {
   const { slug } = useParams();
 
   const movies = useMovieStore((state) => state.movies);
@@ -35,7 +35,6 @@ export function MovieDetailsPage() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!slug) return;
     const cachedMovie = movies.find((m) => m.slugUrl === slug);
@@ -56,7 +55,7 @@ export function MovieDetailsPage() {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to update interested status");
       const data = await res.json();
@@ -74,7 +73,7 @@ export function MovieDetailsPage() {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to fetch interested status");
       const data = await res.json();
@@ -85,6 +84,8 @@ export function MovieDetailsPage() {
   };
 
   useEffect(() => {
+    if (isAdminView) return;
+
     const fetchOpinion = async () => {
       try {
         if (!movieDetails?.id) return;
@@ -94,7 +95,7 @@ export function MovieDetailsPage() {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
         if (res.ok) {
           const data = await res.json();
@@ -105,12 +106,13 @@ export function MovieDetailsPage() {
       }
     };
     fetchOpinion();
-  }, [movieDetails?.id]);
+  }, [movieDetails?.id, isAdminView]);
 
   useEffect(() => {
+    if (isAdminView) return;
     if (!movieDetails?.id) return;
     getInterestedStatus(movieDetails.id);
-  }, [movieDetails]);
+  }, [movieDetails, isAdminView]);
 
   const handleDeleteClick = () => setShowDeleteModal(true);
 
@@ -153,7 +155,6 @@ export function MovieDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-
       {/* ── Hero banner ── */}
       <div className="relative w-full">
         <div className="relative w-full h-[420px]">
@@ -185,73 +186,96 @@ export function MovieDetailsPage() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-white/60 text-sm mb-1">{metaParts.join(" • ")}</p>
+              <p className="text-white/60 text-sm mb-1">
+                {metaParts.join(" • ")}
+              </p>
               <h1 className="text-4xl font-bold mb-5">{movieDetails.name}</h1>
               <div className="flex flex-wrap gap-x-10 gap-y-3">
                 {movieDetails.directedBy && (
                   <div>
                     <p className="text-white/40 text-xs mb-0.5">Directed By</p>
-                    <p className="text-white font-semibold text-sm">{movieDetails.directedBy}</p>
+                    <p className="text-white font-semibold text-sm">
+                      {movieDetails.directedBy}
+                    </p>
                   </div>
                 )}
                 {movieDetails.country && (
                   <div>
                     <p className="text-white/40 text-xs mb-0.5">Country</p>
-                    <p className="text-white font-semibold text-sm">{movieDetails.country}</p>
+                    <p className="text-white font-semibold text-sm">
+                      {movieDetails.country}
+                    </p>
                   </div>
                 )}
                 {movieDetails.language && (
                   <div>
                     <p className="text-white/40 text-xs mb-0.5">Language</p>
-                    <p className="text-white font-semibold text-sm">{movieDetails.language}</p>
+                    <p className="text-white font-semibold text-sm">
+                      {movieDetails.language}
+                    </p>
                   </div>
                 )}
                 {movieDetails.ageRating && (
                   <div>
                     <p className="text-white/40 text-xs mb-0.5">Age Rating</p>
-                    <p className="text-white font-semibold text-sm">{movieDetails.ageRating}</p>
+                    <p className="text-white font-semibold text-sm">
+                      {movieDetails.ageRating}
+                    </p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="shrink-0 flex flex-col gap-3 w-[260px]">
-              <button
-                onClick={handleInterested}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl transition-colors text-white font-semibold text-sm ${
-                  isInterested
-                    ? "bg-orange-500 hover:bg-orange-400"
-                    : "bg-orange-300 hover:bg-orange-200 text-black"
-                }`}
-              >
-                {isInterested ? (
-                  <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                    <path d="M12 21s-6-4.35-9-8.28C.9 9.73 2.4 5.5 6.5 5.5c2.04 0 4 1.2 5.5 3.09C13.5 6.7 15.46 5.5 17.5 5.5c4.1 0 5.6 4.23 3.5 7.22C18 16.65 12 21 12 21z" />
+            {!isAdminView && (
+              <div className="shrink-0 flex flex-col gap-3 w-[260px]">
+                <button
+                  onClick={handleInterested}
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl transition-colors text-white font-semibold text-sm ${
+                    isInterested
+                      ? "bg-orange-500 hover:bg-orange-400"
+                      : "bg-orange-300 hover:bg-orange-200 text-black"
+                  }`}
+                >
+                  {isInterested ? (
+                    <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                      <path d="M12 21s-6-4.35-9-8.28C.9 9.73 2.4 5.5 6.5 5.5c2.04 0 4 1.2 5.5 3.09C13.5 6.7 15.46 5.5 17.5 5.5c4.1 0 5.6 4.23 3.5 7.22C18 16.65 12 21 12 21z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M12 21s-6-4.35-9-8.28C.9 9.73 2.4 5.5 6.5 5.5c2.04 0 4 1.2 5.5 3.09C13.5 6.7 15.46 5.5 17.5 5.5c4.1 0 5.6 4.23 3.5 7.22C18 16.65 12 21 12 21z" />
+                    </svg>
+                  )}
+                  {isInterested ? "Interested" : "Mark Interested"}
+                </button>
+
+                <button className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2a2a2a] hover:bg-[#333] transition-colors text-white font-semibold text-sm">
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
                   </svg>
-                ) : (
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 21s-6-4.35-9-8.28C.9 9.73 2.4 5.5 6.5 5.5c2.04 0 4 1.2 5.5 3.09C13.5 6.7 15.46 5.5 17.5 5.5c4.1 0 5.6 4.23 3.5 7.22C18 16.65 12 21 12 21z" />
-                  </svg>
-                )}
-                {isInterested ? "Interested" : "Mark Interested"}
-              </button>
-              <button className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2a2a2a] hover:bg-[#333] transition-colors text-white font-semibold text-sm">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-                </svg>
-                Add to Collection
-              </button>
-            </div>
+                  Add to Collection
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* ── Main content ── */}
       <div className="max-w-6xl mx-auto px-8 pt-10 pb-20 flex gap-8 items-start">
-
         {/* Left column — overview, cast, meter, reviews */}
         <div className="flex-1 min-w-0 flex flex-col gap-10">
-
           {movieDetails.overview && (
             <div>
               <h2 className="text-2xl font-bold mb-4">Overview</h2>
@@ -268,14 +292,12 @@ export function MovieDetailsPage() {
           <div className="border-b border-white/10"></div>
 
           {/* Opinion Meter */}
-          {movieDetails?.id && (
-            <OpinionMeter movieId={movieDetails.id} />
-          )}
+          {movieDetails?.id && <OpinionMeter movieId={movieDetails.id} />}
 
           <div className="border-b border-white/10"></div>
 
           {/* Reviews */}
-          {movieDetails?.id && (
+          {!isAdminView && movieDetails?.id && (
             <div>
               {!userOpinion ? (
                 <UserOpinionInputCard
@@ -319,11 +341,15 @@ export function MovieDetailsPage() {
       </div>
 
       {/* ── Delete modal ── */}
-      {showDeleteModal && (
+      {!isAdminView && showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-80 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Delete Review?</h3>
-            <p className="text-sm text-gray-400 mb-5">This action cannot be undone.</p>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Delete Review?
+            </h3>
+            <p className="text-sm text-gray-400 mb-5">
+              This action cannot be undone.
+            </p>
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}

@@ -1,7 +1,11 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import useUserStore from "../Zustand Store/useUserStore";
 
 export function UserSettings() {
   const navigate = useNavigate();
+
+  const profile = useUserStore((state) => state.profile);
+  const hasPassword = profile?.hasPassword;
 
   return (
     <div
@@ -25,22 +29,37 @@ export function UserSettings() {
           </button>
 
           <button
-            onClick={() => navigate("set-password")}
-            className="text-left px-4 py-2 rounded-lg hover:bg-white/10"
+            onClick={() => !hasPassword && navigate("set-password")}
+            disabled={hasPassword}
+            className={`text-left px-4 py-2 rounded-lg ${
+              hasPassword
+                ? "text-gray-500 cursor-not-allowed"
+                : "hover:bg-white/10"
+            }`}
           >
             Set Password
           </button>
 
           <button
-            onClick={() => navigate("reset-password")}
-            className="text-left px-4 py-2 rounded-lg hover:bg-white/10"
+            onClick={() => hasPassword && navigate("reset-password")}
+            disabled={!hasPassword}
+            className={`text-left px-4 py-2 rounded-lg ${
+              !hasPassword
+                ? "text-gray-500 cursor-not-allowed"
+                : "hover:bg-white/10"
+            }`}
           >
             Reset Password
           </button>
 
           <button
-            onClick={() => navigate("delete-account")}
-            className="text-left px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10"
+            onClick={() => hasPassword && navigate("delete-account")}
+            disabled={!hasPassword}
+            className={`text-left px-4 py-2 rounded-lg ${
+              !hasPassword
+                ? "text-gray-500 cursor-not-allowed"
+                : "text-red-400 hover:bg-red-500/10"
+            }`}
           >
             Delete Account
           </button>

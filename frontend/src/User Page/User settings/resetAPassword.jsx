@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-
+import { useNavigate } from "react-router-dom";
 import { PasswordField } from "../../Authentication/password.jsx";
 import { getPasswordStrength } from "../../Util/passwordStrength.js";
 import { getPasswordIssues } from "../../Util/passwordIssues.js";
@@ -10,6 +10,7 @@ export function ResetPassword() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const [showOld, setShowOld] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -61,6 +62,7 @@ export function ResetPassword() {
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      navigate("/profile");
     } catch (err) {
       setError(err.message);
     }
