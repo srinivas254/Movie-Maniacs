@@ -19,11 +19,12 @@ export const useMovieStore = create((set) => ({
 
   originalMovie: {},
 
-    movies: [],
+  movies: [],
 
-    setMovies: (movies) =>
+  setMovies: (movies) =>
     set(() => ({
       movies: movies,
+      isMoviesLoaded: true,
     })),
 
   setMovieField: (field, value) =>
@@ -34,17 +35,17 @@ export const useMovieStore = create((set) => ({
       },
     })),
 
-    addMovie: (newMovie) =>
+  addMovie: (newMovie) =>
     set((state) => ({
       movies: [...state.movies, newMovie],
     })),
 
-    deleteMovie: (id) =>
+  deleteMovie: (id) =>
     set((state) => ({
       movies: state.movies.filter((m) => m.id !== id),
     })),
 
-   setMovie: (movie) =>
+  setMovie: (movie) =>
     set((state) => ({
       movie: {
         ...state.movie,
@@ -53,11 +54,10 @@ export const useMovieStore = create((set) => ({
       originalMovie: { ...movie },
     })),
 
-
   updateMovie: (updatedMovie) =>
     set((state) => ({
       movies: state.movies.map((m) =>
-        m.id === updatedMovie.id ? updatedMovie : m
+        m.id === updatedMovie.id ? updatedMovie : m,
       ),
     })),
 
@@ -78,6 +78,6 @@ export const useMovieStore = create((set) => ({
         castCrew: [],
         watchLinks: [],
       },
-       originalMovie: {},
+      originalMovie: {},
     }),
 }));

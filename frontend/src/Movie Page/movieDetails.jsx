@@ -7,9 +7,12 @@ import { CastCrew } from "./castCrew";
 import { UserOpinionDisplayCard } from "./userOpinionDisplay";
 import { UserOpinionInputCard } from "./userOpinionInput";
 import { OpinionMeter } from "./opinionSummary";
+import { useLocation } from "react-router-dom";
 
-export function MovieDetailsPage({ isAdminView }) {
+export function MovieDetailsPage() {
   const { slug } = useParams();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin-view"); 
 
   const movies = useMovieStore((state) => state.movies);
   const addMovie = useMovieStore((state) => state.addMovie);
@@ -84,7 +87,7 @@ export function MovieDetailsPage({ isAdminView }) {
   };
 
   useEffect(() => {
-    if (isAdminView) return;
+    if (isAdminRoute) return;
 
     const fetchOpinion = async () => {
       try {
@@ -106,13 +109,13 @@ export function MovieDetailsPage({ isAdminView }) {
       }
     };
     fetchOpinion();
-  }, [movieDetails?.id, isAdminView]);
+  }, [movieDetails?.id, isAdminRoute]);
 
   useEffect(() => {
-    if (isAdminView) return;
+    if (isAdminRoute) return;
     if (!movieDetails?.id) return;
     getInterestedStatus(movieDetails.id);
-  }, [movieDetails, isAdminView]);
+  }, [movieDetails, isAdminRoute]);
 
   const handleDeleteClick = () => setShowDeleteModal(true);
 
@@ -226,7 +229,7 @@ export function MovieDetailsPage({ isAdminView }) {
               </div>
             </div>
 
-            {!isAdminView && (
+            {!isAdminRoute && (
               <div className="shrink-0 flex flex-col gap-3 w-[260px]">
                 <button
                   onClick={handleInterested}
@@ -297,7 +300,7 @@ export function MovieDetailsPage({ isAdminView }) {
           <div className="border-b border-white/10"></div>
 
           {/* Reviews */}
-          {!isAdminView && movieDetails?.id && (
+          {!isAdminRoute && movieDetails?.id && (
             <div>
               {!userOpinion ? (
                 <UserOpinionInputCard
@@ -341,7 +344,7 @@ export function MovieDetailsPage({ isAdminView }) {
       </div>
 
       {/* ── Delete modal ── */}
-      {!isAdminView && showDeleteModal && (
+      {!isAdminRoute && showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-80 text-center">
             <h3 className="text-lg font-semibold text-white mb-2">

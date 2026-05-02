@@ -38,7 +38,7 @@ function App() {
         <Route path="add-movie" element={<AddMoviePage />} />
         <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
-      <Route path="movie/:slug" element={<MovieDetailsPage isAdminView={true} />} />
+      <Route path="/admin-view/movie/:slug" element={<MovieDetailsPage />} />
 
       <Route
         element={

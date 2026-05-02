@@ -606,56 +606,37 @@ public class MovieServiceImpl implements MovieService {
                         new MovieNotFoundException(
                                 "Movie not found with id: " + movieId));
 
-        long totalVotes =
-                movieOpinionRepository.countByMovie(movie);
+        MovieOpinionSummaryDto dto =
+                movieOpinionRepository.getMovieOpinionSummary(movieId);
 
-        long skipVotes =
-                movieOpinionRepository
-                        .countByMovieAndOpinionType(
-                                movie,
-                                OpinionType.SKIP);
+        long total = dto.getTotalVotes();
 
-        long timePassVotes =
-                movieOpinionRepository
-                        .countByMovieAndOpinionType(
-                                movie,
-                                OpinionType.TIME_PASS);
-
-        long goForItVotes =
-                movieOpinionRepository
-                        .countByMovieAndOpinionType(
-                                movie,
-                                OpinionType.GO_FOR_IT);
-
-        long perfectionVotes =
-                movieOpinionRepository
-                        .countByMovieAndOpinionType(
-                                movie,
-                                OpinionType.PERFECTION);
-
-        if (totalVotes == 0) {
-            return new MovieOpinionSummaryDto();
+        if (total == 0) {
+            return MovieOpinionSummaryDto.builder()
+                    .totalVotes(0)
+                    .skipVotes(0)
+                    .timePassVotes(0)
+                    .goForItVotes(0)
+                    .perfectionVotes(0)
+                    .skipPercentage(0)
+                    .timePassPercentage(0)
+                    .goForItPercentage(0)
+                    .perfectionPercentage(0)
+                    .build();
         }
 
         return MovieOpinionSummaryDto.builder()
-                .totalVotes(totalVotes)
+                .totalVotes(total)
 
-                .skipVotes(skipVotes)
-                .timePassVotes(timePassVotes)
-                .goForItVotes(goForItVotes)
-                .perfectionVotes(perfectionVotes)
+                .skipVotes(dto.getSkipVotes())
+                .timePassVotes(dto.getTimePassVotes())
+                .goForItVotes(dto.getGoForItVotes())
+                .perfectionVotes(dto.getPerfectionVotes())
 
-                .skipPercentage(
-                        (skipVotes * 100.0) / totalVotes)
-
-                .timePassPercentage(
-                        (timePassVotes * 100.0) / totalVotes)
-
-                .goForItPercentage(
-                        (goForItVotes * 100.0) / totalVotes)
-
-                .perfectionPercentage(
-                        (perfectionVotes * 100.0) / totalVotes)
+                .skipPercentage((dto.getSkipVotes() * 100.0) / total)
+                .timePassPercentage((dto.getTimePassVotes() * 100.0) / total)
+                .goForItPercentage((dto.getGoForItVotes() * 100.0) / total)
+                .perfectionPercentage((dto.getPerfectionVotes() * 100.0) / total)
 
                 .build();
     }

@@ -33,7 +33,9 @@ export function AdminPanel() {
   };
 
   useEffect(() => {
-    fetchMovies();
+    if (movies.length === 0) {
+      fetchMovies();
+    }
   }, []);
 
   const handleDelete = async (id) => {
@@ -138,7 +140,9 @@ export function AdminPanel() {
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() => navigate(`/movie/${movie.slugUrl}`)}
+                      onClick={() =>
+                        navigate(`/admin-view/movie/${movie.slugUrl}`)
+                      }
                       className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
                     >
                       View
