@@ -38,6 +38,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public UserResponseDto findByUserName(String userName) {
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found with userName "+ userName));
+
+        UserResponseDto dto = modelMapper.map(user, UserResponseDto.class);
+        dto.setHasPassword(user.getPassword() != null);
+
+        return dto;
+    }
+
+
+    @Override
     public Page<UserResponseDto> findAllUsers(Pageable pageable){
         Page<User> userpage = userRepository.findAll(pageable);
         return userpage.map( user -> modelMapper.map(user, UserResponseDto.class));

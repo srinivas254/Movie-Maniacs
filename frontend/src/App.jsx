@@ -21,6 +21,7 @@ import { AddMoviePage } from "./Admin/movieAdd.jsx";
 import { UpdateMoviePage } from "./Admin/updateMovie.jsx";
 import { AdminPanel } from "./Admin/adminpanel.jsx";
 import { MovieDetailsPage } from "./Movie Page/movieDetails.jsx";
+import { PublicUserProfile } from "./User Page/publicUserProfile.jsx";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
       <Route path="/admin-view/movie/:slug" element={<MovieDetailsPage />} />
+      <Route path="/user/:userName" element={<PublicUserProfile />} />
 
       <Route
         element={

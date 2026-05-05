@@ -9,9 +9,17 @@ export function AdminPanel() {
   const [search, setSearch] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [deleteId, setDeleteId] = useState(null);
+  const [movieDeleteId, setMovieDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [users, setUsers] = useState([]);
+  const [userSearch, setUserSearch] = useState("");
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userPage, setUserPage] = useState(0);
+  const [userTotalPages, setUserTotalPages] = useState(0);
+
   const navigate = useNavigate();
 
   const { movies, setMovies, deleteMovie, setMovie } = useMovieStore();
@@ -22,7 +30,6 @@ export function AdminPanel() {
       const res = await fetch(`http://localhost:8080/movies/all?page=${page}`);
       const data = await res.json();
       setMovies(data.content || []);
-      console.log("Movies length:", movies.length);
       setTotalPages(data.totalPages);
       setCurrentPage(data.number);
     } catch (err) {
@@ -42,7 +49,7 @@ export function AdminPanel() {
     try {
       await fetch(`http://localhost:8080/movies/${id}`, { method: "DELETE" });
       deleteMovie(id);
-      setDeleteId(null);
+      setMovieDeleteId(null);
       toast.success("Movie deleted successfully");
     } catch (err) {
       console.error(err);
@@ -54,12 +61,39 @@ export function AdminPanel() {
     m.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
+  const fetchUsers = async (page = 0) => {
+    setUsersLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8080/users/all?page=${page}`);
+
+      const data = await res.json();
+
+      setUsers(data.content || []);
+      setUserTotalPages(data.totalPages);
+      setUserPage(data.number);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (users.length === 0) {
+      fetchUsers();
+    }
+  }, []);
+
+  const filteredUsers = users.filter((u) =>
+    u.name.toLowerCase().includes(userSearch.trim().toLowerCase()),
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-neutral-800 text-white px-6 py-6">
-      {deleteId && (
+      {movieDeleteId && (
         <ConfirmModal
-          onCancel={() => setDeleteId(null)}
-          onConfirm={() => handleDelete(deleteId)}
+          onCancel={() => setMovieDeleteId(null)}
+          onConfirm={() => handleDelete(movieDeleteId)}
           message="This movie data will be permanently deleted."
         />
       )}
@@ -92,6 +126,26 @@ export function AdminPanel() {
           placeholder="Search movies..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="px-4 py-2 rounded-lg text-black w-64"
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-4 items-center mb-8">
+        <button
+          onClick={() => {
+            fetchUsers(0);
+            setShowAllUsers(true);
+          }}
+          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium"
+        >
+          Get All Users
+        </button>
+
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={userSearch}
+          onChange={(e) => setUserSearch(e.target.value)}
           className="px-4 py-2 rounded-lg text-black w-64"
         />
       </div>
@@ -159,7 +213,7 @@ export function AdminPanel() {
                     </button>
 
                     <button
-                      onClick={() => setDeleteId(movie.id)}
+                      onClick={() => setMovieDeleteId(movie.id)}
                       className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
                     >
                       Delete
@@ -186,6 +240,90 @@ export function AdminPanel() {
                     onClick={() => fetchMovies(currentPage + 1)}
                     disabled={currentPage === totalPages - 1}
                     className="bg-neutral-700 hover:bg-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-lg"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {!showAllUsers && userSearch.trim() === "" ? null : (
+        <div className="bg-neutral-900 rounded-xl p-3 border border-neutral-700 mt-6">
+          <div className="flex justify-end mb-3">
+            <button
+              onClick={() => {
+                setShowAllUsers(false);
+                setUserSearch("");
+              }}
+              className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded-lg bg-neutral-700 hover:bg-red-600"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          {usersLoading ? (
+            <p className="text-gray-400 text-center">Loading users...</p>
+          ) : filteredUsers.length === 0 ? (
+            <p className="text-gray-400 text-center">
+              No matching users found...
+            </p>
+          ) : (
+            <>
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
+                >
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={user.pictureUrl}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h2>{user.userName}</h2>
+                      <p className="text-gray-400">{user.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => navigate(`/user/${user.userName}`)}
+                      className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => console.log("user deletion button")}
+                      className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {showAllUsers && userSearch.trim() === "" && (
+                <div className="flex justify-center gap-4 mt-4">
+                  <button
+                    onClick={() => fetchUsers(userPage - 1)}
+                    disabled={userPage === 0}
+                    className="bg-neutral-700 px-4 py-2 rounded"
+                  >
+                    Previous
+                  </button>
+
+                  <span>
+                    {userPage + 1} / {userTotalPages}
+                  </span>
+
+                  <button
+                    onClick={() => fetchUsers(userPage + 1)}
+                    disabled={userPage === userTotalPages - 1}
+                    className="bg-neutral-700 px-4 py-2 rounded"
                   >
                     Next
                   </button>

@@ -34,8 +34,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(savedUser);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/users")
+    @GetMapping("/{userName}")
+    public ResponseEntity<UserResponseDto> getUserByUserName(@PathVariable String userName) {
+        UserResponseDto user = userService.findByUserName(userName);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(Pageable pageable){
         Page<UserResponseDto> users = userService.findAllUsers(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(users);

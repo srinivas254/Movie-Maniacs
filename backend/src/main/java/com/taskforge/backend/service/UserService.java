@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     UserResponseDto findUserById(String id);
+    UserResponseDto findByUserName(String userName);
     Page<UserResponseDto> findAllUsers(Pageable pageable);
     void deleteUserById(String id,String password);
     ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
