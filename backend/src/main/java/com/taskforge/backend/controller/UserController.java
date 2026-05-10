@@ -4,6 +4,7 @@ import com.taskforge.backend.config.CustomPrincipal;
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.service.UserService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,13 +41,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(Pageable pageable){
         Page<UserResponseDto> users = userService.findAllUsers(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
-    @PreAuthorize("(hasRole('USER')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/me")
     public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody UserDeleteRequestDto userdeleterequestdto){
         userService.deleteUserById(principal.getId(),userdeleterequestdto.getPassword());
@@ -60,6 +62,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/set-password")
     public ResponseEntity<MsgResponseDto> setPassword(
             @AuthenticationPrincipal CustomPrincipal principal,
@@ -68,6 +71,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(passRes);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/reset-password")
     public ResponseEntity<MsgResponseDto> resetPassword(
             @AuthenticationPrincipal CustomPrincipal principal,

@@ -3,20 +3,18 @@ import {
   Cog6ToothIcon,
   ArrowRightStartOnRectangleIcon,
 } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/solid";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useUserStore from "../Zustand Store/useUserStore.js";
-import { UserIcon } from "@heroicons/react/24/solid";
 
 export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const profile = useUserStore((state) => state.profile);
-
-  const avatarType = localStorage.getItem("avatarType");
-  const avatarValue = localStorage.getItem("avatarValue");
+  const clearProfile = useUserStore((state) => state.clearProfile);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -31,75 +29,89 @@ export function ProfileMenu() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    toast.success("Logout successfull");
+    clearProfile();
+    toast.success("Logout successful");
     setOpen(false);
-    navigate("/");
+    navigate("/", { replace: true });
   };
+
+  const initials = profile?.name
+    ?.split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div ref={menuRef} className="relative mr-6">
-      {/* Profile Icon */}
       <button
         onClick={() => setOpen(!open)}
-        className="p-1 rounded-full hover:ring-2 hover:ring-gray-500 transition"
+        className="
+          p-1 rounded-full
+          hover:ring-2 hover:ring-gray-500
+          transition
+        "
       >
         {profile ? (
           profile.pictureUrl ? (
-            // ✅ Live profile image
             <img
               src={profile.pictureUrl}
               alt="profile"
-              className="w-8 h-8 rounded-full object-cover"
+              className="
+                w-8 h-8 rounded-full
+                object-cover
+              "
             />
           ) : (
-            // ✅ Live initials
             <div
-              className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center 
-                    text-sm font-semibold text-gray-200"
+              className="
+                w-8 h-8 rounded-full
+                bg-zinc-700 flex
+                items-center justify-center
+                text-sm font-semibold
+                text-gray-200
+              "
             >
-              {profile.name
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase()}
+              {initials}
             </div>
           )
-        ) : avatarType === "image" ? (
-          <img
-            src={avatarValue}
-            alt="profile"
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        ) : avatarType === "initials" ? (
-          <div
-            className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center 
-                  text-sm font-semibold text-gray-200"
-          >
-            {avatarValue}
-          </div>
         ) : (
           <div
-            className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center
-               ring-2 ring-zinc-500"
+            className="
+              w-8 h-8 rounded-full
+              bg-zinc-700 flex
+              items-center justify-center
+              ring-2 ring-zinc-500
+            "
           >
-            <UserIcon className="w-6 h-6 text-gray-300" />
+            <UserIcon
+              className="
+                w-6 h-6 text-gray-300
+              "
+            />
           </div>
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div
           className="
             absolute right-0 mt-2 w-44
-            rounded-md bg-black border border-white/10
+            rounded-md bg-black
+            border border-white/10
             shadow-lg z-30
           "
         >
           <button
             onClick={() => navigate("/profile")}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-purple-400 transition"
+            className="
+              flex items-center gap-2
+              w-full px-4 py-2 text-sm
+              text-gray-300
+              hover:bg-white/5
+              hover:text-purple-400
+              transition
+            "
           >
             <UserCircleIcon className="w-4 h-4" />
             Profile
@@ -107,7 +119,14 @@ export function ProfileMenu() {
 
           <button
             onClick={() => navigate("/settings/edit-profile")}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-purple-400 transition"
+            className="
+              flex items-center gap-2
+              w-full px-4 py-2 text-sm
+              text-gray-300
+              hover:bg-white/5
+              hover:text-purple-400
+              transition
+            "
           >
             <Cog6ToothIcon className="w-4 h-4" />
             Settings
@@ -117,7 +136,13 @@ export function ProfileMenu() {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-400 hover:bg-white/5 transition"
+            className="
+              flex items-center gap-2
+              w-full px-4 py-2 text-sm
+              text-red-400
+              hover:bg-white/5
+              transition
+            "
           >
             <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
             Logout

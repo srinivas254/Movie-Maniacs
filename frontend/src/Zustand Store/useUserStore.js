@@ -14,4 +14,6 @@ const useUserStore = create((set) => ({
   clearProfile: () => set({ profile: null }),
 }));
 
+window.useUserStore = useUserStore;
+
 export default useUserStore;

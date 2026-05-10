@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public MsgResponseDto loginAUser(OtpGenerationRequestDto userLoginRequestDto){
-        String emailOrUserName = userLoginRequestDto.getEmailOrUserName();
+        String emailOrUserName = userLoginRequestDto.getIdentifier();
         String providedPass = userLoginRequestDto.getPassword();
         User userLogin;
 
@@ -76,7 +76,11 @@ public class AuthServiceImpl implements AuthService{
             throw new InvalidPasswordException("Entered password is incorrect");
         }
 
-        String otp = String.valueOf(100000 + new Random().nextInt(900000));
+        String otp;
+
+        do{
+            otp = String.valueOf(100000 + new Random().nextInt(900000));
+        }while(otpStorage.containsKey(otp));
         long expiryTime = System.currentTimeMillis() + 2*60*1000;
 
         mailService.sendMail(userLogin.getEmail(),
@@ -96,16 +100,12 @@ public class AuthServiceImpl implements AuthService{
         OtpEntry entry = otpStorage.get(otpVerificationRequestDto.getOtp());
 
         if(entry == null){
-            throw new OtpNotFoundException("OTP expired or not found");
+            throw new OtpNotFoundException("Invalid OTP");
         }
 
         if(System.currentTimeMillis() > entry.getExpiryTime()){
             otpStorage.remove(otpVerificationRequestDto.getOtp());
             throw new OtpExpiredException("OTP expired");
-        }
-
-        if(!entry.getOtp().equals(otpVerificationRequestDto.getOtp())){
-            throw new InvalidOtpException("Invalid OTP");
         }
 
         String id = entry.getId();
@@ -222,7 +222,6 @@ public class AuthServiceImpl implements AuthService{
                 .deleteByUsedTrueOrExpiresAtBefore(LocalDateTime.now());
 
         String rawToken = UUID.randomUUID().toString();
-        System.out.println("rawToken : "+ rawToken);
         String hashedToken = passwordEncoder.encode(rawToken);
 
         PasswordResetToken token = new PasswordResetToken();

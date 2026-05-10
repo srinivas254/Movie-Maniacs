@@ -34,7 +34,7 @@ export function Login() {
 }
 
 function LoginCard() {
-  const [emailOrUserName, setEmailOrUserName] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -65,7 +65,7 @@ function LoginCard() {
     }
   }, [searchParams]);
 
-  const isFormValid = emailOrUserName.trim() !== "" && password.trim() !== "";
+  const isFormValid = identifier.trim() !== "" && password.trim() !== "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,7 +81,7 @@ function LoginCard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          emailOrUserName: emailOrUserName.trim(),
+          identifier: identifier.trim(),
           password: password.trim(),
         }),
       });
@@ -128,9 +128,9 @@ function LoginCard() {
         <input
           type="text"
           placeholder="Username or Email"
-          value={emailOrUserName}
+          value={identifier}
           onChange={(e) => {
-            setEmailOrUserName(e.target.value);
+            setIdentifier(e.target.value);
             setLoginError("");
           }}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none 

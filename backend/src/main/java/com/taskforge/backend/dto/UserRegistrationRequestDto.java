@@ -18,12 +18,16 @@ public class UserRegistrationRequestDto {
     private String name;
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email is invalid")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]{2,}$",
+            message = "Email must be in valid format like username@domain.extension"
+    )
     private String email;
     @NotBlank(message = "Username cannot be blank")
-    @Size(min = 10, message = "Username must be at least 10 characters long")
+    @Size(min = 5, message = "Username must be at least 5 characters long")
     @Pattern(
-            regexp = "^[a-z][^@\\s]*$",
-            message = "Username must start with a lowercase letter, contains no whitespaces and must not contain '@'"
+            regexp = "^[a-z0-9_]+$",
+            message = "Username must contain only lowercase letters, numbers, underscores, no whitespaces and no '@'"
     )
     private String userName;
     @NotBlank(message = "Password cannot be blank")

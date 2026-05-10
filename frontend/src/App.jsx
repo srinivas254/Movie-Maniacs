@@ -22,6 +22,8 @@ import { UpdateMoviePage } from "./Admin/updateMovie.jsx";
 import { AdminPanel } from "./Admin/adminpanel.jsx";
 import { MovieDetailsPage } from "./Movie Page/movieDetails.jsx";
 import { PublicUserProfile } from "./User Page/publicUserProfile.jsx";
+import { AdminLoginPage } from "./Admin/adminLogin.jsx";
+import { AdminProtectedRoute } from "./Admin/adminProtectedRoute.jsx";
 
 function App() {
   return (
@@ -34,14 +36,27 @@ function App() {
       <Route path="*" element={<NotFound />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
       <Route path="/reset-password" element={<ResetNewPassword />} />
-      <Route path="/movies/update" element={<UpdateMoviePage />} />
-      <Route path="/admin" element={<AdminPanel />}>
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminPanel />
+          </AdminProtectedRoute>
+        }
+      >
         <Route path="add-movie" element={<AddMoviePage />} />
         <Route path="update-movie/:id" element={<UpdateMoviePage />} />
       </Route>
-      <Route path="/admin-view/movie/:slug" element={<MovieDetailsPage />} />
+      <Route
+        path="/admin-view/movie/:slug"
+        element={
+          <AdminProtectedRoute>
+            <MovieDetailsPage />
+          </AdminProtectedRoute>
+        }
+      />
+      <Route path="/admin-view/login" element={<AdminLoginPage />} />
       <Route path="/user/:userName" element={<PublicUserProfile />} />
-
       <Route
         element={
           <ProtectedRoute>
@@ -50,7 +65,7 @@ function App() {
         }
       >
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/movie/:slug" element={<MovieDetailsPage />}  />
+        <Route path="/movie/:slug" element={<MovieDetailsPage />} />
         <Route path="/collections" element={<CollectionsPage />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/settings" element={<UserSettings />}>

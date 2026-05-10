@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useMovieStore } from "../Zustand Store/useMovieStore.js";
 import { ConfirmModal } from "../User Page/User settings/confirmationModal.jsx";
+import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 
 export function AdminPanel() {
   const [search, setSearch] = useState("");
@@ -88,6 +89,12 @@ export function AdminPanel() {
     u.name.toLowerCase().includes(userSearch.trim().toLowerCase()),
   );
 
+  const handleLogout = () => {
+      localStorage.removeItem("token");
+      toast.success("Logout successfull");
+      navigate("/");
+    };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-neutral-800 text-white px-6 py-6">
       {movieDeleteId && (
@@ -99,8 +106,25 @@ export function AdminPanel() {
       )}
 
       <div className="flex justify-between items-center mb-8">
-        <Logo className="text-2xl cursor-default" />
-        <h1 className="text-red-500 font-bold text-2xl">Admin Panel</h1>
+        <div className="flex-1">
+          <Logo className="text-2xl cursor-default" />
+        </div>
+
+        <div className="flex-1 flex justify-center">
+          <h1 className="text-red-500 font-bold text-2xl">Admin Panel</h1>
+        </div>
+
+        <div className="flex-1 flex justify-end">
+          <button
+             onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-500
+            text-white px-5 py-2 rounded-2xl transition"
+          >
+            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 items-center mb-8">

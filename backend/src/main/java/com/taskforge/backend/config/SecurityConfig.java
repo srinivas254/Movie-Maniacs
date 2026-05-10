@@ -25,8 +25,13 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/movies/**","/users/all","/users/{userName}").permitAll()
-                        .anyRequest().authenticated())
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/admin/login").permitAll()
+                                .requestMatchers("/admin/**").authenticated()
+                                .requestMatchers("/movies/**").authenticated()
+                                .requestMatchers("/users/**").authenticated()
+                                .anyRequest().authenticated()
+                        )
 
                 .csrf(AbstractHttpConfigurer::disable)
 

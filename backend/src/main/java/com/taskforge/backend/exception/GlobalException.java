@@ -94,7 +94,7 @@ public class GlobalException {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ade) {
         Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Access is denied");
+        errors.put("error", ade.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
     }
 
@@ -110,13 +110,6 @@ public class GlobalException {
         Map<String, String> errors = new HashMap<>();
         errors.put("error", oe.getMessage());
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(errors);
-    }
-
-    @ExceptionHandler(InvalidOtpException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidOtpException(InvalidOtpException iot) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", iot.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
