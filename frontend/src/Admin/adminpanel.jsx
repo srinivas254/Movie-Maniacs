@@ -62,13 +62,20 @@ export function AdminPanel() {
     m.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
+  const token = localStorage.getItem("token");
+
   const fetchUsers = async (page = 0) => {
     setUsersLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/users/all?page=${page}`);
+      const res = await fetch(`http://localhost:8080/users/all?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await res.json();
 
+      console.log("FULL RESPONSE:", data);
       setUsers(data.content || []);
       setUserTotalPages(data.totalPages);
       setUserPage(data.number);
@@ -86,14 +93,14 @@ export function AdminPanel() {
   }, []);
 
   const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(userSearch.trim().toLowerCase()),
+    u.userName.toLowerCase().includes(userSearch.trim().toLowerCase()),
   );
 
   const handleLogout = () => {
-      localStorage.removeItem("token");
-      toast.success("Logout successfull");
-      navigate("/");
-    };
+    localStorage.removeItem("token");
+    toast.success("Logout successfull");
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-neutral-900 to-neutral-800 text-white px-6 py-6">
@@ -116,7 +123,7 @@ export function AdminPanel() {
 
         <div className="flex-1 flex justify-end">
           <button
-             onClick={handleLogout}
+            onClick={handleLogout}
             className="flex items-center gap-2 bg-red-600 hover:bg-red-500
             text-white px-5 py-2 rounded-2xl transition"
           >
@@ -296,39 +303,56 @@ export function AdminPanel() {
             </p>
           ) : (
             <>
-              {filteredUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
-                >
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={user.pictureUrl}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div>
-                      <h2>{user.userName}</h2>
-                      <p className="text-gray-400">{user.name}</p>
+              {filteredUsers.map((user) => {
+                const initials = user?.name
+                  ?.split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase();
+
+                return (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between bg-neutral-800 p-4 rounded-lg mb-3"
+                  >
+                    <div className="flex items-center gap-4">
+                      {user.pictureUrl ? (
+                        <img
+                          src={user.pictureUrl}
+                          referrerPolicy="no-referrer"
+                          className="w-12 h-12 rounded-full object-cover"
+                          alt={user.userName}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center font-bold text-white">
+                          {initials}
+                        </div>
+                      )}
+                      <div>
+                        <h2>{user.userName}</h2>
+                        <p className="text-gray-400">{user.name}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => navigate(`/user/${user.userName}`)}
+                        className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
+                      >
+                        View
+                      </button>
+
+                      <button
+                        onClick={() => console.log("user deletion button")}
+                        className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => navigate(`/user/${user.userName}`)}
-                      className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
-                    >
-                      View
-                    </button>
-
-                    <button
-                      onClick={() => console.log("user deletion button")}
-                      className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               {showAllUsers && userSearch.trim() === "" && (
                 <div className="flex justify-center gap-4 mt-4">
