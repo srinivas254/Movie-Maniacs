@@ -1,6 +1,7 @@
 package com.taskforge.backend.service;
 
 import com.taskforge.backend.dto.*;
+import com.taskforge.backend.entity.Role;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.exception.*;
 import com.taskforge.backend.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Transactional
@@ -51,7 +53,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Page<UserResponseDto> findAllUsers(Pageable pageable){
-        Page<User> userpage = userRepository.findAll(pageable);
+        Page<User> userpage = userRepository.findByRole(Role.USER, pageable);
         return userpage.map( user -> modelMapper.map(user, UserResponseDto.class));
     }
 

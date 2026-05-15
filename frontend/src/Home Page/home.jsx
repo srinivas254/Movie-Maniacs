@@ -6,6 +6,7 @@ import { HelpSection } from "./help.jsx";
 import { PreviewModal } from "./previewBar.jsx";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export function HomePage() {
   const [showPreview, setShowPreview] = useState(true);
@@ -16,8 +17,23 @@ export function HomePage() {
     const token = localStorage.getItem("token");
 
     if (token) {
-      navigate("/explore");
+
+    try {
+
+      const decoded = jwtDecode(token);
+
+      if (decoded.role === "ADMIN") {
+        navigate("/admin");
+      }
+
+      else if (decoded.role === "USER") {
+        navigate("/explore");
+      }
+
+    } catch {
+      localStorage.removeItem("token");
     }
+  }
   }, [navigate]);
 
   return (
