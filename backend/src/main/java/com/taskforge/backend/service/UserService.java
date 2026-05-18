@@ -4,6 +4,8 @@ import com.taskforge.backend.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface UserService {
     UserResponseDto findUserById(String id);
     UserResponseDto findByUserName(String userName);
@@ -12,4 +14,5 @@ public interface UserService {
     ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
     MsgResponseDto setPassword(String id,String newPassword);
     MsgResponseDto resetPassword(String id,ResetPasswordRequestDto request);
+    List<UserCardResponseDto> searchUsers(String query);
 }

@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -33,6 +34,12 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUserById(@AuthenticationPrincipal CustomPrincipal principal){
         UserResponseDto savedUser = userService.findUserById(principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(savedUser);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/search")
+    public List<UserCardResponseDto> searchUsers(@RequestParam String q) {
+        return userService.searchUsers(q);
     }
 
     @GetMapping("/{userName}")

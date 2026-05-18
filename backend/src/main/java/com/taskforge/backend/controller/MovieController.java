@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/movies")
 public class MovieController {
@@ -54,7 +56,7 @@ public class MovieController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<MovieResponseDto> updateMovieById(@PathVariable("id") String movieId,@Valid @RequestBody MovieAddingRequestDto movieRequest) {
+    public ResponseEntity<MovieResponseDto> updateMovieById(@PathVariable("id") String movieId,@Valid @RequestBody MovieUpdateRequestDto movieRequest) {
         MovieResponseDto updatedMovie = movieService.updateMovieById(movieId,movieRequest);
         return ResponseEntity.status(HttpStatus.OK).body(updatedMovie);
     }
@@ -105,6 +107,12 @@ public class MovieController {
     public ResponseEntity<MovieOpinionSummaryDto> getOpinionSummary(@PathVariable String movieId) {
         MovieOpinionSummaryDto opinionSummary = movieService.getOpinionSummary(movieId);
         return ResponseEntity.status(HttpStatus.OK).body(opinionSummary);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/search")
+    public List<MovieCardResponseDto> searchMovies(@RequestParam String q) {
+        return movieService.searchMovies(q);
     }
 
 }

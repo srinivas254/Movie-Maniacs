@@ -8,16 +8,22 @@ export function PublicUserProfile() {
   const { userName } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/users/${userName}`);
+        const res = await fetch(`http://localhost:8080/users/${userName}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!res.ok) {
           throw new Error("User not found");
         }
 
         const data = await res.json();
+        console.log(data);
         setProfile(data);
       } catch (err) {
         console.error(err);

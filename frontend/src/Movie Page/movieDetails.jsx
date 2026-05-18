@@ -8,11 +8,14 @@ import { UserOpinionDisplayCard } from "./userOpinionDisplay";
 import { UserOpinionInputCard } from "./userOpinionInput";
 import { OpinionMeter } from "./opinionSummary";
 import { useLocation } from "react-router-dom";
+import { Logo } from "../siteLogo";
+import { useNavigate } from "react-router-dom";
 
 export function MovieDetailsPage() {
   const { slug } = useParams();
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/admin-view"); 
+  const isAdminRoute = location.pathname.startsWith("/admin-view");
+  const navigate = useNavigate();
 
   const movies = useMovieStore((state) => state.movies);
   const addMovie = useMovieStore((state) => state.addMovie);
@@ -160,6 +163,15 @@ export function MovieDetailsPage() {
     <div className="min-h-screen bg-[#111] text-white">
       {/* ── Hero banner ── */}
       <div className="relative w-full">
+        {isAdminRoute && (
+          <div
+            onClick={() => navigate("/admin")}
+            className="absolute top-6 left-6 z-30 cursor-pointer"
+          >
+            <Logo />
+          </div>
+        )}
+
         <div className="relative w-full h-[420px]">
           {movieDetails.posterWideUrl ? (
             <img

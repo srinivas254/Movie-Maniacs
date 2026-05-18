@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,5 @@ public interface UserRepository extends JpaRepository<User,String>{
     boolean existsByEmail(String email);
     Optional<User> findByRole(Role role);
     Page<User> findByRole(Role role, Pageable pageable);
+    List<User> findByNameStartingWithIgnoreCaseAndRole(String name, Role role);
 }

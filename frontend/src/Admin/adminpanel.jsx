@@ -9,7 +9,7 @@ import { ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 export function AdminPanel() {
   const [search, setSearch] = useState("");
   const [showAll, setShowAll] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [movieDeleteId, setMovieDeleteId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -22,13 +22,18 @@ export function AdminPanel() {
   const [userTotalPages, setUserTotalPages] = useState(0);
 
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const { movies, setMovies, deleteMovie, setMovie } = useMovieStore();
 
   const fetchMovies = async (page = 0) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/movies/all?page=${page}`);
+      const res = await fetch(`http://localhost:8080/movies/all?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       setMovies(data.content || []);
       setTotalPages(data.totalPages);
@@ -48,7 +53,12 @@ export function AdminPanel() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:8080/movies/${id}`, { method: "DELETE" });
+      await fetch(`http://localhost:8080/movies/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       deleteMovie(id);
       setMovieDeleteId(null);
       toast.success("Movie deleted successfully");
@@ -62,8 +72,6 @@ export function AdminPanel() {
     m.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
-  const token = localStorage.getItem("token");
-
   const fetchUsers = async (page = 0) => {
     setUsersLoading(true);
     try {
@@ -75,7 +83,6 @@ export function AdminPanel() {
 
       const data = await res.json();
 
-      console.log("FULL RESPONSE:", data);
       setUsers(data.content || []);
       setUserTotalPages(data.totalPages);
       setUserPage(data.number);
@@ -114,7 +121,7 @@ export function AdminPanel() {
 
       <div className="flex justify-between items-center mb-8">
         <div className="flex-1">
-          <Logo className="text-2xl cursor-default" />
+          <Logo className="text-2xl cursor-pointer" />
         </div>
 
         <div className="flex-1 flex justify-center">

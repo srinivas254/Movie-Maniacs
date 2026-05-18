@@ -82,30 +82,26 @@ public class MovieServiceImpl implements MovieService {
 
         movieGenreRepository.saveAll(movieGenres);
 
-        if (movie.getCastCrew() != null) {
-            List<CastCrew> castCrewEntities = movie.getCastCrew().stream()
-                    .map(cc -> {
-                        boolean hasRole = cc.getRole() != null;
-                        boolean hasCharacterName = cc.getCharacterName() != null;
+        List<CastCrew> castCrewEntities = movie.getCastCrew().stream()
+                .map(cc -> {
+                    boolean hasRole = cc.getRole() != null;
+                    boolean hasCharacterName = cc.getCharacterName() != null;
 
-                        if (hasRole == hasCharacterName) {
-                            throw new InvalidCastCrewException(
-                                    "Person '" + cc.getName() + "' must have either role (CREW) or characterName (CAST), not both or neither"
-                            );
+                    if (hasRole == hasCharacterName) {
+                        throw new InvalidCastCrewException("Person '" + cc.getName() + "' must have either role (CREW) or characterName (CAST), not both or neither");
                         }
 
-                        return CastCrew.builder()
-                                .movie(savedMovie)
-                                .type(cc.getType())
-                                .name(cc.getName())
-                                .role(cc.getRole())
-                                .characterName(cc.getCharacterName())
-                                .build();
+                    return CastCrew.builder()
+                            .movie(savedMovie)
+                            .type(cc.getType())
+                            .name(cc.getName())
+                            .role(cc.getRole())
+                            .characterName(cc.getCharacterName())
+                            .build();
                     })
                     .toList();
 
-            castCrewRepository.saveAll(castCrewEntities);
-        }
+        castCrewRepository.saveAll(castCrewEntities);
 
         List<WatchLink> watchLinks = movie.getWatchLinks().stream()
                 .map(w -> WatchLink.builder()
@@ -260,7 +256,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest) {
+    public MovieResponseDto updateMovieById(String id,MovieUpdateRequestDto movieRequest) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with id: " + id));
 
@@ -641,6 +637,22 @@ public class MovieServiceImpl implements MovieService {
                 .build();
     }
 
+    @Override
+    public List<MovieCardResponseDto> searchMovies(String query) {
 
+        List<Movie> movies =
+                movieRepository
+                        .findByNameStartingWithIgnoreCase(query);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
 
 }

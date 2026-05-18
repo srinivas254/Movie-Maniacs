@@ -5,13 +5,15 @@ import com.taskforge.backend.entity.OpinionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 
 public interface MovieService {
     MovieResponseDto saveMovie(MovieAddingRequestDto movie);
     MovieResponseDto getMovieBySlug(String movieUrl);
     Page<MovieResponseDto> findAllMovies(Pageable pageable);
     void deleteMovieById(String id);
-    MovieResponseDto updateMovieById(String id,MovieAddingRequestDto movieRequest);
+    MovieResponseDto updateMovieById(String id,MovieUpdateRequestDto movieRequest);
     InterestedStatusDto markInterested(String movieId, String userId);
     InterestedStatusDto getInterestedStatus(String movieId, String userId);
     InterestedStatusDto removeInterested(String movieId,String userId);
@@ -19,4 +21,5 @@ public interface MovieService {
     RetrieveMovieOpinionDto getUserOpinion(String movieId, String userId);
     void deleteOpinion(String movieId, String userId);
     MovieOpinionSummaryDto getOpinionSummary(String movieId);
+    List<MovieCardResponseDto> searchMovies(String query);
 }

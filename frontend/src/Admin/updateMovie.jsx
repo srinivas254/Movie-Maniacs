@@ -80,6 +80,8 @@ export function UpdateMoviePage() {
     );
   };
 
+  const token = localStorage.getItem("token");
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,7 +108,10 @@ export function UpdateMoviePage() {
     try {
       const res = await fetch(`http://localhost:8080/movies/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(cleanMovie),
       });
 

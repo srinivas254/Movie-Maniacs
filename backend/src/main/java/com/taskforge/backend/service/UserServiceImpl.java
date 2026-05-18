@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -161,6 +163,23 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
 
         return new MsgResponseDto("Password updated successfully");
+    }
+
+    @Override
+    public List<UserCardResponseDto> searchUsers(String query) {
+
+        List<User> users =
+                userRepository
+                        .findByNameStartingWithIgnoreCaseAndRole(query,Role.USER);
+
+        return users.stream()
+                .map(user -> new UserCardResponseDto(
+                        user.getId(),
+                        user.getUserName(),
+                        user.getName(),
+                        user.getPictureUrl()
+                ))
+                .toList();
     }
 
 }

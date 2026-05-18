@@ -17,11 +17,17 @@ export const OpinionMeter = ({ movieId }) => {
   const [activeLabel, setActiveLabel] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/movies/${movieId}/opinion-summary`)
-      .then((res) => res.json())
-      .then((res) => setData(res))
-      .catch((err) => console.error(err));
-  }, [movieId]);
+  const token = localStorage.getItem("token");
+
+  fetch(`http://localhost:8080/movies/${movieId}/opinion-summary`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((res) => setData(res))
+    .catch((err) => console.error(err));
+}, [movieId]);
 
   const opinions = useMemo(() => {
     if (!data) return [];

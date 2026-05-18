@@ -77,7 +77,8 @@ export function AddMoviePage() {
     );
   };
 
-  
+  const token = localStorage.getItem("token");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -97,7 +98,10 @@ export function AddMoviePage() {
     try {
       const res = await fetch("http://localhost:8080/movies/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(cleanMovie),
       });
 
@@ -224,9 +228,9 @@ export function AddMoviePage() {
                   value={genre.percentage}
                   onChange={(e) => updateGenre(i, "percentage", e.target.value)}
                 />
-                <RemoveButton 
-                onClick={() => removeGenre(i)} 
-                label="Remove Genre"
+                <RemoveButton
+                  onClick={() => removeGenre(i)}
+                  label="Remove Genre"
                 />
               </div>
             ))}
