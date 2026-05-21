@@ -5,5 +5,5 @@ import com.taskforge.backend.dto.LoginResponseDto;
 
 public interface AdminService {
     LoginResponseDto loginAdmin(AdminLoginRequestDto adminLoginRequestDto);
-    void deleteAnyUser(String userId);
+    void deleteAnyUser(String userName);
 }

@@ -109,7 +109,6 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(opinionSummary);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/search")
     public List<MovieCardResponseDto> searchMovies(@RequestParam String q) {
         return movieService.searchMovies(q);

@@ -36,7 +36,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(savedUser);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/search")
     public List<UserCardResponseDto> searchUsers(@RequestParam String q) {
         return userService.searchUsers(q);

@@ -66,11 +66,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void deleteAnyUser(String userId) {
-        User user = userRepository.findById(userId)
+    public void deleteAnyUser(String userName) {
+        User user = userRepository.findByUserName(userName)
                 .orElseThrow(() ->
                         new UserNotFoundException(
-                                "User not found with id: " + userId
+                                "User not found with username: " + userName
                         ));
 
         userRepository.delete(user);

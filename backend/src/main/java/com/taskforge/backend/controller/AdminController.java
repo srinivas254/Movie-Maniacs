@@ -26,9 +26,9 @@ public class AdminController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> deleteAnyUser(@PathVariable String userId) {
-        adminService.deleteAnyUser(userId);
+    @DeleteMapping("/users/{userName}")
+    public ResponseEntity<Void> deleteAnyUser(@PathVariable String userName) {
+        adminService.deleteAnyUser(userName);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
