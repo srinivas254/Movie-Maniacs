@@ -22,4 +22,5 @@ public interface MovieService {
     void deleteOpinion(String movieId, String userId);
     MovieOpinionSummaryDto getOpinionSummary(String movieId);
     List<MovieCardResponseDto> searchMovies(String query);
+    MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId);
 }

@@ -4,6 +4,8 @@ import { AuthLayout } from "./Authentication/authLayout.jsx";
 import { Login } from "./Authentication/loginPage.jsx";
 import { Register } from "./Authentication/registerPage.jsx";
 import { CollectionsPage } from "./User Page/collectionsPage.jsx";
+import { MyCollections } from "./User Page/myCollections.jsx";
+import { SavedCollections } from "./User Page/savedCollections.jsx";
 import { ExplorePage } from "./User Page/explorePage.jsx";
 import { UserProfile } from "./User Page/userProfile.jsx";
 import { UserSettings } from "./User Page/userSettings.jsx";
@@ -66,7 +68,11 @@ function App() {
       >
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/movie/:slug" element={<MovieDetailsPage />} />
-        <Route path="/collections" element={<CollectionsPage />} />
+        <Route path="/collections" element={<CollectionsPage />}>
+          <Route path="my-collections" element={<MyCollections />} />
+          <Route path="saved" element={<SavedCollections />} />
+        </Route>
+        ;
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/settings" element={<UserSettings />}>
           <Route path="edit-profile" element={<EditProfileCard />} />

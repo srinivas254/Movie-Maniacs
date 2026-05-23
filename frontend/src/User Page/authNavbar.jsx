@@ -32,7 +32,7 @@ const navItems = [
   {
     id: "collections",
     type: "route",
-    path: "/collections",
+    path: "/collections/my-collections",
     icon: BookmarkIcon,
     underline: true,
   },
@@ -63,14 +63,14 @@ export function AuthNavbar() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-black border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        {/* LOGO */}
+        
         <Link to="/explore">
           <Logo className="text-lg cursor-pointer" />
         </Link>
 
-        {/* ICONS + SEARCH + PROFILE */}
+        
         <div className="hidden md:flex items-center gap-10 text-gray-300">
-          {/* ICON NAV */}
+         
           <div className="flex items-center gap-10">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -90,7 +90,6 @@ export function AuthNavbar() {
                 >
                   <Icon className="h-6 w-6" />
 
-                  {/* PURPLE GLITTER LINE → ONLY FOR ROUTES */}
                   {item.type === "route" && item.underline && (
                     <span
                       className={`absolute -bottom-3 h-[2px] w-6
@@ -110,7 +109,6 @@ export function AuthNavbar() {
             })}
           </div>
 
-          {/* SEARCH + PROFILE */}
           <div className="flex items-center gap-4">
             <SearchBox />
             <ProfileMenu />

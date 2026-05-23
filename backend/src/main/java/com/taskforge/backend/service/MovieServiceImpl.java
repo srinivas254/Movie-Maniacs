@@ -29,9 +29,10 @@ public class MovieServiceImpl implements MovieService {
     private final UserRepository userRepository;
     private final MovieInterestedRepository movieInterestedRepository;
     private final MovieOpinionRepository movieOpinionRepository;
+    private final CollectionRepository collectionRepository;
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository){
+    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository, CollectionRepository collectionRepository){
         this.movieRepository = movieRepository;
         this.modelMapper = modelMapper;
         this.genreRepository = genreRepository;
@@ -41,6 +42,7 @@ public class MovieServiceImpl implements MovieService {
         this.userRepository = userRepository;
         this.movieInterestedRepository = movieInterestedRepository;
         this.movieOpinionRepository = movieOpinionRepository;
+        this.collectionRepository = collectionRepository;
     }
 
     @Override
@@ -653,6 +655,22 @@ public class MovieServiceImpl implements MovieService {
                         movie.getSlugUrl()
                 ))
                 .toList();
+    }
+
+    @Override
+    public MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Collection collection = new Collection();
+
+        collection.setName(request.getName());
+        collection.setDescription(request.getDescription());
+        collection.setVisibility(request.getVisibility());
+        collection.setUser(user);
+
+        collectionRepository.save(collection);
+        return new MsgResponseDto("Collection created successfully");
     }
 
 }

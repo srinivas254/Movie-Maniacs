@@ -114,4 +114,10 @@ public class MovieController {
         return movieService.searchMovies(q);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/collections/add")
+    public ResponseEntity<MsgResponseDto> createCollection(@RequestBody CreateCollectionRequestDto request, @AuthenticationPrincipal CustomPrincipal principal) {
+        MsgResponseDto createdCollection = movieService.createCollection(request, principal.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCollection);
+    }
 }

@@ -2,10 +2,9 @@ package com.taskforge.backend.service;
 
 import com.taskforge.backend.config.JwtUtil;
 import com.taskforge.backend.dto.*;
-import com.taskforge.backend.entity.AuthProvider;
-import com.taskforge.backend.entity.PasswordResetToken;
-import com.taskforge.backend.entity.User;
+import com.taskforge.backend.entity.*;
 import com.taskforge.backend.exception.*;
+import com.taskforge.backend.repository.CollectionRepository;
 import com.taskforge.backend.repository.PasswordResetTokenRepository;
 import com.taskforge.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -32,10 +31,11 @@ public class AuthServiceImpl implements AuthService{
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final CollectionRepository collectionRepository;
     private final Map<String,OtpEntry> otpStorage = new ConcurrentHashMap<>();
 
     @Autowired
-    public AuthServiceImpl(GoogleAuthService googleAuthService,UserRepository userRepository,JwtUtil jwtUtil, ModelMapper modelMapper, PasswordEncoder passwordEncoder, MailService mailService,PasswordResetTokenRepository passwordResetTokenRepository){
+    public AuthServiceImpl(GoogleAuthService googleAuthService,UserRepository userRepository,JwtUtil jwtUtil, ModelMapper modelMapper, PasswordEncoder passwordEncoder, MailService mailService,PasswordResetTokenRepository passwordResetTokenRepository, CollectionRepository collectionRepository){
         this.googleAuthService = googleAuthService;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
@@ -43,6 +43,7 @@ public class AuthServiceImpl implements AuthService{
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.mailService = mailService;
+        this.collectionRepository = collectionRepository;
     }
 
     @Override
@@ -52,7 +53,17 @@ public class AuthServiceImpl implements AuthService{
         euser.setProvider(AuthProvider.LOCAL);
         euser.setPassword(passwordEncoder.encode(euser.getPassword()));
         euser.setRole(USER);
-        userRepository.save(euser);
+        User savedUser = userRepository.save(euser);
+
+        Collection watchLater = new Collection();
+
+        watchLater.setName(savedUser.getName() +"'s Watch Later");
+        watchLater.setDescription("Things to watch later");
+        watchLater.setVisibility(Visibility.PRIVATE);
+        watchLater.setUser(savedUser);
+
+        collectionRepository.save(watchLater);
+
         return MsgResponseDto.builder()
                 .message("User registration successful")
                 .build();
@@ -196,7 +207,16 @@ public class AuthServiceImpl implements AuthService{
         newUser.setPictureUrl(pictureUrl);
         newUser.setRole(USER);
 
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        Collection watchLater = new Collection();
+
+        watchLater.setName(savedUser.getName() +"'s Watch Later");
+        watchLater.setDescription("Things to watch later");
+        watchLater.setVisibility(Visibility.PRIVATE);
+        watchLater.setUser(savedUser);
+
+        collectionRepository.save(watchLater);
     }
 
     @Override
