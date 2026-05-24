@@ -23,4 +23,5 @@ public interface MovieService {
     MovieOpinionSummaryDto getOpinionSummary(String movieId);
     List<MovieCardResponseDto> searchMovies(String query);
     MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId);
+    List<CollectionCardDto> getMyCollections(String userId);
 }

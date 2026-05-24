@@ -673,4 +673,20 @@ public class MovieServiceImpl implements MovieService {
         return new MsgResponseDto("Collection created successfully");
     }
 
+    @Override
+    public List<CollectionCardDto> getMyCollections(String userId) {
+
+        List<Collection> collections =
+                collectionRepository.findByUserId(userId);
+
+        return collections.stream()
+                .map(collection -> new CollectionCardDto(
+                        collection.getId(),
+                        collection.getName(),
+                        collection.getVisibility(),
+                        collection.getMovies().size()
+                ))
+                .toList();
+    }
+
 }

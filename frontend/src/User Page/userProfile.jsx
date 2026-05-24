@@ -29,6 +29,7 @@ export function UserProfile() {
         {profile.pictureUrl ? (
           <img
             src={profile.pictureUrl}
+            referrerPolicy="no-referrer"
             alt={`${profile.name} profile`}
             className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
           />

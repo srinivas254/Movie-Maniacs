@@ -56,6 +56,7 @@ export function ProfileMenu() {
           profile.pictureUrl ? (
             <img
               src={profile.pictureUrl}
+              referrerPolicy="no-referrer"
               alt="profile"
               className="
                 w-8 h-8 rounded-full

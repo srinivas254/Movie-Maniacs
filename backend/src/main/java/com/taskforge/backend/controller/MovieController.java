@@ -120,4 +120,11 @@ public class MovieController {
         MsgResponseDto createdCollection = movieService.createCollection(request, principal.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCollection);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/collections/my-collections")
+    public ResponseEntity<List<CollectionCardDto>> getMyCollections(@AuthenticationPrincipal CustomPrincipal principal) {
+        List<CollectionCardDto> myCollections = movieService.getMyCollections(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(myCollections);
+    }
 }

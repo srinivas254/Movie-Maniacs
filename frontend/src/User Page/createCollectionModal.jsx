@@ -6,7 +6,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-export function CreateCollectionModal({ open, setOpen }) {
+export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
   const [visibility, setVisibility] = useState("private");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,6 +37,7 @@ export function CreateCollectionModal({ open, setOpen }) {
       }
 
       toast.success("Collection created successfully");
+      await fetchCollections();
       setOpen(false);
 
       setName("");
