@@ -1,24 +1,10 @@
-import {
-  GlobeAltIcon,
-  LockClosedIcon,
-} from "@heroicons/react/24/solid";
-
+import { GlobeAltIcon, LockClosedIcon } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
 import useUserStore from "../Zustand Store/useUserStore.js";
 
-const banners = [
-  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200",
-  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200",
-  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1200",
-  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1200",
-];
-
 export function CollectionCard({ collection }) {
-
-   const profile = useUserStore((state) => state.profile);
-
-  const banner =
-    banners[collection.id % banners.length];
+  const navigate = useNavigate();
+  const profile = useUserStore((state) => state.profile);
 
   const initials = profile?.name
     ?.split(" ")
@@ -29,6 +15,16 @@ export function CollectionCard({ collection }) {
 
   return (
     <div
+    onClick={() =>
+        navigate(
+          `/collections/my-collections/${collection.name}`,
+          {
+            state: {
+              banner: collection.banner,
+            },
+          }
+        )
+      }
       className="
         rounded-2xl overflow-hidden
         bg-zinc-900 border border-white/10
@@ -39,7 +35,7 @@ export function CollectionCard({ collection }) {
     >
       <div className="h-28 overflow-hidden">
         <img
-          src={banner}
+          src={collection.banner}
           alt="banner"
           className="
             w-full h-full object-cover
@@ -50,7 +46,6 @@ export function CollectionCard({ collection }) {
       </div>
 
       <div className="p-4">
-
         <h2
           className="
             text-white font-semibold
@@ -66,7 +61,6 @@ export function CollectionCard({ collection }) {
             gap-2 text-sm text-gray-400
           "
         >
-
           {profile?.pictureUrl ? (
             <img
               src={profile.pictureUrl}
@@ -103,11 +97,8 @@ export function CollectionCard({ collection }) {
 
           <span>
             {collection.itemsCount}{" "}
-            {collection.itemsCount === 1
-              ? "item"
-              : "items"}
+            {collection.itemsCount === 1 ? "item" : "items"}
           </span>
-
         </div>
       </div>
     </div>

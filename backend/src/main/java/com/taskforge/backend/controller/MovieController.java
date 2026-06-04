@@ -127,4 +127,11 @@ public class MovieController {
         List<CollectionCardDto> myCollections = movieService.getMyCollections(principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(myCollections);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/collections/my-collections/{collectionName}")
+    public ResponseEntity<CollectionDetailsResponseDto> getCollectionDetails(@PathVariable String collectionName, @AuthenticationPrincipal CustomPrincipal principal) {
+        CollectionDetailsResponseDto response = movieService.getCollectionDetails(collectionName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

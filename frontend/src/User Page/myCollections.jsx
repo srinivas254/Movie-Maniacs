@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { CreateCollectionModal } from "./CreateCollectionModal";
 import { CollectionCard } from "./CollectionCard";
+import { Outlet } from "react-router-dom";
+
+const banners = [
+  "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
+  "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200",
+  "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200",
+  "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1200",
+  "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1200",
+];
 
 export function MyCollections() {
   const [open, setOpen] = useState(false);
@@ -24,7 +33,14 @@ export function MyCollections() {
       }
 
       const data = await response.json();
-      setCollections(data);
+
+      const updatedCollections = data.map((collection) => ({
+        ...collection,
+        banner:
+          banners[collection.id % banners.length],
+      }));
+
+      setCollections(updatedCollections);
     } catch (error) {
       console.error(error);
     }
@@ -72,6 +88,8 @@ export function MyCollections() {
       </div>
 
       <CreateCollectionModal open={open} setOpen={setOpen} fetchCollections={fetchCollections} />
+
+       <Outlet />
     </div>
   );
 }

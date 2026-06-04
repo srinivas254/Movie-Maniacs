@@ -26,6 +26,7 @@ import { MovieDetailsPage } from "./Movie Page/movieDetails.jsx";
 import { PublicUserProfile } from "./User Page/publicUserProfile.jsx";
 import { AdminLoginPage } from "./Admin/adminLogin.jsx";
 import { AdminProtectedRoute } from "./Admin/adminProtectedRoute.jsx";
+import { CollectionDetails } from "./User Page/collectionDetails.jsx";
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
           <Route path="my-collections" element={<MyCollections />} />
           <Route path="saved" element={<SavedCollections />} />
         </Route>
+        <Route path="/collections/my-collections/:collectionName" element={<CollectionDetails />} />
         ;
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/settings" element={<UserSettings />}>

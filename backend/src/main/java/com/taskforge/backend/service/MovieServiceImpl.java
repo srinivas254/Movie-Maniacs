@@ -2,10 +2,7 @@ package com.taskforge.backend.service;
 
 import com.taskforge.backend.dto.*;
 import com.taskforge.backend.entity.*;
-import com.taskforge.backend.exception.InvalidCastCrewException;
-import com.taskforge.backend.exception.InvalidGenrePercentageException;
-import com.taskforge.backend.exception.MovieNotFoundException;
-import com.taskforge.backend.exception.UserNotFoundException;
+import com.taskforge.backend.exception.*;
 import com.taskforge.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.Exception;
 import java.util.List;
 import java.util.Optional;
 
@@ -660,7 +658,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Collection collection = new Collection();
 
@@ -676,8 +674,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<CollectionCardDto> getMyCollections(String userId) {
 
-        List<Collection> collections =
-                collectionRepository.findByUserId(userId);
+        List<Collection> collections = collectionRepository.findByUserId(userId);
 
         return collections.stream()
                 .map(collection -> new CollectionCardDto(
@@ -687,6 +684,38 @@ public class MovieServiceImpl implements MovieService {
                         collection.getMovies().size()
                 ))
                 .toList();
+    }
+
+    @Override
+    public CollectionDetailsResponseDto getCollectionDetails(String collectionName, String userId) {
+
+        Collection collection =
+                collectionRepository
+                        .findByNameAndUserId(collectionName, userId)
+                        .orElseThrow(() -> new CollectionNotFoundException("Collection not found"));
+
+        List<MovieCardResponseDto> movies =
+                collection.getMovies()
+                        .stream()
+                        .map(movie -> {
+                            MovieCardResponseDto dto = new MovieCardResponseDto();
+                            dto.setId(movie.getId());
+                            dto.setName(movie.getName());
+                            dto.setYear(movie.getYear());
+                            dto.setPosterSmallUrl(movie.getPosterSmallUrl());
+                            dto.setSlugUrl(movie.getSlugUrl());
+                            return dto;
+                        }).toList();
+
+        CollectionDetailsResponseDto dto = new CollectionDetailsResponseDto();
+        dto.setId(collection.getId());
+        dto.setName(collection.getName());
+        dto.setDescription(collection.getDescription());
+        dto.setVisibility(collection.getVisibility());
+        dto.setMovies(movies);
+        dto.setItemsCount(movies.size());
+
+        return dto;
     }
 
 }

@@ -210,6 +210,13 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    @ExceptionHandler(CollectionNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCollectionNotFound(CollectionNotFoundException cnf) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", cnf.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();
