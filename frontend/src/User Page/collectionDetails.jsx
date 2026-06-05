@@ -21,6 +21,7 @@ export function CollectionDetails() {
   const [collection, setCollection] = useState(null);
   const [showAddContentModal, setShowAddContentModal] = useState(false);
   const [selectedMovies, setSelectedMovies] = useState([]);
+  window.selectedMovies = selectedMovies;
 
   const fetchCollection = async () => {
     try {

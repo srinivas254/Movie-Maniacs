@@ -19,8 +19,7 @@ export function AddMovieToCollectionModal({
 
   const token = localStorage.getItem("token");
 
-  const isSelected = (movieId) =>
-    selectedMovies.some((m) => m.id === movieId);
+  const isSelected = (movieId) => selectedMovies.some((m) => m.id === movieId);
 
   const toggleMovie = (movie) => {
     setSelectedMovies((prev) => {
@@ -37,14 +36,15 @@ export function AddMovieToCollectionModal({
   useEffect(() => {
     function handleClickOutside(e) {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
+        setQuery("");
+        setResults([]);
         onClose();
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function AddMovieToCollectionModal({
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         const data = await res.json();
@@ -106,10 +106,7 @@ export function AddMovieToCollectionModal({
             "
           />
 
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
@@ -145,9 +142,7 @@ export function AddMovieToCollectionModal({
                         {movie.name}
                       </h3>
 
-                      <p className="text-gray-400 text-xs">
-                        {movie.year}
-                      </p>
+                      <p className="text-gray-400 text-xs">{movie.year}</p>
                     </div>
                   </div>
 
