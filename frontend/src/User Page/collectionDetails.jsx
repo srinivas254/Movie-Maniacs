@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { RectangleStackIcon } from "@heroicons/react/24/outline";
 import { AddMovieToCollectionModal } from "./addMovieToCollectionModal";
+import { MovieCard } from "../Movie Page/movieCard";
+import { CreateCollectionModal } from "./createCollectionModal";
+import { EditCollectionModal } from "./editCollectionModal";
+import { EditableMovieCard } from "./editableMovieCard";
+import { ConfirmModal } from "./User settings/confirmationModal";
 
 import {
   GlobeAltIcon,
   LockClosedIcon,
   PencilIcon,
+  TrashIcon,
 } from "@heroicons/react/24/solid";
 
 import useUserStore from "../Zustand Store/useUserStore";
@@ -14,14 +20,20 @@ import useUserStore from "../Zustand Store/useUserStore";
 export function CollectionDetails() {
   const { collectionName } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const banner = location.state?.banner;
 
   const profile = useUserStore((state) => state.profile);
   const [collection, setCollection] = useState(null);
   const [showAddContentModal, setShowAddContentModal] = useState(false);
-  const [selectedMovies, setSelectedMovies] = useState([]);
-  window.selectedMovies = selectedMovies;
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+  const [showEditCollectionModal, setShowEditCollectionModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const [editingList, setEditingList] = useState(false);
+  const [editedMovies, setEditedMovies] = useState([]);
 
   const fetchCollection = async () => {
     try {
@@ -50,6 +62,20 @@ export function CollectionDetails() {
   useEffect(() => {
     fetchCollection();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   if (!collection) {
@@ -82,33 +108,138 @@ export function CollectionDetails() {
       "
         >
           <button
-            onClick={() => setShowAddContentModal(true)}
+            onClick={async () => {
+              if (editingList) {
+                try {
+                  const token = localStorage.getItem("token");
+                  const movieIds = editedMovies.map((m) => m.id);
+
+                  const response = await fetch(
+                    `http://localhost:8080/movies/collections/my-collections/${collectionName}/movies`,
+                    {
+                      method: "PUT",
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify(movieIds),
+                    },
+                  );
+
+                  if (!response.ok) {
+                    throw new Error("Failed to save");
+                  }
+
+                  await fetchCollection();
+
+                  setEditingList(false);
+                  navigate(``, { state: { banner } });
+                } catch (err) {
+                  console.error(err);
+                }
+              } else {
+                setShowAddContentModal(true);
+              }
+            }}
             className="
-            w-22 h-10
-          px-4 py-2 rounded-xl
-          font-medium text-sm
-          bg-zinc-100 text-black
-          hover:bg-zinc-300
-          transition
-        "
+    w-22 h-10
+    px-4 py-2 rounded-xl
+    font-medium text-sm
+    bg-zinc-100 text-black
+    hover:bg-zinc-300
+    transition
+  "
           >
-            + Add Content
+            {editingList ? "Done" : "+ Add Content"}
           </button>
 
-          <button
-            className="
-           w-12 h-12
-           rounded-full
-          p-3 rounded-2xl
-           bg-zinc-100 text-black
-          hover:bg-zinc-300
-          transition
-          flex items-center
-          justify-center
+          <div ref={menuRef} className="relative">
+            <button
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="
+      w-12 h-12
+      rounded-full
+      p-3
+      bg-zinc-100 text-black
+      hover:bg-zinc-300
+      transition
+      flex items-center
+      justify-center
+    "
+            >
+              <PencilIcon className="w-5 h-5" />
+            </button>
+
+            {showMenu && (
+              <div
+                className="
+        absolute
+        left-12
+        top-6
+        z-50
+        w-48
+        bg-white
+        border border-zinc-200
+        rounded-xl
+        shadow-xl
+        overflow-hidden
+      "
+              >
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowEditCollectionModal(true);
+                  }}
+                  className="
+          w-full
+          px-4 py-3
+          flex items-center gap-3
+          text-black
+          hover:bg-zinc-200
         "
-          >
-            <PencilIcon className="w-5 h-5" />
-          </button>
+                >
+                  <PencilIcon className="w-5 h-5" />
+                  Edit Collection
+                </button>
+
+                <button
+                  onClick={() => {
+                    setEditedMovies(collection.movies);
+                    setEditingList(true);
+                    setShowMenu(false);
+                    navigate(`?edit=true`, { state: { banner } });
+                  }}
+                  className="
+          w-full
+          px-4 py-3
+          flex items-center gap-3
+          text-black
+          hover:bg-zinc-200
+        "
+                >
+                  <RectangleStackIcon className="w-5 h-5" />
+                  Edit List
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowConfirmModal(true);
+                  }}
+                  className="
+          w-full
+          px-4 py-3
+          flex items-center gap-3
+          text-red-500
+          hover:bg-zinc-200
+        "
+                >
+                  <TrashIcon className="w-5 h-5" />
+                  Delete Collection
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div
@@ -244,35 +375,21 @@ export function CollectionDetails() {
       gap-6
     "
           >
-            {collection.movies.map((movie) => (
-              <div
-                key={movie.id}
-                className="
-          flex flex-col
-          gap-2
-          cursor-pointer
-          hover:scale-105
-          transition
-        "
-              >
-                <img
-                  src={movie.posterSmallUrl}
-                  alt={movie.name}
-                  className="
-            w-full
-            aspect-[2/3]
-            object-cover
-            rounded-xl
-          "
-                />
-
-                <h4 className="text-white font-medium truncate">
-                  {movie.name}
-                </h4>
-
-                <span className="text-gray-400 text-sm">{movie.year}</span>
-              </div>
-            ))}
+            {editingList
+              ? editedMovies.map((movie) => (
+                  <EditableMovieCard
+                    key={movie.id}
+                    movie={movie}
+                    onRemove={() =>
+                      setEditedMovies((prev) =>
+                        prev.filter((m) => m.id !== movie.id),
+                      )
+                    }
+                  />
+                ))
+              : collection.movies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
           </div>
         )}
       </div>
@@ -280,9 +397,47 @@ export function CollectionDetails() {
       <AddMovieToCollectionModal
         open={showAddContentModal}
         onClose={() => setShowAddContentModal(false)}
-        selectedMovies={selectedMovies}
-        setSelectedMovies={setSelectedMovies}
+        collectionMovies={collection.movies}
+        collectionName={collectionName}
+        fetchCollection={fetchCollection}
       />
+
+      <EditCollectionModal
+        open={showEditCollectionModal}
+        setOpen={setShowEditCollectionModal}
+        collection={collection}
+        collectionName={collectionName}
+        fetchCollection={fetchCollection}
+      />
+
+      {showConfirmModal && (
+        <ConfirmModal
+          message="This will permanently delete this collection and all its contents."
+          onCancel={() => setShowConfirmModal(false)}
+          onConfirm={async () => {
+            try {
+              const token = localStorage.getItem("token");
+              const response = await fetch(
+                `http://localhost:8080/movies/collections/my-collections/${collectionName}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                },
+              );
+
+              if (!response.ok) throw new Error("Failed to delete collection");
+
+              navigate("/collections/my-collections");
+            } catch (err) {
+              console.error(err);
+            } finally {
+              setShowConfirmModal(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

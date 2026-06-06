@@ -25,4 +25,8 @@ public interface MovieService {
     MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId);
     List<CollectionCardDto> getMyCollections(String userId);
     CollectionDetailsResponseDto getCollectionDetails(String collectionName, String userId);
+    MsgResponseDto addMovieToCollection(String collectionName, String movieId, String userId);
+    MsgResponseDto updateCollection(String collectionName, EditCollectionRequestDto request, String userId);
+    void updateCollectionMovies(String collectionName, List<String> movieIds, String userId);
+    void deleteCollection(String collectionName, String userId);
 }

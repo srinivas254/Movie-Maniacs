@@ -672,6 +672,25 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    public MsgResponseDto updateCollection(String collectionName, EditCollectionRequestDto request, String userId) {
+
+        Collection collection =
+                collectionRepository
+                        .findByNameAndUserId(collectionName, userId)
+                        .orElseThrow(() ->
+                                new CollectionNotFoundException(
+                                        "Collection not found"));
+
+        collection.setName(request.getName());
+        collection.setDescription(request.getDescription());
+        collection.setVisibility(request.getVisibility());
+
+        collectionRepository.save(collection);
+
+        return new MsgResponseDto("Collection updated successfully");
+    }
+
+    @Override
     public List<CollectionCardDto> getMyCollections(String userId) {
 
         List<Collection> collections = collectionRepository.findByUserId(userId);
@@ -716,6 +735,57 @@ public class MovieServiceImpl implements MovieService {
         dto.setItemsCount(movies.size());
 
         return dto;
+    }
+
+    @Override
+    public MsgResponseDto addMovieToCollection(String collectionName, String movieId, String userId) {
+
+        Collection collection =
+                collectionRepository
+                        .findByNameAndUserId(collectionName, userId)
+                        .orElseThrow(() ->
+                                new CollectionNotFoundException("Collection not found"));
+
+        Movie movie =
+                movieRepository
+                        .findById(movieId)
+                        .orElseThrow(() ->
+                                new MovieNotFoundException("Movie not found"));
+
+        boolean alreadyExists =
+                collection.getMovies()
+                        .stream()
+                        .anyMatch(m -> m.getId().equals(movieId));
+
+        if (alreadyExists) {
+            throw new MovieExistsException("Movie already exists in collection");
+        }
+
+        collection.getMovies().add(movie);
+        collectionRepository.save(collection);
+
+        return new MsgResponseDto("Movie added to collection successfully");
+    }
+
+    @Override
+    public void updateCollectionMovies(String collectionName, List<String> movieIds, String userId) {
+        Collection collection = collectionRepository
+                .findByNameAndUserId(collectionName, userId)
+                .orElseThrow(() -> new CollectionNotFoundException("Collection not found"));
+
+        List<Movie> movies = movieRepository.findAllById(movieIds);
+
+        collection.setMovies(movies);
+        collectionRepository.save(collection);
+    }
+
+    @Override
+    public void deleteCollection(String collectionName, String userId) {
+        Collection collection = collectionRepository
+                .findByNameAndUserId(collectionName, userId)
+                .orElseThrow(() -> new CollectionNotFoundException("Collection not found"));
+
+        collectionRepository.delete(collection);
     }
 
 }

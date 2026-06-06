@@ -9,28 +9,40 @@ import {
 export function AddMovieToCollectionModal({
   open,
   onClose,
-  selectedMovies,
-  setSelectedMovies,
+  collectionMovies,
+  collectionName,
+  fetchCollection,
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
   const modalRef = useRef(null);
-
   const token = localStorage.getItem("token");
 
-  const isSelected = (movieId) => selectedMovies.some((m) => m.id === movieId);
+  const isSelected = (movieId) =>
+    collectionMovies.some((m) => m.id === movieId);
 
-  const toggleMovie = (movie) => {
-    setSelectedMovies((prev) => {
-      const exists = prev.some((m) => m.id === movie.id);
+  const toggleMovie = async (movie) => {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(
+          `http://localhost:8080/movies/collections/my-collections/${collectionName}/movies/${movie.id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
-      if (exists) {
-        return prev.filter((m) => m.id !== movie.id);
-      }
+        if (res.status !== 201) {
+          throw new Error("Failed to add movie in collection");
+        }
 
-      return [...prev, movie];
-    });
+        await fetchCollection();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -121,14 +133,12 @@ export function AddMovieToCollectionModal({
               {results.map((movie) => (
                 <div
                   key={movie.id}
-                  onClick={() => toggleMovie(movie)}
-                  className="
-                    flex items-center justify-between
-                    p-3 rounded-xl
-                    hover:bg-white/5
-                    cursor-pointer
-                    transition
-                  "
+                  onClick={() => !isSelected(movie.id) && toggleMovie(movie)}
+                  className={`flex items-center justify-between p-3 rounded-xl transition
+                  ${isSelected(movie.id) 
+                  ? "opacity-50 cursor-not-allowed" 
+                  : "hover:bg-white/5 cursor-pointer"
+              }`}
                 >
                   <div className="flex items-center gap-4">
                     <img
@@ -146,11 +156,7 @@ export function AddMovieToCollectionModal({
                     </div>
                   </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleMovie(movie);
-                    }}
+                  <div
                     className="
                       w-9 h-9
                       flex items-center justify-center
@@ -163,7 +169,7 @@ export function AddMovieToCollectionModal({
                     ) : (
                       <PlusIcon className="w-5 h-5 text-white" />
                     )}
-                  </button>
+                  </div>
                 </div>
               ))}
             </div>

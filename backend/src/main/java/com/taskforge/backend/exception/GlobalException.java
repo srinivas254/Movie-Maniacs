@@ -217,6 +217,13 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
+    @ExceptionHandler(MovieExistsException.class)
+    public ResponseEntity<Map<String, String>> handleMovieExists(MovieExistsException mex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", mex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();
