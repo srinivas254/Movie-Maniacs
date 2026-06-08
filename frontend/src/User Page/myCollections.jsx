@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CreateCollectionModal } from "./CreateCollectionModal";
 import { CollectionCard } from "./CollectionCard";
 import { Outlet } from "react-router-dom";
+import { fetchCollections } from "../Util/collectionsData";
 
 const banners = [
   "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
@@ -15,31 +16,13 @@ export function MyCollections() {
   const [open, setOpen] = useState(false);
   const [collections, setCollections] = useState([]);
 
-  const fetchCollections = async () => {
+  const loadCollections = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        "http://localhost:8080/movies/collections/my-collections",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch collections");
-      }
-
-      const data = await response.json();
-
+      const data = await fetchCollections();
       const updatedCollections = data.map((collection) => ({
         ...collection,
-        banner:
-          banners[collection.id % banners.length],
+        banner: banners[collection.id % banners.length],
       }));
-
       setCollections(updatedCollections);
     } catch (error) {
       console.error(error);
@@ -47,8 +30,15 @@ export function MyCollections() {
   };
 
   useEffect(() => {
-    fetchCollections();
+    loadCollections();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  <CreateCollectionModal
+    open={open}
+    setOpen={setOpen}
+    onSuccess={loadCollections}
+  />;
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,9 +77,15 @@ export function MyCollections() {
         ))}
       </div>
 
-      <CreateCollectionModal open={open} setOpen={setOpen} fetchCollections={fetchCollections} />
+      {open && (
+        <CreateCollectionModal
+          open={open}
+          setOpen={setOpen}
+          onSuccess={loadCollections}
+        />
+      )}
 
-       <Outlet />
+      <Outlet />
     </div>
   );
 }

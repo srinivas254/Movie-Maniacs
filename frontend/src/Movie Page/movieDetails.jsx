@@ -10,6 +10,7 @@ import { OpinionMeter } from "./opinionSummary";
 import { useLocation } from "react-router-dom";
 import { Logo } from "../siteLogo";
 import { useNavigate } from "react-router-dom";
+import { SaveMovieToCollectionModal } from "./saveMovieToCollectionModal";
 
 export function MovieDetailsPage() {
   const { slug } = useParams();
@@ -24,6 +25,7 @@ export function MovieDetailsPage() {
   const [userOpinion, setUserOpinion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSaveToCollectionModal, setShowSaveToCollectionModal] = useState(false);
 
   const getMovie = async () => {
     try {
@@ -269,7 +271,12 @@ export function MovieDetailsPage() {
                   {isInterested ? "Interested" : "Mark Interested"}
                 </button>
 
-                <button className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2a2a2a] hover:bg-[#333] transition-colors text-white font-semibold text-sm">
+                <button
+                  onClick={() => {
+                    setShowSaveToCollectionModal(true);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2a2a2a] hover:bg-[#333] transition-colors text-white font-semibold text-sm"
+                >
                   <svg
                     className="w-4 h-4"
                     viewBox="0 0 24 24"
@@ -354,6 +361,12 @@ export function MovieDetailsPage() {
           )}
         </div>
       </div>
+
+      {showSaveToCollectionModal && (
+        <SaveMovieToCollectionModal
+          onClose={() => setShowSaveToCollectionModal(false)}
+        />
+      )}
 
       {/* ── Delete modal ── */}
       {!isAdminRoute && showDeleteModal && (

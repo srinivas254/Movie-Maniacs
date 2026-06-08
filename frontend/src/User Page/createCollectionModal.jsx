@@ -3,13 +3,28 @@ import {
   GlobeAltIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
-export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
+export function CreateCollectionModal({ open, setOpen, onSuccess}) {
   const [visibility, setVisibility] = useState("private");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setOpen]);
 
   if (!open) return null;
 
@@ -17,18 +32,21 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8080/movies/collections/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        "http://localhost:8080/movies/collections/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name,
+            description,
+            visibility: visibility.toUpperCase(),
+          }),
         },
-        body: JSON.stringify({
-          name,
-          description,
-          visibility: visibility.toUpperCase(),
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -37,13 +55,12 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
       }
 
       toast.success("Collection created successfully");
-      await fetchCollections();
+      await onSuccess?.();
       setOpen(false);
 
       setName("");
       setDescription("");
       setVisibility("private");
-
     } catch (error) {
       toast.error(error.message);
     }
@@ -58,6 +75,7 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
       "
     >
       <div
+        ref={modalRef}
         className="
           w-full max-w-md p-6 rounded-2xl
           bg-zinc-900/95 border border-white/10
@@ -66,9 +84,7 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
         "
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-semibold">
-            Create New Collection
-          </h2>
+          <h2 className="text-xl font-semibold">Create New Collection</h2>
 
           <button onClick={() => setOpen(false)}>
             <XMarkIcon className="w-5 h-5 text-gray-400 hover:text-white" />
@@ -76,16 +92,11 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
         </div>
 
         <div className="flex flex-col gap-4">
-
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-300">
-                Collection Name
-              </label>
+              <label className="text-sm text-gray-300">Collection Name</label>
 
-              <span className="text-xs text-gray-500">
-                {name.length}/30
-              </span>
+              <span className="text-xs text-gray-500">{name.length}/30</span>
             </div>
 
             <input
@@ -105,9 +116,7 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm text-gray-300">
-                Description
-              </label>
+              <label className="text-sm text-gray-300">Description</label>
 
               <span className="text-xs text-gray-500">
                 {description.length}/150
@@ -130,9 +139,7 @@ export function CreateCollectionModal({ open, setOpen,fetchCollections }) {
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-sm text-gray-300">
-              Visibility
-            </label>
+            <label className="text-sm text-gray-300">Visibility</label>
 
             <div
               className="

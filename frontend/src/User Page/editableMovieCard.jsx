@@ -23,7 +23,9 @@ export function EditableMovieCard({ movie, onRemove }) {
         ✕
       </button>
 
-      <MovieCard movie={movie} />
+      <MovieCard 
+      movie={movie}
+      disableNavigation={true} />
     </div>
   );
 }

@@ -1,6 +1,13 @@
-export function MovieCard({ movie }) {
+import { useNavigate } from "react-router-dom";
+
+export function MovieCard({ movie, disableNavigation = false}) {
+  const navigate = useNavigate();
   return (
     <div
+     onClick={() => {
+      if (disableNavigation) return;
+      navigate(`/movie/${movie.slugUrl}`)}
+      } 
       className="
         flex flex-col
         gap-2
