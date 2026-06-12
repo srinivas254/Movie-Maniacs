@@ -660,6 +660,11 @@ public class MovieServiceImpl implements MovieService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        if (collectionRepository.existsByName(request.getName())) {
+            throw new CollectionAlreadyExistsException(
+                    "Collection name already exists");
+        }
+
         Collection collection = new Collection();
 
         collection.setName(request.getName());
@@ -768,6 +773,34 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    public void removeMovieFromCollection(String collectionName, String movieId, String userId) {
+        Collection collection =
+                collectionRepository
+                        .findByNameAndUserId(collectionName, userId)
+                        .orElseThrow(() ->
+                                new CollectionNotFoundException("Collection not found"));
+
+        Movie movie =
+                movieRepository
+                        .findById(movieId)
+                        .orElseThrow(() ->
+                                new MovieNotFoundException("Movie not found"));
+
+        boolean movieExists =
+                collection.getMovies()
+                        .stream()
+                        .anyMatch(m -> m.getId().equals(movieId));
+
+        if (!movieExists) {
+            throw new MovieNotFoundException(
+                    "Movie is not present in this collection");
+        }
+
+        collection.getMovies().remove(movie);
+        collectionRepository.save(collection);
+    }
+
+    @Override
     public void updateCollectionMovies(String collectionName, List<String> movieIds, String userId) {
         Collection collection = collectionRepository
                 .findByNameAndUserId(collectionName, userId)
@@ -786,6 +819,27 @@ public class MovieServiceImpl implements MovieService {
                 .orElseThrow(() -> new CollectionNotFoundException("Collection not found"));
 
         collectionRepository.delete(collection);
+    }
+
+    @Override
+    public List<CollectionSummaryDto> getCollectionsContainingMovie(String movieId, String userId){
+        List<Collection> collections =
+                collectionRepository.findByUserId(userId);
+
+        return collections.stream()
+                .filter(collection ->
+                        collection.getMovies().stream()
+                                .anyMatch(movie ->
+                                        movie.getId().equals(movieId)
+                                )
+                )
+                .map(collection ->
+                        new CollectionSummaryDto(
+                                collection.getId(),
+                                collection.getName()
+                        )
+                )
+                .toList();
     }
 
 }

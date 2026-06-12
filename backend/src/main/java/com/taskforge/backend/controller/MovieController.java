@@ -150,6 +150,13 @@ public class MovieController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/collections/my-collections/{collectionName}/movies/{movieId}")
+    public ResponseEntity<Void> removeMovieFromCollection(@PathVariable String collectionName, @PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        movieService.removeMovieFromCollection(collectionName, movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/collections/my-collections/{collectionName}/movies")
     public ResponseEntity<Void> updateCollectionMovies(@PathVariable String collectionName, @RequestBody List<String> movieIds, @AuthenticationPrincipal CustomPrincipal principal) {
         movieService.updateCollectionMovies(collectionName, movieIds, principal.getId());
@@ -161,6 +168,13 @@ public class MovieController {
     public ResponseEntity<Void> deleteCollection(@PathVariable String collectionName, @AuthenticationPrincipal CustomPrincipal principal) {
         movieService.deleteCollection(collectionName, principal.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/collections/my-collections/movie/{movieId}")
+    public ResponseEntity<List<CollectionSummaryDto>> getCollectionsContainingMovie(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
+        List<CollectionSummaryDto> response = movieService.getCollectionsContainingMovie(movieId, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

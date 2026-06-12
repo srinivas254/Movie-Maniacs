@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface CollectionRepository extends JpaRepository<Collection, Long> {
     List<Collection> findByUserId(String userId);
     Optional<Collection> findByNameAndUserId(String name, String userId);
+    boolean existsByName(String name);
 }

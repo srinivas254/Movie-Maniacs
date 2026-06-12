@@ -3,14 +3,24 @@ import { useEffect, useRef, useState } from "react";
 import { CreateCollectionModal } from "../User Page/createCollectionModal";
 import { fetchCollections } from "../Util/collectionsData";
 
-export function SaveMovieToCollectionModal({ onClose }) {
+export function SaveMovieToCollectionModal({
+  movieId,
+  savedCollections,
+  onCollectionsChange,
+  onClose,
+}) {
   const [collections, setCollections] = useState([]);
   const modalRef = useRef(null);
   const [showCreateCollectionModal, setShowCreateCollectionModal] = useState(false);
 
   const loadCollections = async () => {
     const data = await fetchCollections();
-    setCollections(data);
+    const collectionsWithSelection = data.map((collection) => ({
+      ...collection,
+      selected: savedCollections.some((saved) => saved.id === collection.id),
+    }));
+
+    setCollections(collectionsWithSelection);
   };
 
   useEffect(() => {
@@ -29,6 +39,71 @@ export function SaveMovieToCollectionModal({ onClose }) {
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
+
+  const addMovieToCollection = async (collectionName, movieId) => {
+    const response = await fetch(
+      `http://localhost:8080/movies/collections/my-collections/${collectionName}/movies/${movieId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to add movie");
+    }
+
+    return response.json();
+  };
+
+  const removeMovieFromCollection = async (collectionName, movieId) => {
+    const response = await fetch(
+      `http://localhost:8080/movies/collections/my-collections/${collectionName}/movies/${movieId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to remove movie");
+    }
+  };
+
+  const handleCollectionToggle = async (collection) => {
+    try {
+
+      if (collection.selected) {
+        await removeMovieFromCollection(collection.name, movieId);
+
+        setCollections((prev) => {
+          const updated = prev.map((c) =>
+            c.id === collection.id ? { ...c, selected: false } : c,
+          );
+
+          onCollectionsChange(updated.filter((c) => c.selected));
+          return updated;
+        });
+      } else {
+        await addMovieToCollection(collection.name, movieId);
+
+        setCollections((prev) => {
+          const updated = prev.map((c) =>
+            c.id === collection.id ? { ...c, selected: true } : c,
+          );
+
+          onCollectionsChange(updated.filter((c) => c.selected));
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -65,7 +140,7 @@ export function SaveMovieToCollectionModal({ onClose }) {
                 <input
                   type="checkbox"
                   checked={collection.selected}
-                  onChange={() => {}}
+                  onChange={() => handleCollectionToggle(collection)}
                   className="
                     h-4 w-4
                     accent-white

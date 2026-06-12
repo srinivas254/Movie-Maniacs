@@ -25,7 +25,9 @@ export function MovieDetailsPage() {
   const [userOpinion, setUserOpinion] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showSaveToCollectionModal, setShowSaveToCollectionModal] = useState(false);
+  const [showSaveToCollectionModal, setShowSaveToCollectionModal] =
+    useState(false);
+  const [savedCollections, setSavedCollections] = useState([]);
 
   const getMovie = async () => {
     try {
@@ -52,6 +54,34 @@ export function MovieDetailsPage() {
     }
     getMovie();
   }, [slug]);
+
+  const getCollectionsContainingMovie = async (movieId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:8080/movies/collections/my-collections/movie/${movieId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch collections");
+      }
+
+      const data = await res.json();
+      setSavedCollections(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!movieDetails?.id || isAdminRoute) return;
+
+    getCollectionsContainingMovie(movieDetails.id);
+  }, [movieDetails?.id, isAdminRoute]);
 
   const handleInterested = async () => {
     try {
@@ -275,18 +305,31 @@ export function MovieDetailsPage() {
                   onClick={() => {
                     setShowSaveToCollectionModal(true);
                   }}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#2a2a2a] hover:bg-[#333] transition-colors text-white font-semibold text-sm"
+                  className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl transition-colors font-semibold text-sm ${
+                    savedCollections.length > 0
+                      ? "bg-red-500 hover:bg-red-400 text-white"
+                      : "bg-[#2a2a2a] hover:bg-[#333] text-white"
+                  }`}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-                  </svg>
-                  Add to Collection
+                  {savedCollections.length > 0 ? (
+                    <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+                    </svg>
+                  )}
+
+                  {savedCollections.length > 0
+                    ? "Added to Collection"
+                    : "Add to Collection"}
                 </button>
               </div>
             )}
@@ -364,6 +407,9 @@ export function MovieDetailsPage() {
 
       {showSaveToCollectionModal && (
         <SaveMovieToCollectionModal
+          movieId={movieDetails.id}
+          savedCollections={savedCollections}
+          onCollectionsChange={setSavedCollections}
           onClose={() => setShowSaveToCollectionModal(false)}
         />
       )}

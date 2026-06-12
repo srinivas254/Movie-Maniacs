@@ -29,4 +29,6 @@ public interface MovieService {
     MsgResponseDto updateCollection(String collectionName, EditCollectionRequestDto request, String userId);
     void updateCollectionMovies(String collectionName, List<String> movieIds, String userId);
     void deleteCollection(String collectionName, String userId);
+    List<CollectionSummaryDto> getCollectionsContainingMovie(String movieId, String userId);
+    void removeMovieFromCollection(String collectionName, String movieId, String userId);
 }

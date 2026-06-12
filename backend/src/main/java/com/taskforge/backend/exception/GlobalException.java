@@ -224,6 +224,13 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
+    @ExceptionHandler(CollectionAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleCollectionAlreadyExists(CollectionAlreadyExistsException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();

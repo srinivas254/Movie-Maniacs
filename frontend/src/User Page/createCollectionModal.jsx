@@ -51,7 +51,7 @@ export function CreateCollectionModal({ open, setOpen, onSuccess}) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to create collection");
+        throw new Error(data.error || "Failed to create collection");
       }
 
       toast.success("Collection created successfully");
