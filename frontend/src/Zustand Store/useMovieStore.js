@@ -81,3 +81,5 @@ export const useMovieStore = create((set) => ({
       originalMovie: {},
     }),
 }));
+
+window.movieStore = useMovieStore;

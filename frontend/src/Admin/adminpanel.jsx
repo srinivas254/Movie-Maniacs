@@ -72,7 +72,7 @@ export function AdminPanel() {
       try {
         const res = await fetch(
           `http://localhost:8080/movies/search?q=${search}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await res.json();
         setSearchResults(data);
@@ -81,7 +81,7 @@ export function AdminPanel() {
       }
     }, 400);
     return () => clearTimeout(delay);
-  }, [search,token]);
+  }, [search, token]);
 
   useEffect(() => {
     const delay = setTimeout(async () => {
@@ -92,7 +92,7 @@ export function AdminPanel() {
       try {
         const res = await fetch(
           `http://localhost:8080/users/search?q=${userSearch}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await res.json();
         setUserSearchResults(data);
@@ -101,7 +101,7 @@ export function AdminPanel() {
       }
     }, 400);
     return () => clearTimeout(delay);
-  }, [userSearch,token]);
+  }, [userSearch, token]);
 
   const handleDelete = async (id) => {
     try {
@@ -126,15 +126,50 @@ export function AdminPanel() {
       });
       if (res.status === 204) {
         setUsers((prev) => prev.filter((u) => u.userName !== userName));
-        setUserSearchResults((prev) => prev.filter((u) => u.userName !== userName));
+        setUserSearchResults((prev) =>
+          prev.filter((u) => u.userName !== userName),
+        );
         setUserDeleteUserName(null);
         setShowAllUsers(false);
         setUserSearch("");
         toast.success("User deleted successfully");
-      } 
+      }
     } catch (err) {
       console.error("User deletion failed", err.message);
       toast.error("User deletion failed");
+    }
+  };
+
+  const handleUpdateMovie = async (movie) => {
+    const isPartialMovie =
+      movie.duration === undefined && movie.directedBy === undefined;
+
+    if (isPartialMovie) {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/movies/${movie.slugUrl}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch movie");
+        }
+
+        const fullMovie = await res.json();
+
+        setMovie(fullMovie);
+        navigate(`/admin/update-movie/${movie.id}`);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load movie");
+      }
+    } else {
+      setMovie(movie);
+      navigate(`/admin/update-movie/${movie.id}`);
     }
   };
 
@@ -193,7 +228,10 @@ export function AdminPanel() {
           + Add Movie
         </button>
         <button
-          onClick={() => { fetchMovies(); setShowAll(true); }}
+          onClick={() => {
+            fetchMovies();
+            setShowAll(true);
+          }}
           className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-lg font-medium"
         >
           Get All Movies
@@ -209,7 +247,10 @@ export function AdminPanel() {
 
       <div className="flex flex-wrap gap-4 items-center mb-8">
         <button
-          onClick={() => { fetchUsers(0); setShowAllUsers(true); }}
+          onClick={() => {
+            fetchUsers(0);
+            setShowAllUsers(true);
+          }}
           className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium"
         >
           Get All Users
@@ -227,7 +268,11 @@ export function AdminPanel() {
         <div className="bg-neutral-900 rounded-xl p-3 border border-neutral-700">
           <div className="flex justify-end mb-3">
             <button
-              onClick={() => { setShowAll(false); setSearch(""); setSearchResults([]); }}
+              onClick={() => {
+                setShowAll(false);
+                setSearch("");
+                setSearchResults([]);
+              }}
               className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded-lg bg-neutral-700 hover:bg-red-600"
             >
               ✕ Close
@@ -237,7 +282,9 @@ export function AdminPanel() {
           {loading ? (
             <p className="text-gray-400 text-center">Loading movies...</p>
           ) : moviesToShow.length === 0 ? (
-            <p className="text-gray-400 text-center">No matching movies found...</p>
+            <p className="text-gray-400 text-center">
+              No matching movies found...
+            </p>
           ) : (
             <>
               {moviesToShow.map((movie) => (
@@ -258,13 +305,15 @@ export function AdminPanel() {
                   </div>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => navigate(`/admin-view/movie/${movie.slugUrl}`)}
+                      onClick={() =>
+                        navigate(`/admin-view/movie/${movie.slugUrl}`)
+                      }
                       className="bg-blue-900 hover:bg-blue-800 px-3 py-1 rounded"
                     >
                       View
                     </button>
                     <button
-                      onClick={() => { setMovie(movie); navigate(`/admin/update-movie/${movie.id}`); }}
+                      onClick={() => handleUpdateMovie(movie)}
                       className="bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded"
                     >
                       Update
@@ -288,7 +337,9 @@ export function AdminPanel() {
                   >
                     Previous
                   </button>
-                  <span className="text-gray-400">{currentPage + 1} / {totalPages}</span>
+                  <span className="text-gray-400">
+                    {currentPage + 1} / {totalPages}
+                  </span>
                   <button
                     onClick={() => fetchMovies(currentPage + 1)}
                     disabled={currentPage === totalPages - 1}
@@ -307,7 +358,11 @@ export function AdminPanel() {
         <div className="bg-neutral-900 rounded-xl p-3 border border-neutral-700 mt-6">
           <div className="flex justify-end mb-3">
             <button
-              onClick={() => { setShowAllUsers(false); setUserSearch(""); setUserSearchResults([]); }}
+              onClick={() => {
+                setShowAllUsers(false);
+                setUserSearch("");
+                setUserSearchResults([]);
+              }}
               className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded-lg bg-neutral-700 hover:bg-red-600"
             >
               ✕ Close
@@ -317,7 +372,9 @@ export function AdminPanel() {
           {usersLoading ? (
             <p className="text-gray-400 text-center">Loading users...</p>
           ) : usersToShow.length === 0 ? (
-            <p className="text-gray-400 text-center">No matching users found...</p>
+            <p className="text-gray-400 text-center">
+              No matching users found...
+            </p>
           ) : (
             <>
               {usersToShow.map((user) => {
@@ -378,7 +435,9 @@ export function AdminPanel() {
                   >
                     Previous
                   </button>
-                  <span>{userPage + 1} / {userTotalPages}</span>
+                  <span>
+                    {userPage + 1} / {userTotalPages}
+                  </span>
                   <button
                     onClick={() => fetchUsers(userPage + 1)}
                     disabled={userPage === userTotalPages - 1}

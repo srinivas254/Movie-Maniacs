@@ -34,15 +34,14 @@ export function AdminLoginPage() {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.errors || "Something went wrong");
-      }
-
       const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
       localStorage.setItem("token", data.token);
-      toast.success(data.message);
+      toast.success("Admin Login Successful");
       setTimeout(() => {
         navigate("/admin");
       }, 1500);

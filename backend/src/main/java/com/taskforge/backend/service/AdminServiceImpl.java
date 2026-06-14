@@ -60,7 +60,6 @@ public class AdminServiceImpl implements AdminService {
                 );
 
         return LoginResponseDto.builder()
-                .message("Admin login successful")
                 .token(jwtToken)
                 .build();
     }

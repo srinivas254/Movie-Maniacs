@@ -10,17 +10,17 @@ const features = [
   {
     icon: SparklesIcon,
     title: "Explore what’s worth watching",
-    desc: "Weekly top picks from Netflix, Prime, Hotstar & Crunchyroll — curated, not cluttered.",
+    desc: "Weekly top picks from Netflix, Prime, Hotstar & Apple TV — curated, not cluttered.",
   },
   {
     icon: Squares2X2Icon,
     title: "Browse your way",
-    desc: "Discover movies and series by genre, language, anime, franchise, or favorites.",
+    desc: "Discover movies by genre,decade, language, director, or favorites.",
   },
   {
     icon: StarIcon,
     title: "Rate & react honestly",
-    desc: "Skip, Timepass, Go for it, or Perfection — plus short comments that actually matter.",
+    desc: "Skip, Timepass, Go for it, or Perfection — simple ratings that help others decide.",
   },
   {
     icon: UserGroupIcon,
@@ -30,7 +30,7 @@ const features = [
   {
     icon: BellIcon,
     title: "Followers & notifications",
-    desc: "Follow movie lovers, get notified when someone likes or replies to your review.",
+    desc: "Follow movie lovers and get notified when someone follows you.",
   },
 ];
 
