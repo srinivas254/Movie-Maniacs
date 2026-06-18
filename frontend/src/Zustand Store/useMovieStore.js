@@ -21,6 +21,36 @@ export const useMovieStore = create((set) => ({
 
   movies: [],
 
+  explore: {
+    editorsPicks: [],
+    netflixMovies: [],
+    primeMovies: [],
+    jioMovies: [],
+    appleMovies: [],
+    loaded: false,
+  },
+
+  setExploreMovies: (data) =>
+    set((state) => ({
+      explore: {
+        ...state.explore,
+        ...data,
+        loaded: true,
+      },
+    })),
+
+     clearExploreMovies: () =>
+    set({
+      explore: {
+        editorsPicks: [],
+        netflixMovies: [],
+        primeMovies: [],
+        jioMovies: [],
+        appleMovies: [],
+        loaded: false,
+      },
+    }),
+
   setMovies: (movies) =>
     set(() => ({
       movies: movies,
@@ -81,5 +111,3 @@ export const useMovieStore = create((set) => ({
       originalMovie: {},
     }),
 }));
-
-window.movieStore = useMovieStore;

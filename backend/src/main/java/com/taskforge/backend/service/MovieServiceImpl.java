@@ -842,4 +842,119 @@ public class MovieServiceImpl implements MovieService {
                 .toList();
     }
 
+    @Override
+    public List<MovieCardResponseDto> getEditorsPicks(String userId) {
+        List<String> editorPickIds = List.of(
+                "bfdc4a0d-0d2f-4dc8-8039-b489885f1435",
+                "c662d00c-d2a4-4e5d-b742-a72399e8bbb8",
+                "c6c4e7fe-69d7-4d30-9fd2-11fdae7ea941",
+                "da76bc2a-e375-49b2-9dd2-8b42a83e6de5",
+                "f78b1f6d-3861-4ace-b064-40aec7e517eb"
+        );
+
+        List<Movie> movies = movieRepository.findAllById(editorPickIds);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getNetflixPicks(String userId) {
+        List<String> netflixPickIds = List.of(
+                "7bfd7a36-f53c-4a7f-92de-4964ba1e50d5",
+                "3f3b7f8e-b88e-4034-bdc2-17961b13d83e",
+                "2bd5734c-ed98-44da-b87c-cdc8d3ebb55d",
+                "3379c6e9-e970-4454-bc15-1608fd6dd2d6",
+                "488133df-731a-4241-83d0-33ded287dcbc"
+        );
+
+        List<Movie> movies = movieRepository.findAllById(netflixPickIds);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getPrimePicks(String userId) {
+        List<String> primePickIds = List.of(
+                "d929340f-f00a-471e-974a-5ebf304e9272",
+                "6bdcf46e-2b04-409c-bb11-501505d5f84b",
+                "09d52398-c825-42ff-8b5c-f09e48cb8321",
+                "6bacb343-8767-4d6b-9680-3fb568b9fe19",
+                "cfcd93e9-5b1c-490a-bf05-7f18f580119f"
+        );
+
+        List<Movie> movies = movieRepository.findAllById(primePickIds);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getJioPicks(String userId) {
+        List<String> jioPickIds = List.of(
+                "d929340f-f00a-471e-974a-5ebf304e9272",
+                "6bdcf46e-2b04-409c-bb11-501505d5f84b",
+                "09d52398-c825-42ff-8b5c-f09e48cb8321",
+                "6bacb343-8767-4d6b-9680-3fb568b9fe19",
+                "2f672d4d-5040-4890-adda-5f0d21fa8a94"
+        );
+
+        List<Movie> movies = movieRepository.findAllById(jioPickIds);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getApplePicks(String userId) {
+        List<String> applePickIds = List.of(
+                "d929340f-f00a-471e-974a-5ebf304e9272",
+                "6bacb343-8767-4d6b-9680-3fb568b9fe19",
+                "adaa9e8e-4472-4b66-9b9e-dca80e20221e",
+                "d4eed5e5-2e0f-4105-a6e8-f7801ae1a80b",
+                "cfcd93e9-5b1c-490a-bf05-7f18f580119f"
+        );
+
+        List<Movie> movies = movieRepository.findAllById(applePickIds);
+
+        return movies.stream()
+                .map(movie -> new MovieCardResponseDto(
+                        movie.getId(),
+                        movie.getName(),
+                        movie.getYear(),
+                        movie.getPosterSmallUrl(),
+                        movie.getSlugUrl()
+                ))
+                .toList();
+    }
+
 }

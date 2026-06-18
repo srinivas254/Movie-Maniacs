@@ -182,14 +182,20 @@ export function AddMoviePage() {
           <FormInput
             label="Poster Small URL"
             name="posterSmallUrl"
-            value={movie.posterSmallUrl}
+            value={
+              movie.posterSmallUrl ||
+              "https://placehold.co/300x450?text=Poster+Not+Found"
+            }
             onChange={handleChange}
             className="col-span-2"
           />
           <FormInput
             label="Poster Wide URL"
             name="posterWideUrl"
-            value={movie.posterWideUrl}
+            value={
+              movie.posterWideUrl ||
+              "https://placehold.co/1280x720?text=Backdrop+Not+Found"
+            }
             onChange={handleChange}
             className="col-span-2"
           />

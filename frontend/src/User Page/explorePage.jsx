@@ -1,20 +1,149 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { HeartIcon } from "@heroicons/react/24/solid";
+import { MovieCard } from "../Movie Page/movieCard";
+import { useMovieStore } from "..//Zustand Store/useMovieStore.js";
+
+function MovieSection({ title, movies }) {
+  return (
+    <div className="mb-12">
+      <h2 className="text-white text-xl font-semibold mb-8">
+        {title}
+      </h2>
+
+      <div className="flex gap-5 overflow-x-auto overflow-y-hidden -ml-8">
+        {movies.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ExplorePage() {
-  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const { explore, setExploreMovies } = useMovieStore();
+
+  const {
+    editorsPicks,
+    netflixMovies,
+    primeMovies,
+    jioMovies,
+    appleMovies,
+    loaded,
+  } = explore;
+
+  useEffect(() => {
+    if (loaded) return;
+
+    const loadMovies = async () => {
+      try {
+        const [
+          editorsRes,
+          netflixRes,
+          primeRes,
+          jioRes,
+          appleRes,
+        ] = await Promise.all([
+          fetch("http://localhost:8080/movies/explore/editors-picks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+
+          fetch("http://localhost:8080/movies/explore/netflix-picks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+
+          fetch("http://localhost:8080/movies/explore/prime-picks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+
+          fetch("http://localhost:8080/movies/explore/jio-picks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+
+          fetch("http://localhost:8080/movies/explore/apple-picks", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+
+        const [
+          editorsPicks,
+          netflixMovies,
+          primeMovies,
+          jioMovies,
+          appleMovies,
+        ] = await Promise.all([
+          editorsRes.json(),
+          netflixRes.json(),
+          primeRes.json(),
+          jioRes.json(),
+          appleRes.json(),
+        ]);
+
+        setExploreMovies({
+          editorsPicks,
+          netflixMovies,
+          primeMovies,
+          jioMovies,
+          appleMovies,
+        });
+      } catch (err) {
+        console.error("Failed to load explore movies:", err);
+      }
+    };
+
+    loadMovies();
+  }, [loaded, token, setExploreMovies]);
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center gap-6">
-      <p className="text-white text-4xl">
-        Explore page
-      </p>
+    <div className="min-h-screen px-[10%] pt-20 pb-10">
+      <h1 className="text-white text-3xl font-bold mb-10">
+        Explore
+      </h1>
 
-      <button
-        onClick={() => navigate("/movie/interstellar-2014")}
-        className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold transition"
-      >
-        Go to Interstellar 🚀
-      </button>
+      <div className="mb-6 flex items-center gap-3">
+        <HeartIcon className="w-7 h-7 text-red-500" />
+
+        <h2 className="text-white text-xl font-semibold">
+          Editor's All Time Picks
+        </h2>
+      </div>
+
+      <div className="flex gap-5 overflow-x-auto overflow-y-hidden mb-12 -ml-8">
+        {editorsPicks.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+      </div>
+
+      <MovieSection
+        title="Netflix Originals"
+        movies={netflixMovies}
+      />
+
+      <MovieSection
+        title="Prime Video Picks"
+        movies={primeMovies}
+      />
+
+      <MovieSection
+        title="JioHotstar Collection"
+        movies={jioMovies}
+      />
+
+      <MovieSection
+        title="Apple TV+ Originals"
+        movies={appleMovies}
+      />
     </div>
   );
 }

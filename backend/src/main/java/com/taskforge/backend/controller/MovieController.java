@@ -177,4 +177,39 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/editors-picks")
+    public ResponseEntity<List<MovieCardResponseDto>> getEditorsPicks(@AuthenticationPrincipal CustomPrincipal principal){
+        List<MovieCardResponseDto> response = movieService.getEditorsPicks(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/netflix-picks")
+    public ResponseEntity<List<MovieCardResponseDto>> getNetflixPicks(@AuthenticationPrincipal CustomPrincipal principal){
+        List<MovieCardResponseDto> response = movieService.getNetflixPicks(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/prime-picks")
+    public ResponseEntity<List<MovieCardResponseDto>> getPrimePicks(@AuthenticationPrincipal CustomPrincipal principal){
+        List<MovieCardResponseDto> response = movieService.getPrimePicks(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/jio-picks")
+    public ResponseEntity<List<MovieCardResponseDto>> getJioPicks(@AuthenticationPrincipal CustomPrincipal principal){
+        List<MovieCardResponseDto> response = movieService.getJioPicks(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/apple-picks")
+    public ResponseEntity<List<MovieCardResponseDto>> getApplePicks(@AuthenticationPrincipal CustomPrincipal principal){
+        List<MovieCardResponseDto> response = movieService.getApplePicks(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

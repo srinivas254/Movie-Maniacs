@@ -11,6 +11,7 @@ export function MovieCard({ movie, disableNavigation = false}) {
       className="
         flex flex-col
         gap-2
+        w-36
         cursor-pointer
         hover:scale-105
         transition

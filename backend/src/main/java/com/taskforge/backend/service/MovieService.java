@@ -31,4 +31,9 @@ public interface MovieService {
     void deleteCollection(String collectionName, String userId);
     List<CollectionSummaryDto> getCollectionsContainingMovie(String movieId, String userId);
     void removeMovieFromCollection(String collectionName, String movieId, String userId);
+    List<MovieCardResponseDto> getEditorsPicks(String userId);
+    List<MovieCardResponseDto> getNetflixPicks(String userId);
+    List<MovieCardResponseDto> getPrimePicks(String userId);
+    List<MovieCardResponseDto> getJioPicks(String userId);
+    List<MovieCardResponseDto> getApplePicks(String userId);
 }
