@@ -1,6 +1,6 @@
 import { GlobeAltIcon, LockClosedIcon } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../Zustand Store/useUserStore.js";
+import { useUserStore } from "../Zustand Store/useUserStore.js";
 
 export function CollectionCard({ collection }) {
   const navigate = useNavigate();

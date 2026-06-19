@@ -212,4 +212,11 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/top-interested")
+    public ResponseEntity<List<TopInterestedMovieResponseDto>> getTopInterestedMovies(@AuthenticationPrincipal CustomPrincipal principal) {
+        List<TopInterestedMovieResponseDto> response = movieService.getTopInterestedMovies(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

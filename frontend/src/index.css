@@ -29,5 +29,19 @@ html, body, #root {
   background: #6b7280;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.movie-card:hover .movie-title {
+  animation: marquee 8s linear infinite;
+}
+
 
 

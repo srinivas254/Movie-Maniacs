@@ -7,7 +7,8 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import useUserStore from "../Zustand Store/useUserStore.js";
+import { useUserStore } from "../Zustand Store/useUserStore.js";
+import { useMovieStore } from "../Zustand Store/useMovieStore.js"
 
 export function ProfileMenu() {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,7 @@ export function ProfileMenu() {
   const navigate = useNavigate();
   const profile = useUserStore((state) => state.profile);
   const clearProfile = useUserStore((state) => state.clearProfile);
+  const clearExploreMovies = useMovieStore((state) => state.clearExploreMovies);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -30,6 +32,7 @@ export function ProfileMenu() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     clearProfile();
+    clearExploreMovies();
     toast.success("Logout successful");
     setOpen(false);
     navigate("/", { replace: true });

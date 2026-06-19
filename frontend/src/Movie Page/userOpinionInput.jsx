@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useUserStore from "../Zustand Store/useUserStore.js";
+import { useUserStore } from "../Zustand Store/useUserStore.js";
 
 export function UserOpinionInputCard({
   movieId,

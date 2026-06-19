@@ -1,4 +1,4 @@
-import useUserStore from "../Zustand Store/useUserStore.js";
+import { useUserStore } from "../Zustand Store/useUserStore.js";
 import { useState, useRef, useEffect } from "react";
 import {
   EllipsisHorizontalIcon,

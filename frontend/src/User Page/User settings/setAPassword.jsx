@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { PasswordField } from "../../Authentication/password.jsx";
 import { getPasswordStrength } from "../../Util/passwordStrength.js";
 import { getPasswordIssues } from "../../Util/passwordIssues.js";
-import useUserStore from "../../Zustand Store/useUserStore";
+import { useUserStore } from "../../Zustand Store/useUserStore";
 
 export function SetPassword() {
   const [password, setPassword] = useState("");

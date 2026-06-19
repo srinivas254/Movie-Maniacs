@@ -15,7 +15,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/solid";
 
-import useUserStore from "../Zustand Store/useUserStore";
+import { useUserStore } from "../Zustand Store/useUserStore";
 
 export function CollectionDetails() {
   const { collectionName } = useParams();

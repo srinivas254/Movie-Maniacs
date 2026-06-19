@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import useUserStore from "../Zustand Store/useUserStore";
+import { useUserStore } from "../Zustand Store/useUserStore";
 import { getMyProfile } from "../Util/myProfileResponse";
 import { Forbidden403 } from "../forbidden403";
 

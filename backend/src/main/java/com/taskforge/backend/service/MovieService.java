@@ -36,4 +36,5 @@ public interface MovieService {
     List<MovieCardResponseDto> getPrimePicks(String userId);
     List<MovieCardResponseDto> getJioPicks(String userId);
     List<MovieCardResponseDto> getApplePicks(String userId);
+    List<TopInterestedMovieResponseDto> getTopInterestedMovies(String userId);
 }

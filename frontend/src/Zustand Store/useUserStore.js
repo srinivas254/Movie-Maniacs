@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const useUserStore = create((set) => ({
+export const useUserStore = create((set) => ({
   profile: null,
 
   setProfile: (profile) =>
@@ -13,7 +13,3 @@ const useUserStore = create((set) => ({
 
   clearProfile: () => set({ profile: null }),
 }));
-
-window.useUserStore = useUserStore;
-
-export default useUserStore;

@@ -13,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.Exception;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -954,6 +957,64 @@ public class MovieServiceImpl implements MovieService {
                         movie.getPosterSmallUrl(),
                         movie.getSlugUrl()
                 ))
+                .toList();
+    }
+
+    @Override
+    public List<TopInterestedMovieResponseDto> getTopInterestedMovies(String userId) {
+
+        List<TopInterestedMovieDto> topMovies =
+                movieInterestedRepository.findTopInterestedMovies()
+                        .stream()
+                        .map(row -> new TopInterestedMovieDto(
+                                (String) row[0],
+                                ((Number) row[1]).longValue()
+                        ))
+                        .toList();
+
+        List<String> movieIds = topMovies.stream()
+                .map(TopInterestedMovieDto::getMovieId)
+                .toList();
+
+        List<Movie> movies = movieRepository.findAllById(movieIds);
+
+        Map<String, Movie> movieMap = movies.stream()
+                .collect(Collectors.toMap(
+                        Movie::getId,
+                        Function.identity()
+                ));
+
+        Map<String, Long> interestedCountMap = topMovies.stream()
+                .collect(Collectors.toMap(
+                        TopInterestedMovieDto::getMovieId,
+                        TopInterestedMovieDto::getInterestedCount
+                ));
+
+        return movieIds.stream()
+                .map(movieId -> {
+
+                    Movie movie = movieMap.get(movieId);
+
+                    if (movie == null) {
+                        throw new MovieNotFoundException(
+                                "Movie not found with id: " + movieId
+                        );
+                    }
+
+                    TopInterestedMovieResponseDto dto =
+                            new TopInterestedMovieResponseDto();
+
+                    dto.setId(movie.getId());
+                    dto.setName(movie.getName());
+                    dto.setYear(movie.getYear());
+                    dto.setPosterSmallUrl(movie.getPosterSmallUrl());
+                    dto.setSlugUrl(movie.getSlugUrl());
+                    dto.setInterestedCount(
+                            interestedCountMap.get(movieId)
+                    );
+
+                    return dto;
+                })
                 .toList();
     }
 

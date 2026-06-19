@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import useUserStore from "../Zustand Store/useUserStore";
+import { useUserStore } from "../Zustand Store/useUserStore";
 
 export function UserSettings() {
   const navigate = useNavigate();

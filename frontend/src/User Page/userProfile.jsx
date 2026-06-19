@@ -1,6 +1,6 @@
 import { UsersIcon } from "@heroicons/react/24/solid";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
-import useUserStore from "../Zustand Store/useUserStore.js";
+import { useUserStore } from "../Zustand Store/useUserStore.js";
 import { useNavigate } from "react-router-dom";
 
 export function UserProfile() {
