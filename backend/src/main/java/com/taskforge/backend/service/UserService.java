@@ -15,4 +15,5 @@ public interface UserService {
     MsgResponseDto setPassword(String id,String newPassword);
     MsgResponseDto resetPassword(String id,ResetPasswordRequestDto request);
     List<UserCardResponseDto> searchUsers(String query);
+    List<MovieCardResponseDto> getUserInterestedMovies(String userId);
 }

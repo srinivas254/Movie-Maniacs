@@ -98,8 +98,8 @@ export function MovieDetailsPage() {
       if (!res.ok) throw new Error("Failed to update interested status");
       const data = await res.json();
       setIsInterested(data.interested);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -135,10 +135,11 @@ export function MovieDetailsPage() {
             },
           },
         );
-        if (res.ok) {
-          const data = await res.json();
-          setUserOpinion(data.opinionType);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to fetch the opinion");
         }
+        setUserOpinion(data);
       } catch (err) {
         console.error(err);
       }
@@ -156,12 +157,16 @@ export function MovieDetailsPage() {
 
   const confirmDelete = async () => {
     try {
-      await fetch(`http://localhost:8080/movies/${movieDetails.id}/opinion`, {
+     const res = await fetch(`http://localhost:8080/movies/${movieDetails.id}/opinion`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to delete the opinion");
+        }
       setUserOpinion(null);
       setIsEditing(false);
       setShowDeleteModal(false);
@@ -193,7 +198,6 @@ export function MovieDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-      {/* ── Hero banner ── */}
       <div className="relative w-full">
         {isAdminRoute && (
           <div
@@ -337,9 +341,7 @@ export function MovieDetailsPage() {
         </div>
       </div>
 
-      {/* ── Main content ── */}
       <div className="max-w-6xl mx-auto px-8 pt-10 pb-20 flex gap-8 items-start">
-        {/* Left column — overview, cast, meter, reviews */}
         <div className="flex-1 min-w-0 flex flex-col gap-10">
           {movieDetails.overview && (
             <div>
@@ -356,12 +358,10 @@ export function MovieDetailsPage() {
 
           <div className="border-b border-white/10"></div>
 
-          {/* Opinion Meter */}
           {movieDetails?.id && <OpinionMeter movieId={movieDetails.id} />}
 
           <div className="border-b border-white/10"></div>
 
-          {/* Reviews */}
           {!isAdminRoute && movieDetails?.id && (
             <div>
               {!userOpinion ? (
@@ -369,7 +369,7 @@ export function MovieDetailsPage() {
                   key="create"
                   movieId={movieDetails.id}
                   isEdit={false}
-                  onSuccess={(opinionType) => setUserOpinion(opinionType)}
+                  onSuccess={(opinion) => setUserOpinion(opinion)}
                 />
               ) : isEditing ? (
                 <UserOpinionInputCard
@@ -377,15 +377,15 @@ export function MovieDetailsPage() {
                   movieId={movieDetails.id}
                   initialOpinion={userOpinion}
                   isEdit={true}
-                  onSuccess={(opinionType) => {
-                    setUserOpinion(opinionType);
+                  onSuccess={(opinion) => {
+                    setUserOpinion(opinion);
                     setIsEditing(false);
                   }}
                   onClose={() => setIsEditing(false)}
                 />
               ) : (
                 <UserOpinionDisplayCard
-                  opinionType={userOpinion}
+                  opinion={userOpinion}
                   onEdit={() => setIsEditing(true)}
                   onDelete={handleDeleteClick}
                 />
@@ -394,7 +394,6 @@ export function MovieDetailsPage() {
           )}
         </div>
 
-        {/* Right column — genres, watch links */}
         <div className="w-[320px] shrink-0 flex flex-col gap-6">
           {movieDetails.genres?.length > 0 && (
             <VibeChart genres={movieDetails.genres} />
@@ -414,7 +413,6 @@ export function MovieDetailsPage() {
         />
       )}
 
-      {/* ── Delete modal ── */}
       {!isAdminRoute && showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-80 text-center">

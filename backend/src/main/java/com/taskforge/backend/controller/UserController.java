@@ -25,13 +25,13 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getUserById(@AuthenticationPrincipal CustomPrincipal principal){
+    public ResponseEntity<UserResponseDto> getUserById(@AuthenticationPrincipal CustomPrincipal principal) {
         UserResponseDto savedUser = userService.findUserById(principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(savedUser);
     }
@@ -49,22 +49,22 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<Page<UserResponseDto>> getAllUsers(Pageable pageable){
+    public ResponseEntity<Page<UserResponseDto>> getAllUsers(Pageable pageable) {
         Page<UserResponseDto> users = userService.findAllUsers(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/me")
-    public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody UserDeleteRequestDto userdeleterequestdto){
-        userService.deleteUserById(principal.getId(),userdeleterequestdto.getPassword());
+    public ResponseEntity<User> deleteUserById(@AuthenticationPrincipal CustomPrincipal principal, @Valid @RequestBody UserDeleteRequestDto userdeleterequestdto) {
+        userService.deleteUserById(principal.getId(), userdeleterequestdto.getPassword());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/me")
-    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal,@Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto){
-        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(principal.getId(),profileUpdateRequestDto);
+    public ResponseEntity<ProfileUpdateResponseDto> updateProfileById(@AuthenticationPrincipal CustomPrincipal principal, @Valid @RequestBody ProfileUpdateRequestDto profileUpdateRequestDto) {
+        ProfileUpdateResponseDto updatedUser = userService.updateProfileById(principal.getId(), profileUpdateRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
     }
 
@@ -84,6 +84,14 @@ public class UserController {
             @Valid @RequestBody ResetPasswordRequestDto resetPasswordRequestDto) {
         MsgResponseDto repassRes = userService.resetPassword(principal.getId(), resetPasswordRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(repassRes);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/interested-movies")
+    public ResponseEntity<List<MovieCardResponseDto>> getUserInterestedMovies(
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = userService.getUserInterestedMovies(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

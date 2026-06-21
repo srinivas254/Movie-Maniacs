@@ -6,7 +6,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 
-export function UserOpinionDisplayCard({ opinionType, onEdit, onDelete }) {
+export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
   const profile = useUserStore((state) => state.profile);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
@@ -29,6 +29,10 @@ export function UserOpinionDisplayCard({ opinionType, onEdit, onDelete }) {
     return <div className="text-white text-center py-6">Loading...</div>;
   }
 
+  if (!opinion) {
+    return null;
+  }
+
   const initials = profile.name
     .split(" ")
     .map((w) => w[0])
@@ -43,7 +47,9 @@ export function UserOpinionDisplayCard({ opinionType, onEdit, onDelete }) {
     { label: "Perfection", value: "PERFECTION", active: "bg-purple-500" },
   ];
 
-  const selectedItem = opinions.find((item) => item.value === opinionType);
+  const selectedItem = opinions.find(
+    (item) => item.value === opinion?.opinionType,
+  );
 
   return (
     <div>
@@ -77,6 +83,14 @@ export function UserOpinionDisplayCard({ opinionType, onEdit, onDelete }) {
             </span>
           )}
         </div>
+
+        {opinion?.comments && (
+          <div className="mt-4 px-1">
+            <p className="text-sm text-gray-300 whitespace-pre-wrap">
+              {opinion.comments}
+            </p>
+          </div>
+        )}
 
         <div className="flex justify-end mt-1">
           <div className="relative" ref={menuRef}>

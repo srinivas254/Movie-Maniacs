@@ -53,10 +53,9 @@ public class MailService {
             try (SMTPTransport transport = (SMTPTransport) session.getTransport("smtp")) {
                 transport.connect(host, senderEmail, accessToken);
                 transport.sendMessage(message, message.getAllRecipients());
-                System.out.println("✅ Mail sent successfully to " + to);
             }
         }catch(Exception e){
-            throw new EmailSendException("Unable to send email",e);
+            throw new EmailSendException("Unable to send email at the moment.",e);
         }
     }
 }

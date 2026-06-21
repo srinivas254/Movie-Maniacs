@@ -1,9 +1,12 @@
 package com.taskforge.backend.service;
 
 import com.taskforge.backend.dto.*;
+import com.taskforge.backend.entity.Movie;
+import com.taskforge.backend.entity.MovieInterested;
 import com.taskforge.backend.entity.Role;
 import com.taskforge.backend.entity.User;
 import com.taskforge.backend.exception.*;
+import com.taskforge.backend.repository.MovieInterestedRepository;
 import com.taskforge.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +25,14 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final MovieInterestedRepository movieInterestedRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder,MovieInterestedRepository movieInterestedRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
+        this.movieInterestedRepository = movieInterestedRepository;
     }
 
     @Override
@@ -181,5 +186,28 @@ public class UserServiceImpl implements UserService{
                 ))
                 .toList();
     }
+
+    @Override
+    public List<MovieCardResponseDto> getUserInterestedMovies(String userId) {
+
+        return movieInterestedRepository.findByUserId(userId)
+                .stream()
+                .map(movieInterested -> {
+                    Movie movie = movieInterested.getMovie();
+
+                    return new MovieCardResponseDto(
+                            movie.getId(),
+                            movie.getName(),
+                            movie.getYear(),
+                            movie.getPosterSmallUrl(),
+                            movie.getSlugUrl()
+                    );
+                })
+                .toList();
+    }
+
+
+
+
 
 }

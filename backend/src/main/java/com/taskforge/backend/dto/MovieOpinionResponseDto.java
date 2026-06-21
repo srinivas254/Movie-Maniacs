@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MovieOpinionResponseDto {
     private OpinionType opinionType;
+    private String comments;
     private boolean updated;
 }

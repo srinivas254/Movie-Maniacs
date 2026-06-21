@@ -24,15 +24,15 @@ export function ForgotPassword() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.message);
+        const data = await res.json();
+        throw new Error(data.error);
       }
 
-      toast.success(data.message);
+      toast.success("Mail sent successfully");
       setEmail("");
     } catch (err) {
+      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);

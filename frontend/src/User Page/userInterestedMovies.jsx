@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FireIcon } from "@heroicons/react/24/outline";
+import { useUserStore } from "../Zustand Store/useUserStore";
 import "../index.css";
 
-function formatInterested(count) {
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return `${count}`;
-}
-
-export function MostInterested() {
+export function UserInterestedMovies() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const profile = useUserStore((state) => state.profile);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!profile?.userName) return;
+
     async function loadMovies() {
       try {
         setLoading(true);
@@ -25,7 +22,7 @@ export function MostInterested() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          "http://localhost:8080/movies/explore/top-interested",
+          `http://localhost:8080/users/interested-movies`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +31,7 @@ export function MostInterested() {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to load movies");
+          throw new Error("Failed to load interested movies");
         }
 
         const result = await response.json();
@@ -47,23 +44,23 @@ export function MostInterested() {
     }
 
     loadMovies();
-  }, []);
+  }, [profile?.userName]);
 
   return (
     <div
       className="
-        bg-neutral-900
-        rounded-2xl
-        p-5
-        w-full
-        lg:w-[25%]
-        flex-shrink-0
-        text-white
-      "
+    bg-neutral-900
+    rounded-2xl
+    p-5
+    w-full
+    lg:w-[25%]
+    flex-shrink-0
+    text-white
+    h-fit"
     >
       <div className="flex items-center gap-2 mb-4">
         <FireIcon className="w-6 h-6 text-orange-500" />
-        <h2 className="text-base font-medium">Most Interested</h2>
+        <h2 className="text-base font-medium">Interested In</h2>
       </div>
 
       {loading && (
@@ -81,36 +78,38 @@ export function MostInterested() {
         </div>
       )}
 
-      {error && <p className="text-sm text-red-400">{error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-400 text-center">{error.message}</p>
+      )}
 
       {!loading && !error && data.length === 0 && (
-  <div
-    className="
-      flex
-      flex-col
-      items-center
-      justify-center
-      py-10
-      px-4
-      text-center
-      rounded-xl
-      border
-      border-dashed
-      border-neutral-700
-      bg-neutral-800/30
-    "
-  >
-    <FireIcon className="w-10 h-10 text-neutral-600 mb-3" />
+        <div
+          className="
+            flex
+            flex-col
+            items-center
+            justify-center
+            py-10
+            px-4
+            text-center
+            rounded-xl
+            border
+            border-dashed
+            border-neutral-700
+            bg-neutral-800/30
+          "
+        >
+          <FireIcon className="w-10 h-10 text-neutral-600 mb-3" />
 
-    <p className="text-sm font-medium text-neutral-300">
-      No interested movies yet
-    </p>
+          <p className="text-sm font-medium text-neutral-300">
+            No interested movies yet
+          </p>
 
-    <p className="text-xs text-neutral-500 mt-1">
-      Movies with the most interest will appear here.
-    </p>
-  </div>
-)}
+          <p className="text-xs text-neutral-500 mt-1">
+            Movies added by this user will appear here.
+          </p>
+        </div>
+      )}
 
       {!loading && !error && data.length > 0 && (
         <ul className="divide-y divide-neutral-800">
@@ -177,35 +176,7 @@ export function MostInterested() {
                   </p>
                 </div>
 
-                <p
-                  className="
-                    text-sm
-                    text-neutral-400
-                    transition-all
-                    duration-200
-                    drop-shadow-[0_0_4px_rgba(255,255,255,0.35)]
-                  "
-                >
-                  {movie.year}
-                </p>
-
-                <p
-                  className="
-                    flex
-                    items-center
-                    gap-1
-                    text-sm
-                    text-orange-500
-                    font-medium
-                    mt-1
-                    whitespace-nowrap
-                  "
-                >
-                  <FireIcon className="w-4 h-4" />
-                  <span>
-                    {formatInterested(movie.interestedCount)} Interested
-                  </span>
-                </p>
+                <p className="text-sm text-neutral-400">{movie.year}</p>
               </div>
             </li>
           ))}

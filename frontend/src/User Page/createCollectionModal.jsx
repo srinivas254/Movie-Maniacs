@@ -48,9 +48,8 @@ export function CreateCollectionModal({ open, setOpen, onSuccess}) {
         },
       );
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.error || "Failed to create collection");
       }
 
@@ -61,8 +60,9 @@ export function CreateCollectionModal({ open, setOpen, onSuccess}) {
       setName("");
       setDescription("");
       setVisibility("private");
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message);
     }
   };
 

@@ -15,6 +15,7 @@ export function MovieCard({ movie, disableNavigation = false }) {
         flex flex-col
         gap-1
         w-36
+        mb-2
         cursor-pointer
         hover:scale-105
         transition
@@ -48,12 +49,12 @@ export function MovieCard({ movie, disableNavigation = false }) {
 
       <span
         className="
-          text-gray-300
-          text-sm
-          drop-shadow-[0_0_4px_rgba(255,255,255,0.35)]
-        "
+    text-gray-300
+    text-sm
+    drop-shadow-[0_0_4px_rgba(255,255,255,0.35)]
+  "
       >
-        {movie.year}
+        Movie • {movie.year}
       </span>
     </div>
   );

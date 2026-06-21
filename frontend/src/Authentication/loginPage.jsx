@@ -87,31 +87,18 @@ function LoginCard() {
       });
 
       if (!response.ok) {
-        if (response.status === 400) {
-          throw new Error("Bad request");
-        }
-
-        if (response.status === 401) {
-          throw new Error("Invalid credentials");
-        }
-
-        if (response.status === 500) {
-          throw new Error("Server error");
-        }
-
-        throw new Error("Something went wrong");
+        const data = await response.json();
+        throw new Error(data.error || "Something went wrong");
       }
 
-      const data = await response.json();
-
-      sessionStorage.setItem("userId", data.id);
-
+      toast.success("OTP sent successfully");
       setTimeout(() => {
         navigate("/verify-otp");
       }, 1500);
     } catch (err) {
-      console.error("Login failed", err);
+      console.error(err);
       setLoginError(err.message);
+      toast.error(err.message);
     } finally {
       setIsLoggingIn(false);
     }

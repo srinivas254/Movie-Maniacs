@@ -14,6 +14,7 @@ public interface MovieInterestedRepository extends JpaRepository<MovieInterested
     boolean existsByUserAndMovie(User user, Movie movie);
 
     void deleteByUserAndMovie(User user, Movie movie);
+    List<MovieInterested> findByUserId(String userId);
 
     @Query(value = """
     SELECT

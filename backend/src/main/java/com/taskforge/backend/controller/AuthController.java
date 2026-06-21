@@ -30,16 +30,16 @@ public class AuthController {
 
     @PermitAll
     @PostMapping("/register")
-    public ResponseEntity<MsgResponseDto> registerUser(@Valid @RequestBody UserRegistrationRequestDto user){
-        MsgResponseDto savedUser = authService.saveUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    public ResponseEntity<Void> registerUser(@Valid @RequestBody UserRegistrationRequestDto user){
+        authService.saveUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PermitAll
     @PostMapping("/jwt/login")
-    public ResponseEntity<MsgResponseDto> loginUser(@Valid @RequestBody OtpGenerationRequestDto otpGenerationRequestDto){
-        MsgResponseDto loginUser = authService.loginAUser(otpGenerationRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(loginUser);
+    public ResponseEntity<Void> loginUser(@Valid @RequestBody OtpGenerationRequestDto otpGenerationRequestDto){
+        authService.loginAUser(otpGenerationRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PermitAll
@@ -137,21 +137,20 @@ public class AuthController {
 
     @PermitAll
     @PostMapping("/forgot-password")
-    public ResponseEntity<MsgResponseDto> forgotPassword(
+    public ResponseEntity<Void> forgotPassword(
             @RequestBody ForgotPasswordRequestDto forgotPasswordRequestDto
     ) {
-        MsgResponseDto response = authService.forgotPassword(forgotPasswordRequestDto.getEmail());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        authService.forgotPassword(forgotPasswordRequestDto.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<MsgResponseDto> resetPassword(
+    public ResponseEntity<Void> resetPassword(
             @RequestBody ResetNewPasswordRequestDto resetNewPasswordRequestDto
     ) {
-        MsgResponseDto response =
                 authService.resetPassword(resetNewPasswordRequestDto.getRawToken(),
                         resetNewPasswordRequestDto.getNewPassword(),
                         resetNewPasswordRequestDto.getConfirmPassword());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

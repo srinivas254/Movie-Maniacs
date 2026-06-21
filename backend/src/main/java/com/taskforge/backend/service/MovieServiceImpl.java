@@ -505,7 +505,7 @@ public class MovieServiceImpl implements MovieService {
     public MovieOpinionResponseDto submitOpinion(
             String movieId,
             String userId,
-            OpinionType opinionType) {
+            MovieOpinionRequestDto request) {
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() ->
@@ -524,12 +524,14 @@ public class MovieServiceImpl implements MovieService {
 
             MovieOpinion opinion = existingOpinion.get();
 
-            opinion.setOpinionType(opinionType);
+            opinion.setOpinionType(request.getOpinionType());
+            opinion.setComments(request.getComments());
 
             movieOpinionRepository.save(opinion);
 
             return MovieOpinionResponseDto.builder()
-                    .opinionType(opinionType)
+                    .opinionType(opinion.getOpinionType())
+                    .comments(opinion.getComments())
                     .updated(true)
                     .build();
         }
@@ -538,12 +540,14 @@ public class MovieServiceImpl implements MovieService {
 
         opinion.setMovie(movie);
         opinion.setUser(user);
-        opinion.setOpinionType(opinionType);
+        opinion.setOpinionType(request.getOpinionType());
+        opinion.setComments(request.getComments());
 
         movieOpinionRepository.save(opinion);
 
         return MovieOpinionResponseDto.builder()
-                .opinionType(opinionType)
+                .opinionType(opinion.getOpinionType())
+                .comments(opinion.getComments())
                 .updated(false)
                 .build();
     }
@@ -560,19 +564,14 @@ public class MovieServiceImpl implements MovieService {
                         new UserNotFoundException(
                                 "User not found with id: " + userId));
 
-        Optional<MovieOpinion> opinion =
-                movieOpinionRepository.findByUserAndMovie(user, movie);
-
-        if (opinion.isPresent()) {
-            return RetrieveMovieOpinionDto.builder()
-                    .opinionType(
-                            opinion.get().getOpinionType()
-                    )
-                    .build();
-        }
+        MovieOpinion movieOpinion = movieOpinionRepository.findByUserAndMovie(user, movie)
+                .orElseThrow(() ->
+                        new OpinionNotFoundException(
+                                "No opinion found for user " + userId + " on movie " + movieId));
 
         return RetrieveMovieOpinionDto.builder()
-                .opinionType(null)
+                .opinionType(movieOpinion.getOpinionType())
+                .comments(movieOpinion.getComments())
                 .build();
     }
 
@@ -588,12 +587,8 @@ public class MovieServiceImpl implements MovieService {
                         new UserNotFoundException(
                                 "User not found with id: " + userId));
 
-        Optional<MovieOpinion> opinion =
-                movieOpinionRepository.findByUserAndMovie(user, movie);
-
-        if (opinion.isPresent()) {
-            movieOpinionRepository.delete(opinion.get());
-        }
+        movieOpinionRepository.findByUserAndMovie(user, movie)
+                .ifPresent(movieOpinionRepository::delete);
     }
 
     @Override
@@ -659,7 +654,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId) {
+    public void createCollection(CreateCollectionRequestDto request, String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -676,7 +671,6 @@ public class MovieServiceImpl implements MovieService {
         collection.setUser(user);
 
         collectionRepository.save(collection);
-        return new MsgResponseDto("Collection created successfully");
     }
 
     @Override

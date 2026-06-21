@@ -17,12 +17,12 @@ public interface MovieService {
     InterestedStatusDto markInterested(String movieId, String userId);
     InterestedStatusDto getInterestedStatus(String movieId, String userId);
     InterestedStatusDto removeInterested(String movieId,String userId);
-    MovieOpinionResponseDto  submitOpinion(String movieId, String userId, OpinionType opinionType);
+    MovieOpinionResponseDto  submitOpinion(String movieId, String userId, MovieOpinionRequestDto request);
     RetrieveMovieOpinionDto getUserOpinion(String movieId, String userId);
     void deleteOpinion(String movieId, String userId);
     MovieOpinionSummaryDto getOpinionSummary(String movieId);
     List<MovieCardResponseDto> searchMovies(String query);
-    MsgResponseDto createCollection(CreateCollectionRequestDto request, String userId);
+    void createCollection(CreateCollectionRequestDto request, String userId);
     List<CollectionCardDto> getMyCollections(String userId);
     CollectionDetailsResponseDto getCollectionDetails(String collectionName, String userId);
     MsgResponseDto addMovieToCollection(String collectionName, String movieId, String userId);

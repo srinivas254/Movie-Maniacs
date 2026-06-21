@@ -9,7 +9,10 @@ export function UserOpinionInputCard({
   onClose,
 }) {
   const [selectedOpinion, setSelectedOpinion] = useState(
-    isEdit ? initialOpinion : "TIME_PASS",
+    isEdit ? initialOpinion?.opinionType : "TIME_PASS",
+  );
+  const [comments, setComments] = useState(
+    isEdit ? initialOpinion?.comments || "" : "",
   );
   const [loading, setLoading] = useState(false);
 
@@ -34,8 +37,12 @@ export function UserOpinionInputCard({
   ];
 
   const submitOpinion = async () => {
-    if (isEdit && selectedOpinion === initialOpinion) {
-      if (onClose) onClose(); // just close edit
+    if (
+      isEdit &&
+      selectedOpinion === initialOpinion?.opinionType &&
+      comments === (initialOpinion?.comments || "")
+    ) {
+      if (onClose) onClose();
       return;
     }
 
@@ -52,14 +59,18 @@ export function UserOpinionInputCard({
           },
           body: JSON.stringify({
             opinionType: selectedOpinion,
+            comments: comments.trim(),
           }),
         },
       );
 
       const data = await res.json();
 
-      // 🔥 notify parent
-      onSuccess(data.opinionType);
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to add the opinion");
+      }
+
+      onSuccess(data);
 
       if (isEdit && onClose) {
         onClose();
@@ -108,6 +119,21 @@ export function UserOpinionInputCard({
               {item.label}
             </button>
           ))}
+        </div>
+
+        <div className="mb-4">
+          <textarea
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            maxLength={150}
+            placeholder="Share your thoughts about this movie (optional)..."
+            className="w-full bg-zinc-800 text-white rounded-xl p-3 resize-none outline-none border border-zinc-700 focus:border-zinc-500"
+            rows={4}
+          />
+
+          <div className="text-right text-xs text-zinc-400 mt-1">
+            {comments.length}/150
+          </div>
         </div>
 
         <div className="flex justify-end gap-2">

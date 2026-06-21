@@ -1,5 +1,6 @@
 package com.taskforge.backend.exception;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,28 +20,34 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalException {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidations(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidations(
+            MethodArgumentNotValidException ex) {
+
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .getFirst()
+                .getDefaultMessage();
+
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        errors.put("error", errorMessage);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrity(DataIntegrityViolationException ex) {
-        Map<String, String> error = new HashMap<>();
+    public ResponseEntity<Map<String, String>> handleDataIntegrity(
+            DataIntegrityViolationException ex) {
+
+        Map<String, String> errors = new HashMap<>();
         String rootMessage = ex.getMostSpecificCause().getMessage();
 
         if (rootMessage.contains("@")) {
-            error.put("field", "email");
-            error.put("message", "Email already exists");
+            errors.put("error", "Email already exists");
         } else {
-            error.put("field", "userName");
-            error.put("message", "Username already exists");
+            errors.put("error", "Username already exists");
         }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -51,15 +58,18 @@ public class GlobalException {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException cv) {
+    public ResponseEntity<Map<String, String>> handleConstraintViolation(
+            ConstraintViolationException ex) {
+
+        String errorMessage = ex.getConstraintViolations()
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .findFirst()
+                .orElse("Validation failed");
+
         Map<String, String> errors = new HashMap<>();
-        cv.getConstraintViolations().forEach(cov -> {
-            String field = cov.getPropertyPath().toString();
-            String cleanField = field.contains(".")
-                    ? field.substring(field.lastIndexOf(".") + 1)
-                    : field;
-            errors.put(cleanField, cov.getMessage());
-        });
+        errors.put("error", errorMessage);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
@@ -115,28 +125,28 @@ public class GlobalException {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String,String>> handleUserAlreadyExists(UserAlreadyExistsException ex){
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
     @ExceptionHandler(PasswordNotSetException.class)
     public ResponseEntity<Map<String,String>> handlePasswordNotSet(PasswordNotSetException ex){
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(ConfirmPasswordMismatchException.class)
     public ResponseEntity<Map<String,String>> handlePasswordNotSet(ConfirmPasswordMismatchException ex){
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler(PasswordAlreadyExistsException.class)
     public ResponseEntity<Map<String,String>> handlePasswordAlreadyExists(PasswordAlreadyExistsException ex){
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
     }
 
@@ -164,14 +174,14 @@ public class GlobalException {
     @ExceptionHandler( InvalidOAuthStateException.class )
     public ResponseEntity<Map<String,String>> handleInvalidState(InvalidOAuthStateException ex){
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     @ExceptionHandler( EmailSendException.class )
     public ResponseEntity<Map<String,String>> handleEmailSend(EmailSendException ex) {
         Map<String,String> errors = new HashMap<>();
-        errors.put("message", ex.getMessage());
+        errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errors);
     }
 
@@ -229,6 +239,13 @@ public class GlobalException {
         Map<String, String> errors = new HashMap<>();
         errors.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
+    @ExceptionHandler(OpinionNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleOpinionNotFoundException(OpinionNotFoundException onf) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", onf.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
     @ExceptionHandler(Exception.class)

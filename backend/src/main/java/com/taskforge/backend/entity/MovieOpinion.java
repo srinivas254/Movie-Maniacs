@@ -29,5 +29,7 @@ public class MovieOpinion {
 
     @Enumerated(EnumType.STRING)
     private OpinionType opinionType;
+
+    private String comments;
 }
 

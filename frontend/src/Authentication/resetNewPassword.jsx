@@ -11,10 +11,8 @@ export function ResetNewPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // ✅ Correct query param
   const rawToken = searchParams.get("rawToken");
 
-  // ✅ State first
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -58,20 +56,18 @@ export function ResetNewPassword() {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(
-          data.message || "Something went wrong please try again!",
-        );
+        const data = await res.json();
+        throw new Error(data.error || "Something went wrong!");
       }
 
-      toast.success(data.message);
+      toast.success("Password reset successful");
 
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
+      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -96,7 +92,6 @@ export function ResetNewPassword() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* ✅ New Password (Reusable component) */}
             <div>
               <label className="text-sm text-gray-600">New Password</label>
 
@@ -113,7 +108,6 @@ export function ResetNewPassword() {
               />
             </div>
 
-            {/* ✅ Confirm Password (independent eye toggle) */}
             <div>
               <label className="text-sm text-gray-600">Confirm Password</label>
               <div className="relative mt-1">

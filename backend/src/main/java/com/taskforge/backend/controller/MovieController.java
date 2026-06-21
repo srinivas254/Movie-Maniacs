@@ -85,7 +85,7 @@ public class MovieController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/{movieId}/opinion")
     public ResponseEntity<MovieOpinionResponseDto> submitOpinion(@PathVariable String movieId,@Valid @RequestBody MovieOpinionRequestDto request, @AuthenticationPrincipal CustomPrincipal principal) {
-        MovieOpinionResponseDto updatedOpinion = movieService.submitOpinion(movieId, principal.getId(),request.getOpinionType());
+        MovieOpinionResponseDto updatedOpinion = movieService.submitOpinion(movieId, principal.getId(),request);
         return ResponseEntity.status(HttpStatus.OK).body(updatedOpinion);
     }
 
@@ -117,8 +117,8 @@ public class MovieController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/collections/add")
     public ResponseEntity<MsgResponseDto> createCollection(@RequestBody CreateCollectionRequestDto request, @AuthenticationPrincipal CustomPrincipal principal) {
-        MsgResponseDto createdCollection = movieService.createCollection(request, principal.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdCollection);
+        movieService.createCollection(request, principal.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PreAuthorize("hasRole('USER')")

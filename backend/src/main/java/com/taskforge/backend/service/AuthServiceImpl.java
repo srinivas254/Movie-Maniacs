@@ -47,7 +47,7 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public MsgResponseDto saveUser(UserRegistrationRequestDto user){
+    public void saveUser(UserRegistrationRequestDto user){
         User euser = new User();
         modelMapper.map(user,euser);
         euser.setProvider(AuthProvider.LOCAL);
@@ -63,14 +63,10 @@ public class AuthServiceImpl implements AuthService{
         watchLater.setUser(savedUser);
 
         collectionRepository.save(watchLater);
-
-        return MsgResponseDto.builder()
-                .message("User registration successful")
-                .build();
     }
 
     @Override
-    public MsgResponseDto loginAUser(OtpGenerationRequestDto userLoginRequestDto){
+    public void loginAUser(OtpGenerationRequestDto userLoginRequestDto){
         String emailOrUserName = userLoginRequestDto.getIdentifier();
         String providedPass = userLoginRequestDto.getPassword();
         User userLogin;
@@ -100,10 +96,6 @@ public class AuthServiceImpl implements AuthService{
 
         OtpEntry otpEntry = new OtpEntry(otp, expiryTime, userLogin.getId());
         otpStorage.put(otp, otpEntry);
-
-        return MsgResponseDto.builder()
-                .message("OTP sent successfully")
-                .build();
     }
 
     @Override
@@ -148,11 +140,9 @@ public class AuthServiceImpl implements AuthService{
 
         User user = userRepository.findByProviderId(sub).orElse(null);
 
-        // 2) If not found, try by email
         if (user == null) {
             user = userRepository.findByEmail(email).orElse(null);
 
-            // 3) If email exists -> link Google
             if (user != null) {
                 user.setProvider(AuthProvider.GOOGLE);
                 user.setProviderId(sub);
@@ -228,7 +218,7 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public MsgResponseDto forgotPassword(String email) {
+    public void forgotPassword(String email) {
 
         User user = userRepository.findByEmail(email).orElse(null);
 
@@ -267,14 +257,10 @@ public class AuthServiceImpl implements AuthService{
                 subject,
                 body
         );
-
-        return MsgResponseDto.builder()
-                .message("Mail sent successfully")
-                .build();
     }
 
     @Override
-    public MsgResponseDto resetPassword(String rawToken,
+    public void resetPassword(String rawToken,
                               String newPassword,
                               String confirmPassword) {
 
@@ -282,7 +268,6 @@ public class AuthServiceImpl implements AuthService{
             throw new ConfirmPasswordMismatchException("New Password and confirm password does not match");
         }
 
-        // find user by valid token
         PasswordResetToken resetToken = passwordResetTokenRepository
                 .findByUsedFalseAndExpiresAtAfter(LocalDateTime.now())
                 .stream()
@@ -306,7 +291,6 @@ public class AuthServiceImpl implements AuthService{
                                 new InvalidIdTokenException("Invalid or expired token")
                         );
 
-        // Step 3: ensure user is using the latest token
         if (!latestToken.getId().equals(resetToken.getId())) {
             throw new InvalidIdTokenException("Please use the latest reset link");
         }
@@ -322,10 +306,6 @@ public class AuthServiceImpl implements AuthService{
 
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
-
-        return MsgResponseDto.builder()
-                .message("Password reset successful")
-                .build();
     }
 
 }

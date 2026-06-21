@@ -7,7 +7,7 @@ import { CollectionsPage } from "./User Page/collectionsPage.jsx";
 import { MyCollections } from "./User Page/myCollections.jsx";
 import { SavedCollections } from "./User Page/savedCollections.jsx";
 import { ExplorePage } from "./User Page/explorePage.jsx";
-import { UserProfile } from "./User Page/userProfile.jsx";
+import { ProfilePage } from "./User Page/profilePage.jsx";
 import { UserSettings } from "./User Page/userSettings.jsx";
 import { VerifyOtp } from "./Authentication/verifyOtp.jsx";
 import { ProtectedRoute } from "./Authentication/protectedRoute.jsx";
@@ -75,7 +75,7 @@ function App() {
         </Route>
         <Route path="/collections/my-collections/:collectionName" element={<CollectionDetails />} />
         ;
-        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<UserSettings />}>
           <Route path="edit-profile" element={<EditProfileCard />} />
           <Route path="set-password" element={<SetPassword />} />

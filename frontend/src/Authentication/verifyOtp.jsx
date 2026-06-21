@@ -14,20 +14,12 @@ export function VerifyOtp() {
   const [timeLeft, setTimeLeft] = useState(120);
 
   useEffect(() => {
-    const storedId = sessionStorage.getItem("userId");
-    if (!storedId) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  useEffect(() => {
     if (otpVerified) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          sessionStorage.removeItem("userId");
           navigate("/login");
           return 0;
         }
@@ -56,7 +48,7 @@ export function VerifyOtp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isFormValid) return;
+    if (!isFormValid || isVerifying) return;
 
     try {
       setIsVerifying(true);
@@ -76,36 +68,25 @@ export function VerifyOtp() {
       );
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("OTP not found");
-        }
-
-        if (response.status === 400) {
-          throw new Error("Invalid OTP");
-        }
-
-        if (response.status === 417) {
-          throw new Error("OTP expired");
-        }
-
-        throw new Error("Server error. Try again");
+        const data = await response.json();
+        throw new Error(data.error || "Something went wrong");
       }
 
       const data = await response.json();
 
       setOtpVerified(true);
 
-      sessionStorage.removeItem("userId");
-      toast.success("Login successfull");
       localStorage.setItem("token", data.token);
+
+      toast.success("Login successful");
 
       setTimeout(() => {
         navigate("/explore");
       }, 1500);
     } catch (err) {
-      console.error("OTP verification failed:", err);
-      toast.error(err.message || "Something went wrong");
+      console.error(err);
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setIsVerifying(false);
     }

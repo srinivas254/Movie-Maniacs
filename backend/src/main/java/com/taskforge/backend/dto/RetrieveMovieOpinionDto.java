@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RetrieveMovieOpinionDto {
     private OpinionType opinionType;
+    private String comments;
 }

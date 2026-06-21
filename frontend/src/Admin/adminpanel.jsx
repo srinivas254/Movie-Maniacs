@@ -105,10 +105,14 @@ export function AdminPanel() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:8080/movies/${id}`, {
+      const response = await fetch(`http://localhost:8080/movies/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Movie deletion failed");
+      }
       deleteMovie(id);
       setMovieDeleteId(null);
       toast.success("Movie deleted successfully");
@@ -133,10 +137,13 @@ export function AdminPanel() {
         setShowAllUsers(false);
         setUserSearch("");
         toast.success("User deleted successfully");
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete user");
       }
     } catch (err) {
-      console.error("User deletion failed", err.message);
-      toast.error("User deletion failed");
+      console.error(err);
+      toast.error(err.message);
     }
   };
 
@@ -155,17 +162,17 @@ export function AdminPanel() {
           },
         );
 
+        const data = await res.json();
+
         if (!res.ok) {
-          throw new Error("Failed to fetch movie");
+          throw new Error(data.error || "something went wrong");
         }
 
-        const fullMovie = await res.json();
-
-        setMovie(fullMovie);
+        setMovie(data);
         navigate(`/admin/update-movie/${movie.id}`);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load movie");
+        toast.error(err.message);
       }
     } else {
       setMovie(movie);

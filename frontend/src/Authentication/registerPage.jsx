@@ -105,10 +105,9 @@ function RegisterCard() {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        const data = await response.json();
+        throw new Error(data.error || "Registration failed");
       }
 
       toast.success("Account created successfully");
@@ -117,8 +116,8 @@ function RegisterCard() {
         navigate("/login");
       }, 1500);
     } catch (err) {
-      console.log("REGISTER ERROR", err.message);
-      toast.error(err.message || "Something went wrong");
+      console.log(err);
+      toast.error(err.message);
     }
   };
 
@@ -138,7 +137,7 @@ function RegisterCard() {
         setIsUsernameAvailable(false);
       }
     } catch (err) {
-      console.error("Username check failed:", err);
+      console.error(err);
       setUsernameCheckError(true);
       setIsUsernameAvailable(null);
     } finally {
@@ -162,7 +161,7 @@ function RegisterCard() {
         setIsEmailAvailable(false);
       }
     } catch (err) {
-      console.error("Email check failed:", err);
+      console.error(err);
       setEmailCheckError(true);
       setIsEmailAvailable(null);
     } finally {

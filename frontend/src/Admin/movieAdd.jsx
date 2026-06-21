@@ -107,7 +107,7 @@ export function AddMoviePage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw errorData;
+        throw new Error(errorData.error || "something went wrong");
       }
 
       const newMovie = await res.json();

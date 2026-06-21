@@ -9,7 +9,7 @@ export function UserProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div>
         Loading...
       </div>
     );
@@ -23,7 +23,7 @@ export function UserProfile() {
     .toUpperCase();
 
   return (
-    <div className="min-h-screen text-white flex justify-start items-center p-8 gap-10">
+    <div>
       <div className="bg-black/60 backdrop-blur-md border border-white/10 p-6 rounded-xl w-80">
 
         {profile.pictureUrl ? (
