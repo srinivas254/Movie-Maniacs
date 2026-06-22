@@ -93,6 +93,10 @@ public class MovieController {
     @GetMapping("/{movieId}/opinion")
     public ResponseEntity<RetrieveMovieOpinionDto> getUserOpinion(@PathVariable String movieId, @AuthenticationPrincipal CustomPrincipal principal) {
         RetrieveMovieOpinionDto retrievedResponse = movieService.getUserOpinion(movieId, principal.getId());
+
+        if (retrievedResponse == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(retrievedResponse);
     }
 

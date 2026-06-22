@@ -135,6 +135,12 @@ export function MovieDetailsPage() {
             },
           },
         );
+
+        if (res.status === 204) {
+          setUserOpinion(null);
+          return;
+        }
+
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.error || "Failed to fetch the opinion");
@@ -157,16 +163,19 @@ export function MovieDetailsPage() {
 
   const confirmDelete = async () => {
     try {
-     const res = await fetch(`http://localhost:8080/movies/${movieDetails.id}/opinion`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await fetch(
+        `http://localhost:8080/movies/${movieDetails.id}/opinion`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
-      });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Failed to delete the opinion");
-        }
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete the opinion");
+      }
       setUserOpinion(null);
       setIsEditing(false);
       setShowDeleteModal(false);

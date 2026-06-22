@@ -59,7 +59,6 @@ function App() {
         }
       />
       <Route path="/admin-view/login" element={<AdminLoginPage />} />
-      <Route path="/user/:userName" element={<PublicUserProfile />} />
       <Route
         element={
           <ProtectedRoute>
@@ -76,6 +75,7 @@ function App() {
         <Route path="/collections/my-collections/:collectionName" element={<CollectionDetails />} />
         ;
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/user/:userName" element={<PublicUserProfile />} />
         <Route path="/settings" element={<UserSettings />}>
           <Route path="edit-profile" element={<EditProfileCard />} />
           <Route path="set-password" element={<SetPassword />} />

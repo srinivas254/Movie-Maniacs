@@ -1,34 +1,33 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FireIcon } from "@heroicons/react/24/outline";
-import { useUserStore } from "../Zustand Store/useUserStore";
 import "../index.css";
 
-export function UserInterestedMovies() {
+export function UserInterestedMovies({ isPublic = false }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const profile = useUserStore((state) => state.profile);
+  const { userName } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!profile?.userName) return;
-
     async function loadMovies() {
       try {
         setLoading(true);
+        setError(null);
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(
-          `http://localhost:8080/users/interested-movies`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const url = isPublic
+          ? `http://localhost:8080/users/${userName}/interested-movies`
+          : `http://localhost:8080/users/interested-movies`;
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (!response.ok) {
           throw new Error("Failed to load interested movies");
@@ -38,13 +37,16 @@ export function UserInterestedMovies() {
         setData(result);
       } catch (err) {
         setError(err);
+        setData([]);
       } finally {
         setLoading(false);
       }
     }
 
+    if (isPublic && !userName) return;
+
     loadMovies();
-  }, [profile?.userName]);
+  }, [userName, isPublic]);
 
   return (
     <div

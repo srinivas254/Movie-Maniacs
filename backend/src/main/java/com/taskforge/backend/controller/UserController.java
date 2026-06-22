@@ -41,9 +41,9 @@ public class UserController {
         return userService.searchUsers(q);
     }
 
-    @GetMapping("/{userName}")
-    public ResponseEntity<UserResponseDto> getUserByUserName(@PathVariable String userName) {
-        UserResponseDto user = userService.findByUserName(userName);
+    @GetMapping("/{userName}/profile")
+    public ResponseEntity<PublicUserResponseDto> getUserByUserName(@PathVariable String userName) {
+        PublicUserResponseDto user = userService.findByUserName(userName);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
@@ -88,10 +88,59 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/interested-movies")
-    public ResponseEntity<List<MovieCardResponseDto>> getUserInterestedMovies(
+    public ResponseEntity<List<MovieCardResponseDto>> getMyInterestedMovies(
             @AuthenticationPrincipal CustomPrincipal principal) {
-        List<MovieCardResponseDto> response = userService.getUserInterestedMovies(principal.getId());
+
+        List<MovieCardResponseDto> response =
+                userService.getMyInterestedMovies(principal.getId());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{userName}/interested-movies")
+    public ResponseEntity<List<MovieCardResponseDto>> getUserInterestedMovies(
+            @PathVariable String userName) {
+        List<MovieCardResponseDto> response = userService.getUserInterestedMovies(userName);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me/reviews")
+    public ResponseEntity<List<UserReviewResponseDto>> getMyReviews(
+            @AuthenticationPrincipal CustomPrincipal principal) {
+
+        List<UserReviewResponseDto> response =
+                userService.getMyReviews(principal.getId());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me/collections/public")
+    public ResponseEntity<List<PublicCollectionResponseDto>> getMyPublicCollections(
+            @AuthenticationPrincipal CustomPrincipal principal) {
+
+        List<PublicCollectionResponseDto> response =
+                userService.getMyPublicCollections(principal.getId());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("{userName}/reviews")
+    public ResponseEntity<List<UserReviewResponseDto>> getUserReviews(
+            @PathVariable String userName) {
+        List<UserReviewResponseDto> response = userService.getUserReviews(userName);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("{userName}/collections/public")
+    public ResponseEntity<List<PublicCollectionResponseDto>> getPublicCollections(
+            @PathVariable String userName) {
+        List<PublicCollectionResponseDto> response = userService.getPublicCollections(userName);
+        return ResponseEntity.ok(response);
     }
 
 }

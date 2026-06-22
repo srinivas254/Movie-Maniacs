@@ -8,12 +8,17 @@ import java.util.List;
 
 public interface UserService {
     UserResponseDto findUserById(String id);
-    UserResponseDto findByUserName(String userName);
+    PublicUserResponseDto findByUserName(String userName);
     Page<UserResponseDto> findAllUsers(Pageable pageable);
     void deleteUserById(String id,String password);
     ProfileUpdateResponseDto updateProfileById(String id, ProfileUpdateRequestDto profileUpdateRequestDto);
     MsgResponseDto setPassword(String id,String newPassword);
     MsgResponseDto resetPassword(String id,ResetPasswordRequestDto request);
     List<UserCardResponseDto> searchUsers(String query);
-    List<MovieCardResponseDto> getUserInterestedMovies(String userId);
+    List<MovieCardResponseDto> getMyInterestedMovies(String userId);
+    List<MovieCardResponseDto> getUserInterestedMovies(String userName);
+    List<UserReviewResponseDto> getMyReviews(String userId);
+    List<PublicCollectionResponseDto> getMyPublicCollections(String userId);
+    List<UserReviewResponseDto> getUserReviews(String userName);
+    List<PublicCollectionResponseDto> getPublicCollections(String userName);
 }

@@ -1,12 +1,11 @@
 package com.taskforge.backend.service;
 
 import com.taskforge.backend.dto.*;
-import com.taskforge.backend.entity.Movie;
-import com.taskforge.backend.entity.MovieInterested;
-import com.taskforge.backend.entity.Role;
-import com.taskforge.backend.entity.User;
+import com.taskforge.backend.entity.*;
 import com.taskforge.backend.exception.*;
+import com.taskforge.backend.repository.CollectionRepository;
 import com.taskforge.backend.repository.MovieInterestedRepository;
+import com.taskforge.backend.repository.MovieOpinionRepository;
 import com.taskforge.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +25,17 @@ public class UserServiceImpl implements UserService{
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final MovieInterestedRepository movieInterestedRepository;
+    private final MovieOpinionRepository movieOpinionRepository;
+    private final CollectionRepository collectionRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder,MovieInterestedRepository movieInterestedRepository) {
+    public UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,PasswordEncoder passwordEncoder,MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository, CollectionRepository collectionRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.movieInterestedRepository = movieInterestedRepository;
+        this.movieOpinionRepository = movieOpinionRepository;
+        this.collectionRepository = collectionRepository;
     }
 
     @Override
@@ -47,14 +50,11 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserResponseDto findByUserName(String userName) {
+    public PublicUserResponseDto findByUserName(String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserNotFoundException("User not found with userName "+ userName));
 
-        UserResponseDto dto = modelMapper.map(user, UserResponseDto.class);
-        dto.setHasPassword(user.getPassword() != null);
-
-        return dto;
+        return modelMapper.map(user, PublicUserResponseDto.class);
     }
 
 
@@ -188,7 +188,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<MovieCardResponseDto> getUserInterestedMovies(String userId) {
+    public List<MovieCardResponseDto> getMyInterestedMovies(String userId) {
 
         return movieInterestedRepository.findByUserId(userId)
                 .stream()
@@ -206,8 +206,131 @@ public class UserServiceImpl implements UserService{
                 .toList();
     }
 
+    @Override
+    public List<MovieCardResponseDto> getUserInterestedMovies(String userName) {
 
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with username: " + userName));
 
+        return movieInterestedRepository.findByUserId(user.getId())
+                .stream()
+                .map(movieInterested -> {
+                    Movie movie = movieInterested.getMovie();
 
+                    return new MovieCardResponseDto(
+                            movie.getId(),
+                            movie.getName(),
+                            movie.getYear(),
+                            movie.getPosterSmallUrl(),
+                            movie.getSlugUrl()
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    public List<UserReviewResponseDto> getMyReviews(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        List<MovieOpinion> opinions =
+                movieOpinionRepository.findByUserId(user.getId());
+
+        return opinions.stream()
+                .map(opinion -> {
+
+                    Movie movie = opinion.getMovie();
+
+                    return new UserReviewResponseDto(
+                            opinion.getId(),
+                            movie.getName(),
+                            movie.getYear(),
+                            movie.getPosterSmallUrl(),
+                            movie.getSlugUrl(),
+                            opinion.getOpinionType(),
+                            opinion.getComments()
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    public List<PublicCollectionResponseDto> getMyPublicCollections(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        List<Collection> collections =
+                collectionRepository.findByUserIdAndVisibility(
+                        user.getId(),
+                        Visibility.PUBLIC
+                );
+
+        return collections.stream()
+                .map(collection -> new PublicCollectionResponseDto(
+                        collection.getId(),
+                        collection.getName(),
+                        collection.getMovies().size()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<UserReviewResponseDto> getUserReviews(String userName) {
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with username: " + userName));
+
+        List<MovieOpinion> opinions = movieOpinionRepository.findByUserId(user.getId());
+
+        return opinions.stream()
+                .map(opinion -> {
+
+                    Movie movie = opinion.getMovie();
+
+                    return new UserReviewResponseDto(
+                            opinion.getId(),
+                            movie.getName(),
+                            movie.getYear(),
+                            movie.getPosterSmallUrl(),
+                            movie.getSlugUrl(),
+                            opinion.getOpinionType(),
+                            opinion.getComments()
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    public List<PublicCollectionResponseDto> getPublicCollections(String userName) {
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with username: " + userName));
+
+        List<Collection> collections =
+                collectionRepository.findByUserIdAndVisibility(
+                        user.getId(),
+                        Visibility.PUBLIC
+                );
+
+        return collections.stream()
+                .map(collection -> new PublicCollectionResponseDto(
+                        collection.getId(),
+                        collection.getName(),
+                        collection.getMovies().size()
+                ))
+                .toList();
+    }
 
 }

@@ -564,10 +564,13 @@ public class MovieServiceImpl implements MovieService {
                         new UserNotFoundException(
                                 "User not found with id: " + userId));
 
-        MovieOpinion movieOpinion = movieOpinionRepository.findByUserAndMovie(user, movie)
-                .orElseThrow(() ->
-                        new OpinionNotFoundException(
-                                "No opinion found for user " + userId + " on movie " + movieId));
+        MovieOpinion movieOpinion = movieOpinionRepository
+                .findByUserAndMovie(user, movie)
+                .orElse(null);
+
+        if (movieOpinion == null) {
+            return null;
+        }
 
         return RetrieveMovieOpinionDto.builder()
                 .opinionType(movieOpinion.getOpinionType())
