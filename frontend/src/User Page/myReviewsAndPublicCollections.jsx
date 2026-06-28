@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FolderOpenIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useNavigate, useParams } from "react-router-dom";
 import { PublicCollectionCard } from "./PublicCollectionCard";
+import { formatRelativeTime } from "../util/formatRelativeTime.js";
 
 const banners = [
   "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200",
@@ -171,9 +172,18 @@ export function MyReviewsAndPublicCollections({ isPublic = false }) {
                         </span>
                       </div>
 
-                      <span className="text-gray-300 text-sm drop-shadow-[0_0_4px_rgba(255,255,255,0.35)]">
-                        Movie • {review.year}
-                      </span>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-gray-300 text-sm">
+                          Movie • {review.year}
+                        </span>
+
+                        <span className="text-neutral-500 text-xs">
+                          •{" "}
+                          {review.updated
+                            ? `Edited ${formatRelativeTime(review.updatedAt)}`
+                            : `Posted ${formatRelativeTime(review.createdAt)}`}
+                        </span>
+                      </div>
 
                       {review.comments && (
                         <p className="text-neutral-300 mt-4 text-sm max-w-2xl leading-relaxed">

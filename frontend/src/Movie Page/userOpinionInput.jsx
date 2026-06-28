@@ -64,11 +64,13 @@ export function UserOpinionInputCard({
         },
       );
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.error || "Failed to add the opinion");
+        const error = await res.json();
+        throw new Error(error.error || "Failed to add the opinion");
       }
+
+      const data = await res.json();
+      console.log(data);
 
       onSuccess(data);
 
@@ -84,7 +86,9 @@ export function UserOpinionInputCard({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-5 text-white">Add Your Review</h2>
+      <h2 className="text-2xl font-bold mb-5 text-white">
+        {isEdit ? "Edit Your Review" : "Add Your Review"}
+      </h2>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-5">

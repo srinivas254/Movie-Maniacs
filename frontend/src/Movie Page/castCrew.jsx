@@ -1,34 +1,34 @@
 import { UserCircleIcon } from "@heroicons/react/24/solid";
+import { FaUserCircle } from "react-icons/fa";
 
 export function CastCrew({ castCrew = [] }) {
   if (!castCrew.length) return null;
 
-  const cast = castCrew.filter(person => person.type === "CAST");
-  const crew = castCrew.filter(person => person.type === "CREW");
+  const cast = castCrew.filter((person) => person.type === "CAST");
+  const crew = castCrew.filter((person) => person.type === "CREW");
 
   return (
     <div className="mt-10">
-
       {cast.length > 0 && (
         <>
-          <h2 className="text-2xl font-bold mb-5 text-white">
-            Cast
-          </h2>
+          <h2 className="text-2xl font-bold mb-5 text-white">Cast</h2>
 
           <div
-            className="flex gap-5 overflow-x-auto pb-3"
+            className="flex gap-6 overflow-x-auto pb-6"
             style={{ scrollbarWidth: "none" }}
           >
             {cast.map((person, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center shrink-0 w-24 group cursor-pointer"
+                className="flex flex-col items-center shrink-0 w-28 group cursor-pointer"
               >
-                <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2 ring-2 ring-white/10 group-hover:ring-white/40 transition-all">
-                  <UserCircleIcon className="w-full h-full text-white/30" />
+                <div className="w-20 h-20 rounded-full p-[2px] ring-2 ring-white/10 group-hover:ring-white/40 transition-all">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white/10">
+                    <FaUserCircle className="w-full h-full text-white/30" />
+                  </div>
                 </div>
 
-                <p className="text-white text-xs font-semibold text-center leading-tight">
+                <p className="mt-4 text-white text-xs font-semibold text-center leading-tight">
                   {person.name}
                 </p>
 
@@ -47,24 +47,24 @@ export function CastCrew({ castCrew = [] }) {
 
       {crew.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-5 text-white">
-            Crew
-          </h2>
+          <h2 className="text-2xl font-bold mb-5 text-white">Crew</h2>
 
           <div
-            className="flex gap-5 overflow-x-auto pb-3"
+            className="flex gap-6 overflow-x-auto pb-3"
             style={{ scrollbarWidth: "none" }}
           >
             {crew.map((person, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center shrink-0 w-24 group cursor-pointer"
+                className="flex flex-col items-center shrink-0 w-28 group cursor-pointer"
               >
-                <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2 ring-2 ring-white/10 group-hover:ring-white/40 transition-all">
-                  <UserCircleIcon className="w-full h-full text-white/30" />
+                <div className="w-20 h-20 rounded-full p-[2px] ring-2 ring-white/10 group-hover:ring-white/40 transition-all">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white/10">
+                    <FaUserCircle className="w-full h-full text-white/30" />
+                  </div>
                 </div>
 
-                <p className="text-white text-xs font-semibold text-center leading-tight">
+                <p className="mt-4 text-white text-xs font-semibold text-center leading-tight">
                   {person.name}
                 </p>
 
@@ -78,7 +78,6 @@ export function CastCrew({ castCrew = [] }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -15,12 +15,12 @@ const features = [
   {
     icon: Squares2X2Icon,
     title: "Browse your way",
-    desc: "Discover movies by genre,decade, language, director, or favorites.",
+    desc: "Discover movies by genre, decade, language, country, director, or OTT platform.",
   },
   {
     icon: StarIcon,
     title: "Rate & react honestly",
-    desc: "Skip, Timepass, Go for it, or Perfection — simple ratings that help others decide.",
+    desc: "Choose Skip, Timepass, Go for it, or Perfection, then share a few words explaining why you feel that way.",
   },
   {
     icon: UserGroupIcon,

@@ -206,7 +206,7 @@ export function MovieDetailsPage() {
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-[#111] text-white">
+    <div className="min-h-screen bg-[#111] text-white pt-20">
       <div className="relative w-full">
         {isAdminRoute && (
           <div
@@ -217,7 +217,7 @@ export function MovieDetailsPage() {
           </div>
         )}
 
-        <div className="relative w-full h-[420px]">
+        <div className="relative w-full h-[460px]">
           {movieDetails.posterWideUrl ? (
             <img
               src={movieDetails.posterWideUrl}
@@ -231,7 +231,7 @@ export function MovieDetailsPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 z-10" />
         </div>
 
-        <div className="absolute inset-0 z-20 flex items-end">
+        <div className="absolute inset-0 z-20 flex items-end translate-y-5">
           <div className="w-full max-w-6xl mx-auto px-8 pb-8 flex items-end gap-8">
             <div className="shrink-0 w-[190px] h-[280px] rounded-xl overflow-hidden shadow-2xl">
               {movieDetails.posterSmallUrl ? (

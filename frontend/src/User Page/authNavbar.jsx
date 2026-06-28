@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Logo } from "../siteLogo.jsx";
 import { SearchBox } from "./searchBox.jsx";
 import { ProfileMenu } from "./profileMenu.jsx";
+import { GridModal } from "./gridModal.jsx";
+import { NotificationsModal } from "./notificationsModal.jsx";
 
 import {
   SparklesIcon,
@@ -18,6 +20,7 @@ const navItems = [
     path: "/explore",
     icon: SparklesIcon,
     underline: true,
+    label: "Explore",
   },
   {
     id: "grid",
@@ -35,6 +38,7 @@ const navItems = [
     path: "/collections/my-collections",
     icon: BookmarkIcon,
     underline: true,
+    label: "Collections",
   },
 ];
 
@@ -42,6 +46,22 @@ export function AuthNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeModal, setActiveModal] = useState(null);
+  const gridRef = useRef(null);
+  const notificationsRef = useRef(null);
+
+useEffect(() => {
+  function handleClickOutside(e) {
+    if (
+      gridRef.current && !gridRef.current.contains(e.target) &&
+      notificationsRef.current && !notificationsRef.current.contains(e.target)
+    ) {
+      setActiveModal(null);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
 
   const isActive = (item) => {
     if (item.type === "route") {
@@ -55,22 +75,18 @@ export function AuthNavbar() {
       navigate(item.path);
       setActiveModal(null);
     } else {
-      setActiveModal(item.id);
-      // open modal here if needed
+      setActiveModal(activeModal === item.id ? null : item.id);
     }
   };
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        
         <Link to="/explore">
           <Logo className="text-lg cursor-pointer" />
         </Link>
 
-        
         <div className="hidden md:flex items-center gap-10 text-gray-300">
-         
           <div className="flex items-center gap-10">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -79,30 +95,52 @@ export function AuthNavbar() {
               return (
                 <div
                   key={item.id}
+                  ref={
+                    item.id === "grid"
+                      ? gridRef
+                      : item.id === "notifications"
+                        ? notificationsRef
+                        : null
+                  }
                   onClick={() => handleClick(item)}
                   className={`relative flex flex-col items-center gap-1 cursor-pointer transition
                     ${
                       active
-                        ? "text-purple-400"
-                        : "text-gray-300 hover:text-purple-400"
+                        ? "text-white"
+                        : "text-white/40 hover:text-white/70"
                     }
                   `}
                 >
                   <Icon className="h-6 w-6" />
 
+                  {item.label && active && (
+                    <span className="text-xs font-medium tracking-wide whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  )}
+
                   {item.type === "route" && item.underline && (
                     <span
                       className={`absolute -bottom-3 h-[2px] w-6
-                        bg-purple-400
-                        shadow-[0_0_8px_rgba(168,85,247,0.9)]
-                        transition-all duration-300
-                        ${
-                          active
-                            ? "opacity-100 scale-x-50"
-                            : "opacity-0 scale-x-0"
-                        }
+                       bg-white
+                       shadow-[0_0_8px_rgba(255,255,255,0.5)]
+                       transition-all duration-300
+                       ${active ? "opacity-100 scale-x-50" : "opacity-0 scale-x-0"}
                       `}
                     />
+                  )}
+
+                  {item.id === "grid" && active && (
+                    <GridModal
+                      onNavigate={(path) => {
+                        navigate(path);
+                        setActiveModal(null);
+                      }}
+                    />
+                  )}
+
+                  {item.id === "notifications" && active && (
+                    <NotificationsModal />
                   )}
                 </div>
               );

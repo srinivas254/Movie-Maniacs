@@ -74,10 +74,12 @@ export function SearchBox() {
       <button
         onClick={() => setOpen(true)}
         className="
-          p-2 rounded-md text-gray-300
-          hover:text-purple-400
+          p-2 rounded-lg
+          text-white/45
+          hover:text-white
           hover:bg-white/5
-          transition cursor-pointer
+          transition-all duration-200
+          cursor-pointer
         "
       >
         <MagnifyingGlassIcon className="w-5 h-5" />

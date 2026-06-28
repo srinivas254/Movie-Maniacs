@@ -1,15 +1,20 @@
 import { useUserStore } from "../Zustand Store/useUserStore.js";
 import { useState, useRef, useEffect } from "react";
+import { formatRelativeTime } from "../Util/formatRelativeTime.js";
 import {
   EllipsisHorizontalIcon,
   PencilSquareIcon,
   TrashIcon,
+  HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
+import { HandThumbUpIcon as HandThumbUpSolidIcon } from "@heroicons/react/24/solid";
 
 export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
   const profile = useUserStore((state) => state.profile);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const [liked, setLiked] = useState(opinion.likedByCurrentUser);
+  const [likesCount, setLikesCount] = useState(opinion.likesCount);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -24,6 +29,11 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    setLiked(opinion.likedByCurrentUser);
+    setLikesCount(opinion.likesCount);
+  }, [opinion]);
 
   if (!profile) {
     return <div className="text-white text-center py-6">Loading...</div>;
@@ -51,9 +61,53 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
     (item) => item.value === opinion?.opinionType,
   );
 
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (liked) {
+        const res = await fetch(
+          `http://localhost:8080/reviews/${opinion.opinionId}/like`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to unlike review");
+        }
+
+        setLiked(false);
+        setLikesCount((prev) => prev - 1);
+      } else {
+        const res = await fetch(
+          `http://localhost:8080/reviews/${opinion.opinionId}/like`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to like review");
+        }
+
+        setLiked(true);
+        setLikesCount((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-5 text-white">Reviews</h2>
+      <h2 className="text-2xl font-bold mb-5 text-white">Your Review</h2>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 max-w-2xl mx-auto">
         <div className="flex items-center justify-between">
@@ -72,6 +126,12 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
 
             <p className="text-xs font-medium text-gray-300">
               {profile.userName}
+            </p>
+
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              {opinion.updated
+                ? `Edited ${formatRelativeTime(opinion.updatedAt)}`
+                : `Posted ${formatRelativeTime(opinion.createdAt)}`}
             </p>
           </div>
 
@@ -92,7 +152,26 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
           </div>
         )}
 
-        <div className="flex justify-end mt-1">
+        <div className="flex items-center justify-between mt-4">
+          <div
+            className="flex items-center gap-2 cursor-pointer group"
+            onClick={handleLike}
+          >
+            {liked ? (
+              <HandThumbUpSolidIcon className="w-5 h-5 text-red-500" />
+            ) : (
+              <HandThumbUpIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition" />
+            )}
+
+            <span
+              className={`text-sm ${
+                liked ? "text-red-500" : "text-gray-400 group-hover:text-white"
+              } transition`}
+            >
+              {likesCount}
+            </span>
+          </div>
+
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -106,8 +185,8 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
                 {/* Edit */}
                 <button
                   onClick={() => {
-                    onEdit(); // 🔥 tell parent to switch to edit mode
-                    setShowMenu(false); // close dropdown
+                    onEdit();
+                    setShowMenu(false);
                   }}
                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-200 hover:bg-zinc-700"
                 >
@@ -115,10 +194,9 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
                   Edit Review
                 </button>
 
-                {/* Delete */}
                 <button
                   onClick={() => {
-                    onDelete(); // 🔥 open modal
+                    onDelete();
                     setShowMenu(false);
                   }}
                   className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-400 hover:bg-zinc-700"
