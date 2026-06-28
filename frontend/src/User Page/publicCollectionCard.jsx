@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 
-export function PublicCollectionCard({ collection }) {
+export function PublicCollectionCard({ collection, userName }) {
   const navigate = useNavigate();
 
   return (
     <div
       onClick={() =>
-        navigate(`/collections/my-collections/${collection.name}`, {
+        navigate(`/user/${userName}/collections/public/${collection.name}`, {
           state: {
             banner: collection.banner,
           },

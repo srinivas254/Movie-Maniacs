@@ -208,6 +208,7 @@ export function MyReviewsAndPublicCollections({ isPublic = false }) {
                   <PublicCollectionCard
                     key={collection.id}
                     collection={collection}
+                    userName={userName}
                   />
                 ))}
               </div>

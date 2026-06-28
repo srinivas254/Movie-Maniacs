@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CreateCollectionModal } from "./CreateCollectionModal";
 import { CollectionCard } from "./CollectionCard";
 import { Outlet } from "react-router-dom";
+import { FolderOpenIcon } from "@heroicons/react/24/outline";
 import { fetchCollections } from "../Util/collectionsData";
 
 const banners = [
@@ -64,18 +65,34 @@ export function MyCollections() {
         </div>
       </div>
 
-      <div
-        className="
-          grid grid-cols-1
-          md:grid-cols-2
-          xl:grid-cols-3
-          gap-5
-        "
-      >
-        {collections.map((collection) => (
-          <CollectionCard key={collection.id} collection={collection} />
-        ))}
-      </div>
+      {collections.length === 0 ? (
+        <div className="mt-12 flex flex-col items-center justify-center py-16">
+          <div className="rounded-full bg-zinc-800/70 p-5">
+            <FolderOpenIcon className="w-12 h-12 text-zinc-500" />
+          </div>
+
+          <h3 className="mt-6 text-xl font-semibold text-white">
+            No collections yet
+          </h3>
+
+          <p className="mt-2 text-center text-gray-400">
+            Create your first collection to organize your favorite movies.
+          </p>
+        </div>
+      ) : (
+        <div
+          className="
+      grid grid-cols-1
+      md:grid-cols-2
+      xl:grid-cols-3
+      gap-5
+    "
+        >
+          {collections.map((collection) => (
+            <CollectionCard key={collection.id} collection={collection} />
+          ))}
+        </div>
+      )}
 
       {open && (
         <CreateCollectionModal
