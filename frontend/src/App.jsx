@@ -27,7 +27,13 @@ import { PublicUserProfile } from "./User Page/publicUserProfile.jsx";
 import { AdminLoginPage } from "./Admin/adminLogin.jsx";
 import { AdminProtectedRoute } from "./Admin/adminProtectedRoute.jsx";
 import { CollectionDetails } from "./User Page/collectionDetails.jsx";
-import { PublicCollectionDetails } from "./User Page/publicCollectionDetails.jsx"
+import { PublicCollectionDetails } from "./User Page/publicCollectionDetails.jsx";
+import { GenrePage } from "./User Page/genrePage.jsx";
+import { DecadePage } from "./User Page/decadePage.jsx";
+import { LanguagePage } from "./User Page/languagePage.jsx";
+import { CountryPage } from "./User Page/countryPage.jsx";
+import { OttPage } from "./User Page/ottPage.jsx";
+import { RuntimePage } from "./User Page/runtimePage.jsx";
 
 function App() {
   return (
@@ -68,6 +74,12 @@ function App() {
         }
       >
         <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/explore/genre" element={<GenrePage />} />
+        <Route path="/explore/decade" element={<DecadePage />} />
+        <Route path="/explore/language" element={<LanguagePage />} />
+        <Route path="/explore/country" element={<CountryPage />} />
+        <Route path="/explore/runtime" element={<RuntimePage />} />
+        <Route path="/explore/ott" element={<OttPage />} />
         <Route path="/movie/:slug" element={<MovieDetailsPage />} />
         <Route path="/collections" element={<CollectionsPage />}>
           <Route path="my-collections" element={<MyCollections />} />

@@ -3,7 +3,7 @@ import {
   CalendarIcon,
   LanguageIcon,
   GlobeAltIcon,
-  UserIcon,
+  ClockIcon,
   TvIcon,
 } from "@heroicons/react/24/outline";
 
@@ -12,13 +12,22 @@ const filterOptions = [
   { label: "Decade", path: "/explore/decade", icon: CalendarIcon },
   { label: "Language", path: "/explore/language", icon: LanguageIcon },
   { label: "Country", path: "/explore/country", icon: GlobeAltIcon },
-  { label: "Director", path: "/explore/director", icon: UserIcon },
+  { label: "Runtime", path: "/explore/runtime", icon: ClockIcon },
   { label: "OTT", path: "/explore/ott", icon: TvIcon },
 ];
 
 export function GridModal({ onNavigate }) {
   return (
     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-black/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-md p-4 z-50">
+      <div className="mb-4 border-b border-white/10 pb-3">
+        <h3 className="text-white text-sm font-semibold tracking-wide">
+          Browse By
+        </h3>
+        <p className="text-xs text-white/50 mt-1">
+          Find movies the way you like.
+        </p>
+      </div>
+      
       <div className="grid grid-cols-3 gap-3">
         {filterOptions.map((opt) => {
           const Icon = opt.icon;

@@ -11,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import { Logo } from "../siteLogo";
 import { useNavigate } from "react-router-dom";
 import { SaveMovieToCollectionModal } from "./saveMovieToCollectionModal";
+import { CommunityReviewCard } from "../User Page/communityReviewCard";
 
 export function MovieDetailsPage() {
   const { slug } = useParams();
@@ -28,6 +29,7 @@ export function MovieDetailsPage() {
   const [showSaveToCollectionModal, setShowSaveToCollectionModal] =
     useState(false);
   const [savedCollections, setSavedCollections] = useState([]);
+  const [communityReviews, setCommunityReviews] = useState([]);
 
   const getMovie = async () => {
     try {
@@ -151,6 +153,36 @@ export function MovieDetailsPage() {
       }
     };
     fetchOpinion();
+  }, [movieDetails?.id, isAdminRoute]);
+
+  useEffect(() => {
+    if (isAdminRoute) return;
+    if (!movieDetails?.id) return;
+
+    const fetchCommunityReviews = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/movies/${movieDetails.id}/community/reviews?page=0`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch community reviews");
+        }
+
+        const data = await res.json();
+
+        setCommunityReviews(data.content);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCommunityReviews();
   }, [movieDetails?.id, isAdminRoute]);
 
   useEffect(() => {
@@ -399,6 +431,20 @@ export function MovieDetailsPage() {
                   onDelete={handleDeleteClick}
                 />
               )}
+            </div>
+          )}
+
+          {communityReviews.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold mb-5 text-white">
+                Community Reviews
+              </h2>
+
+              <div className="space-y-4">
+                {communityReviews.map((review) => (
+                  <CommunityReviewCard key={review.opinionId} review={review} />
+                ))}
+              </div>
             </div>
           )}
         </div>

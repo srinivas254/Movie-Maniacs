@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { FolderOpenIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import {
+  FolderOpenIcon,
+  PencilSquareIcon,
+  HeartIcon,
+} from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useNavigate, useParams } from "react-router-dom";
 import { PublicCollectionCard } from "./PublicCollectionCard";
 import { formatRelativeTime } from "../util/formatRelativeTime.js";
@@ -31,6 +36,46 @@ export function MyReviewsAndPublicCollections({ isPublic = false }) {
     TIME_PASS: "bg-yellow-500",
     GO_FOR_IT: "bg-emerald-500",
     PERFECTION: "bg-purple-500",
+  };
+
+  const handleLike = async (opinionId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const review = reviews.find((r) => r.opinionId === opinionId);
+
+      const method = review.likedByCurrentUser ? "DELETE" : "POST";
+
+      const res = await fetch(
+        `http://localhost:8080/movies/reviews/${opinionId}/like`,
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update like");
+      }
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.opinionId === opinionId
+            ? {
+                ...r,
+                likedByCurrentUser: !r.likedByCurrentUser,
+                likesCount: r.likedByCurrentUser
+                  ? r.likesCount - 1
+                  : r.likesCount + 1,
+              }
+            : r,
+        ),
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -190,6 +235,29 @@ export function MyReviewsAndPublicCollections({ isPublic = false }) {
                           {review.comments}
                         </p>
                       )}
+
+                      <div className="flex items-center mt-4">
+                        <button
+                          onClick={() => handleLike(review.opinionId)}
+                          className="flex items-center gap-2 group"
+                        >
+                          {review.likedByCurrentUser ? (
+                            <HeartSolidIcon className="w-5 h-5 text-white" />
+                          ) : (
+                            <HeartIcon className="w-5 h-5 text-neutral-400 group-hover:text-white transition" />
+                          )}
+
+                          <span
+                            className={`text-sm ${
+                              review.likedByCurrentUser
+                                ? "text-white"
+                                : "text-neutral-400 group-hover:text-white"
+                            } transition`}
+                          >
+                            {review.likesCount}
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

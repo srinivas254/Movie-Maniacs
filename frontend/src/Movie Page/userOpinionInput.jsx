@@ -70,7 +70,6 @@ export function UserOpinionInputCard({
       }
 
       const data = await res.json();
-      console.log(data);
 
       onSuccess(data);
 

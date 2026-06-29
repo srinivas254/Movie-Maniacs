@@ -15,7 +15,7 @@ const features = [
   {
     icon: Squares2X2Icon,
     title: "Browse your way",
-    desc: "Discover movies by genre, decade, language, country, director, or OTT platform.",
+    desc: "Discover movies by genre, decade, language, country, runtime, or OTT platform.",
   },
   {
     icon: StarIcon,

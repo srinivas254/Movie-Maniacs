@@ -5,9 +5,9 @@ import {
   EllipsisHorizontalIcon,
   PencilSquareIcon,
   TrashIcon,
-  HandThumbUpIcon,
+  HeartIcon,
 } from "@heroicons/react/24/outline";
-import { HandThumbUpIcon as HandThumbUpSolidIcon } from "@heroicons/react/24/solid";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 
 export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
   const profile = useUserStore((state) => state.profile);
@@ -67,7 +67,7 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
 
       if (liked) {
         const res = await fetch(
-          `http://localhost:8080/reviews/${opinion.opinionId}/like`,
+          `http://localhost:8080/movies/reviews/${opinion.opinionId}/like`,
           {
             method: "DELETE",
             headers: {
@@ -84,7 +84,7 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
         setLikesCount((prev) => prev - 1);
       } else {
         const res = await fetch(
-          `http://localhost:8080/reviews/${opinion.opinionId}/like`,
+          `http://localhost:8080/movies/reviews/${opinion.opinionId}/like`,
           {
             method: "POST",
             headers: {
@@ -124,15 +124,17 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
               </div>
             )}
 
-            <p className="text-xs font-medium text-gray-300">
-              {profile.userName}
-            </p>
+            <div>
+              <p className="text-xs font-medium text-gray-300">
+                {profile.userName}
+              </p>
 
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              {opinion.updated
-                ? `Edited ${formatRelativeTime(opinion.updatedAt)}`
-                : `Posted ${formatRelativeTime(opinion.createdAt)}`}
-            </p>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                {opinion.updated
+                  ? `Edited ${formatRelativeTime(opinion.updatedAt)}`
+                  : `Posted ${formatRelativeTime(opinion.createdAt)}`}
+              </p>
+            </div>
           </div>
 
           {selectedItem && (
@@ -158,14 +160,14 @@ export function UserOpinionDisplayCard({ opinion, onEdit, onDelete }) {
             onClick={handleLike}
           >
             {liked ? (
-              <HandThumbUpSolidIcon className="w-5 h-5 text-red-500" />
+              <HeartSolidIcon className="w-5 h-5 text-white transition" />
             ) : (
-              <HandThumbUpIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition" />
+              <HeartIcon className="w-5 h-5 text-black stroke-white group-hover:text-white transition" />
             )}
 
             <span
               className={`text-sm ${
-                liked ? "text-red-500" : "text-gray-400 group-hover:text-white"
+                liked ? "text-white" : "text-gray-400 group-hover:text-white"
               } transition`}
             >
               {likesCount}
