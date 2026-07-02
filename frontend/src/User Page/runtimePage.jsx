@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
 const runtimes = [
-  { label: "Under 120 min", path: "under-120" },
+  { label: "Under 120 min", path: "0-119" },
   { label: "120–140 min", path: "120-140" },
   { label: "140–160 min", path: "140-160" },
-  { label: "160+ min", path: "160-plus" },
+  { label: "160+ min", path: "160-300" },
 ];
 
 export function RuntimePage() {

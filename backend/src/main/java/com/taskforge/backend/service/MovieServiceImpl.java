@@ -7,6 +7,7 @@ import com.taskforge.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +32,10 @@ public class MovieServiceImpl implements MovieService {
     private final MovieInterestedRepository movieInterestedRepository;
     private final MovieOpinionRepository movieOpinionRepository;
     private final CollectionRepository collectionRepository;
+    private final MovieOpinionLikeRepository movieOpinionLikeRepository;
 
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository, CollectionRepository collectionRepository){
+    public MovieServiceImpl(MovieRepository movieRepository,ModelMapper modelMapper, GenreRepository genreRepository, MovieGenreRepository movieGenreRepository, CastCrewRepository castCrewRepository, WatchLinkRepository watchLinkRepository, UserRepository userRepository, MovieInterestedRepository movieInterestedRepository, MovieOpinionRepository movieOpinionRepository, CollectionRepository collectionRepository, MovieOpinionLikeRepository movieOpinionLikeRepository){
         this.movieRepository = movieRepository;
         this.modelMapper = modelMapper;
         this.genreRepository = genreRepository;
@@ -44,6 +46,7 @@ public class MovieServiceImpl implements MovieService {
         this.movieInterestedRepository = movieInterestedRepository;
         this.movieOpinionRepository = movieOpinionRepository;
         this.collectionRepository = collectionRepository;
+        this.movieOpinionLikeRepository = movieOpinionLikeRepository;
     }
 
     @Override
@@ -526,29 +529,34 @@ public class MovieServiceImpl implements MovieService {
 
             opinion.setOpinionType(request.getOpinionType());
             opinion.setComments(request.getComments());
+            opinion.setUpdated(true);
 
-            movieOpinionRepository.save(opinion);
+            movieOpinionRepository.saveAndFlush(opinion);
 
             return MovieOpinionResponseDto.builder()
                     .opinionType(opinion.getOpinionType())
                     .comments(opinion.getComments())
-                    .updated(true)
+                    .updated(opinion.isUpdated())
+                    .createdAt(opinion.getCreatedAt())
+                    .updatedAt(opinion.getUpdatedAt())
                     .build();
         }
 
-        MovieOpinion opinion = new MovieOpinion();
-
-        opinion.setMovie(movie);
-        opinion.setUser(user);
-        opinion.setOpinionType(request.getOpinionType());
-        opinion.setComments(request.getComments());
+        MovieOpinion opinion = MovieOpinion.builder()
+                .movie(movie)
+                .user(user)
+                .opinionType(request.getOpinionType())
+                .comments(request.getComments())
+                .build();
 
         movieOpinionRepository.save(opinion);
 
         return MovieOpinionResponseDto.builder()
                 .opinionType(opinion.getOpinionType())
                 .comments(opinion.getComments())
-                .updated(false)
+                .updated(opinion.isUpdated())
+                .createdAt(opinion.getCreatedAt())
+                .updatedAt(opinion.getUpdatedAt())
                 .build();
     }
 
@@ -572,9 +580,21 @@ public class MovieServiceImpl implements MovieService {
             return null;
         }
 
+        long likesCount = movieOpinionLikeRepository
+                .countByMovieOpinion(movieOpinion);
+
+        boolean likedByCurrentUser = movieOpinionLikeRepository
+                .existsByMovieOpinionAndUser(movieOpinion, user);
+
         return RetrieveMovieOpinionDto.builder()
+                .opinionId(movieOpinion.getId())
                 .opinionType(movieOpinion.getOpinionType())
                 .comments(movieOpinion.getComments())
+                .updated(movieOpinion.isUpdated())
+                .createdAt(movieOpinion.getCreatedAt())
+                .updatedAt(movieOpinion.getUpdatedAt())
+                .likesCount(likesCount)
+                .likedByCurrentUser(likedByCurrentUser)
                 .build();
     }
 
@@ -661,7 +681,10 @@ public class MovieServiceImpl implements MovieService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (collectionRepository.existsByName(request.getName())) {
+        if (collectionRepository.existsByNameAndUserId(
+                request.getName(),
+                user.getId())) {
+
             throw new CollectionAlreadyExistsException(
                     "Collection name already exists");
         }
@@ -1012,6 +1035,197 @@ public class MovieServiceImpl implements MovieService {
 
                     return dto;
                 })
+                .toList();
+    }
+
+    @Override
+    public void likeReview(Long reviewId, String userId) {
+
+        MovieOpinion opinion = movieOpinionRepository.findById(reviewId)
+                .orElseThrow(() ->
+                        new MovieOpinionNotFoundException("Review not found."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found."));
+
+        if (movieOpinionLikeRepository
+                .existsByMovieOpinionAndUser(opinion, user)) {
+            return;
+        }
+
+        MovieOpinionLike like = MovieOpinionLike.builder()
+                .movieOpinion(opinion)
+                .user(user)
+                .build();
+
+        movieOpinionLikeRepository.save(like);
+    }
+
+    @Override
+    public void unlikeReview(Long reviewId, String userId) {
+
+        MovieOpinion opinion = movieOpinionRepository.findById(reviewId)
+                .orElseThrow(() ->
+                        new MovieOpinionNotFoundException("Review not found."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found."));
+
+        movieOpinionLikeRepository
+                .findByMovieOpinionAndUser(opinion, user)
+                .ifPresent(movieOpinionLikeRepository::delete);
+    }
+
+    @Override
+    public Page<MovieCommunityReviewResponseDto> getMovieCommunityReviews(
+            String movieId,
+            String userId,
+            int page) {
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() ->
+                        new MovieNotFoundException(
+                                "Movie not found with id: " + movieId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + userId));
+
+        Pageable pageable = PageRequest.of(page, 5);
+
+        Page<MovieOpinion> opinions = movieOpinionRepository
+                .findByMovieAndUserIdNot(movie, userId, pageable);
+
+        return opinions.map(opinion -> {
+
+            long likesCount = movieOpinionLikeRepository
+                    .countByMovieOpinion(opinion);
+
+            boolean likedByCurrentUser = movieOpinionLikeRepository
+                    .existsByMovieOpinionAndUser(opinion, user);
+
+            return MovieCommunityReviewResponseDto.builder()
+                    .opinionId(opinion.getId())
+                    .userName(opinion.getUser().getUserName())
+                    .pictureUrl(opinion.getUser().getPictureUrl())
+                    .opinionType(opinion.getOpinionType())
+                    .comments(opinion.getComments())
+                    .updated(opinion.isUpdated())
+                    .createdAt(opinion.getCreatedAt())
+                    .updatedAt(opinion.getUpdatedAt())
+                    .likesCount(likesCount)
+                    .likedByCurrentUser(likedByCurrentUser)
+                    .build();
+        });
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByGenre(String genreName, String userId) {
+
+        Genre genre = genreRepository.findByName(genreName)
+                .orElseThrow(() ->
+                        new GenreNotFoundException("Genre not found."));
+
+        List<Movie> movies = movieRepository.findMoviesByGenre(genre);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByDecade(String decade, String userId) {
+        int startYear = Integer.parseInt(decade.substring(0, 4));
+        int endYear = startYear + 9;
+
+        List<Movie> movies = movieRepository.findByYearBetween(startYear, endYear);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByLanguage(String language, String userId) {
+
+        List<Movie> movies = movieRepository.findByLanguageIgnoreCase(language);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByCountry(String country, String userId) {
+
+        List<Movie> movies = movieRepository.findByCountryIgnoreCase(country);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByRuntime(String runtime, String userId) {
+
+        String[] range = runtime.split("-");
+
+        int startDuration = Integer.parseInt(range[0]);
+        int endDuration = Integer.parseInt(range[1]);
+
+        List<Movie> movies = movieRepository.findByDurationBetween(startDuration, endDuration);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<MovieCardResponseDto> getMoviesByPlatform(String platform, String userId) {
+
+        List<Movie> movies = movieRepository.findMoviesByPlatform(platform);
+
+        return movies.stream()
+                .map(movie -> MovieCardResponseDto.builder()
+                        .id(movie.getId())
+                        .name(movie.getName())
+                        .year(movie.getYear())
+                        .posterSmallUrl(movie.getPosterSmallUrl())
+                        .slugUrl(movie.getSlugUrl())
+                        .build())
                 .toList();
     }
 

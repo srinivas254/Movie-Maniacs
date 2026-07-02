@@ -37,4 +37,13 @@ public interface MovieService {
     List<MovieCardResponseDto> getJioPicks(String userId);
     List<MovieCardResponseDto> getApplePicks(String userId);
     List<TopInterestedMovieResponseDto> getTopInterestedMovies(String userId);
+    void likeReview(Long reviewId, String userId);
+    void unlikeReview(Long reviewId, String userId);
+    Page<MovieCommunityReviewResponseDto> getMovieCommunityReviews(String movieId, String userId, int page);
+    List<MovieCardResponseDto> getMoviesByGenre(String genreName, String userId);
+    List<MovieCardResponseDto> getMoviesByDecade(String decade, String userId);
+    List<MovieCardResponseDto> getMoviesByLanguage(String language, String userId);
+    List<MovieCardResponseDto> getMoviesByCountry(String country, String userId);
+    List<MovieCardResponseDto> getMoviesByRuntime(String runtime, String userId);
+    List<MovieCardResponseDto> getMoviesByPlatform(String platform, String userId);
 }

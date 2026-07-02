@@ -10,7 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "collections")
+@Table(
+        name = "collections",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "name"})
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +26,7 @@ public class Collection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, length = 30, nullable = false)
+    @Column(length = 30, nullable = false)
     private String name;
 
     @Column(length = 150)

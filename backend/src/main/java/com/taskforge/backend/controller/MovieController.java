@@ -223,4 +223,82 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/reviews/{reviewId}/like")
+    public ResponseEntity<Void> likeReview(@PathVariable Long reviewId, @AuthenticationPrincipal CustomPrincipal principal) {
+        movieService.likeReview(reviewId, principal.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/reviews/{reviewId}/like")
+    public ResponseEntity<Void> unlikeReview(@PathVariable Long reviewId, @AuthenticationPrincipal CustomPrincipal principal) {
+        movieService.unlikeReview(reviewId, principal.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{movieId}/community/reviews")
+    public ResponseEntity<Page<MovieCommunityReviewResponseDto>> getMovieCommunityReviews(
+            @PathVariable String movieId,
+            @AuthenticationPrincipal CustomPrincipal principal,
+            @RequestParam(defaultValue = "0") int page) {
+        Page<MovieCommunityReviewResponseDto> response = movieService.getMovieCommunityReviews(movieId, principal.getId(), page);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/genre/{genreName}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByGenre(
+            @PathVariable String genreName,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByGenre(genreName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/decade/{decadeName}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByDecade(
+            @PathVariable String decadeName,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByDecade(decadeName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/language/{languageName}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByLanguage(
+            @PathVariable String languageName,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByLanguage(languageName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/country/{countryName}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByCountry(
+            @PathVariable String countryName,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByCountry(countryName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/runtime/{runtimeRange}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByRuntime(
+            @PathVariable String runtimeRange,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByRuntime(runtimeRange, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/explore/platform/{platformName}")
+    public ResponseEntity<List<MovieCardResponseDto>> getMoviesByPlatform(
+            @PathVariable String platformName,
+            @AuthenticationPrincipal CustomPrincipal principal) {
+        List<MovieCardResponseDto> response = movieService.getMoviesByPlatform(platformName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

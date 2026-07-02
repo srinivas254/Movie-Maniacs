@@ -9,16 +9,18 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class RetrieveMovieOpinionDto {
+public class MovieCommunityReviewResponseDto {
     private Long opinionId;
+    private String userName;
+    private String pictureUrl;
     private OpinionType opinionType;
     private String comments;
     private boolean updated;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long likesCount;
+    private long likesCount;
     private boolean likedByCurrentUser;
 }

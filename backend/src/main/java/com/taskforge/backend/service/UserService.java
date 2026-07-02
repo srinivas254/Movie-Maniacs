@@ -19,6 +19,11 @@ public interface UserService {
     List<MovieCardResponseDto> getUserInterestedMovies(String userName);
     List<UserReviewResponseDto> getMyReviews(String userId);
     List<PublicCollectionResponseDto> getMyPublicCollections(String userId);
-    List<UserReviewResponseDto> getUserReviews(String userName);
+    List<UserReviewResponseDto> getUserReviews(String userName, String currentUserId);
     List<PublicCollectionResponseDto> getPublicCollections(String userName);
+    PublicCollectionDetailsResponseDto getPublicCollectionDetails(String userName, String collectionName);
+    void savePublicCollection(String userName, String collectionName, String userId);
+    void removePublicSavedCollection(String userName, String collectionName, String userId);
+    List<SavedCollectionCardDto> getSavedCollections(String userId);
+    CollectionSavedStatusDto isCollectionSaved(String userName, String collectionName, String userId);
 }

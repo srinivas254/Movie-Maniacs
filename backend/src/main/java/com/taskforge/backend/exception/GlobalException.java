@@ -248,6 +248,34 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
     }
 
+    @ExceptionHandler(CollectionNotPublicException.class)
+    public ResponseEntity<Map<String, String>> handleCollectionNotPublicException(CollectionNotPublicException cnp) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", cnp.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errors);
+    }
+
+    @ExceptionHandler(CollectionAlreadySavedException.class)
+    public ResponseEntity<Map<String, String>> handleCollectionAlreadySavedException(CollectionAlreadySavedException cas) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", cas.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errors);
+    }
+
+    @ExceptionHandler(MovieOpinionNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleMovieOpinionNotFoundException(MovieOpinionNotFoundException mof) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", mof.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
+    @ExceptionHandler(GenreNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleGenreNotFoundException(GenreNotFoundException gnf) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", gnf.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String,String>> handleAny(Exception ex){
         Map<String, String> errors = new HashMap<>();

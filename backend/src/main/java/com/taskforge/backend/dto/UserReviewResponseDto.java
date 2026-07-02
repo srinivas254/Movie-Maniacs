@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +20,9 @@ public class UserReviewResponseDto {
     private String slugUrl;
     private OpinionType opinionType;
     private String comments;
+    private boolean updated;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private long likesCount;
+    private boolean likedByCurrentUser;
 }

@@ -29,11 +29,17 @@ import { AdminProtectedRoute } from "./Admin/adminProtectedRoute.jsx";
 import { CollectionDetails } from "./User Page/collectionDetails.jsx";
 import { PublicCollectionDetails } from "./User Page/publicCollectionDetails.jsx";
 import { GenrePage } from "./User Page/genrePage.jsx";
+import { GenreMoviesPage }  from "./User Page/genreMoviesPage.jsx"
 import { DecadePage } from "./User Page/decadePage.jsx";
+import { DecadeMoviesPage } from "./User Page/decadeMoviesPage.jsx";
 import { LanguagePage } from "./User Page/languagePage.jsx";
+import { LanguageMoviesPage } from "./User Page/languageMoviesPage.jsx";
 import { CountryPage } from "./User Page/countryPage.jsx";
+import { CountryMoviesPage } from "./User Page/countryMoviesPage.jsx";
 import { OttPage } from "./User Page/ottPage.jsx";
+import { PlatformMoviesPage } from "./User Page/ottMoviesPage.jsx";
 import { RuntimePage } from "./User Page/runtimePage.jsx";
+import { RuntimeMoviesPage } from "./User Page/runtimeMoviesPage.jsx";
 
 function App() {
   return (
@@ -75,11 +81,17 @@ function App() {
       >
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/explore/genre" element={<GenrePage />} />
+        <Route path="/explore/genre/:genreName" element={<GenreMoviesPage />} />
         <Route path="/explore/decade" element={<DecadePage />} />
+        <Route path="/explore/decade/:decadeName" element={<DecadeMoviesPage />} />
         <Route path="/explore/language" element={<LanguagePage />} />
+        <Route path="/explore/language/:languageName" element={<LanguageMoviesPage />} />
         <Route path="/explore/country" element={<CountryPage />} />
+        <Route path="/explore/country/:countryName" element={<CountryMoviesPage />} />
         <Route path="/explore/runtime" element={<RuntimePage />} />
+        <Route path="/explore/runtime/:runtimeRange" element={<RuntimeMoviesPage />} />
         <Route path="/explore/ott" element={<OttPage />} />
+        <Route path="/explore/ott/:platformName" element={<PlatformMoviesPage />} />
         <Route path="/movie/:slug" element={<MovieDetailsPage />} />
         <Route path="/collections" element={<CollectionsPage />}>
           <Route path="my-collections" element={<MyCollections />} />

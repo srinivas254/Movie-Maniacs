@@ -4,6 +4,8 @@ import com.taskforge.backend.dto.MovieOpinionSummaryDto;
 import com.taskforge.backend.entity.Movie;
 import com.taskforge.backend.entity.MovieOpinion;
 import com.taskforge.backend.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,11 @@ public interface MovieOpinionRepository extends JpaRepository<MovieOpinion, Long
     );
 
     List<MovieOpinion> findByUserId(String userId);
+
+    Page<MovieOpinion> findByMovieAndUserIdNot(
+            Movie movie,
+            String userId,
+            Pageable pageable);
 
 
     @Query("""

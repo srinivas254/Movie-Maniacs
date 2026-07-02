@@ -129,9 +129,8 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("{userName}/reviews")
-    public ResponseEntity<List<UserReviewResponseDto>> getUserReviews(
-            @PathVariable String userName) {
-        List<UserReviewResponseDto> response = userService.getUserReviews(userName);
+    public ResponseEntity<List<UserReviewResponseDto>> getUserReviews(@PathVariable String userName, @AuthenticationPrincipal CustomPrincipal principal) {
+        List<UserReviewResponseDto> response = userService.getUserReviews(userName, principal.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -140,7 +139,47 @@ public class UserController {
     public ResponseEntity<List<PublicCollectionResponseDto>> getPublicCollections(
             @PathVariable String userName) {
         List<PublicCollectionResponseDto> response = userService.getPublicCollections(userName);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{userName}/collections/public/{collectionName}")
+    public ResponseEntity<PublicCollectionDetailsResponseDto> getPublicCollectionDetails(
+            @PathVariable String userName,
+            @PathVariable String collectionName) {
+
+        PublicCollectionDetailsResponseDto response =
+                userService.getPublicCollectionDetails(userName, collectionName);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/{userName}/collections/public/{collectionName}/save")
+    public ResponseEntity<Void> savePublicCollection(@PathVariable String userName, @PathVariable String collectionName, @AuthenticationPrincipal CustomPrincipal principal) {
+        userService.savePublicCollection(userName, collectionName, principal.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/{userName}/collections/public/{collectionName}/save")
+    public ResponseEntity<Void> removePublicSavedCollection(@PathVariable String userName, @PathVariable String collectionName, @AuthenticationPrincipal CustomPrincipal principal) {
+        userService.removePublicSavedCollection(userName, collectionName, principal.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{userName}/collections/public/{collectionName}/saved")
+    public ResponseEntity<CollectionSavedStatusDto> isCollectionSaved(@PathVariable String userName, @PathVariable String collectionName, @AuthenticationPrincipal CustomPrincipal principal) {
+        CollectionSavedStatusDto savedStatus = userService.isCollectionSaved(userName, collectionName, principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(savedStatus);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/collections/saved")
+    public ResponseEntity<List<SavedCollectionCardDto>> getSavedCollections(@AuthenticationPrincipal CustomPrincipal principal) {
+        List<SavedCollectionCardDto> savedCollections = userService.getSavedCollections(principal.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(savedCollections);
     }
 
 }

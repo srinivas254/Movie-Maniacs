@@ -1,6 +1,5 @@
 package com.taskforge.backend.dto;
 
-import com.taskforge.backend.entity.Visibility;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,11 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CollectionDetailsResponseDto {
-    private Long id;
+public class PublicCollectionDetailsResponseDto {
     private String name;
     private String description;
-    private Visibility visibility;
     private int itemsCount;
     private List<MovieCardResponseDto> movies;
 }
